@@ -1,2 +1,24 @@
-node_modules
-\n.next/\n.DS_Store\n.env\n.env.local\n.env.*.local\npackage-lock.json\n
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+
+# macOS
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Lockfiles
+package-lock.json
+
+# Frontend-specific (after reorganizing)
+frontend/node_modules/
+frontend/.next/
+frontend/package-lock.json
+
+# Backend
+backend/server/.env

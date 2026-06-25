@@ -1,8 +1,0 @@
-{
-  "/privacidad/page": "app/privacidad/page.js",
-  "/contacto/page": "app/contacto/page.js",
-  "/terminos/page": "app/terminos/page.js",
-  "/page": "app/page.js",
-  "/editoriales/page": "app/editoriales/page.js",
-  "/comunidad/page": "app/comunidad/page.js"
-}
