@@ -22,3 +22,4 @@ frontend/package-lock.json
 
 # Backend
 backend/server/.env
+backend/server/node_modules/

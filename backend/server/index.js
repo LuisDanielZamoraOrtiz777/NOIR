@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { Pool } from "pg";
 import dotenv from "dotenv";
+import sisterStoreRouter from "./routes/sisterStore";
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const pool = new Pool({
   ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
-const allowedOrigins = [process.env.FRONTEND_ORIGIN || "http://localhost:3001"];
+const allowedOrigins = [process.env.FRONTEND_ORIGIN || "http://localhost:3000"];
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -25,6 +26,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use("/api/sister-store", sisterStoreRouter);
 
 app.post("/api/contact", async (req, res) => {
   const { name, email, message } = req.body || {};

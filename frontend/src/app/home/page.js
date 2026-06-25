@@ -5,6 +5,7 @@ import InteractiveMenu from "@/components/InteractiveMenu";
 import PostCard from "@/components/PostCard";
 import SearchBox from "@/components/SearchBox";
 import SocialButtons from "@/components/SocialButtons";
+import SisterStoreCatalog from "@/components/SisterStoreCatalog";
 import posts from "@/data/posts";
 
 export default function HomePage() {
@@ -60,6 +61,8 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <SisterStoreCatalog />
 
       <section id="community-section" className="section-block" data-element="community-section">
         <div className="community-copy">
