@@ -1,0 +1,13 @@
+Author identity unknown
+System.Management.Automation.RemoteException
+*** Please tell me who you are.
+System.Management.Automation.RemoteException
+Run
+System.Management.Automation.RemoteException
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+System.Management.Automation.RemoteException
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
+System.Management.Automation.RemoteException
+fatal: unable to auto-detect email address (got 'danie@DANN.(none)')

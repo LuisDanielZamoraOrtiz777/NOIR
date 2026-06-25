@@ -1,0 +1,2 @@
+node_modules
+\n.next/\n.DS_Store\n.env\n.env.local\n.env.*.local\npackage-lock.json\n
