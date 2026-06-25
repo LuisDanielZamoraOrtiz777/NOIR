@@ -111,7 +111,7 @@ export default function EditorialesPage({ searchParams }) {
           <div className="process-step">
             <span className="step-number">04</span>
             <h4>Publicación</h4>
-            <p>Lanzamos la editorial con contenido exclusivo para la comunidad.</p>
+            <p>Lanzamos la editorial con contenido exclusivo para lectores y creadores inspirados en la moda.</p>
           </div>
         </div>
       </section>

@@ -6,9 +6,9 @@ import SearchBox from "@/components/SearchBox";
 const navLinks = [
   { href: "/", label: "Inicio" },
   { href: "/editoriales", label: "Editoriales" },
+  { href: "/tendencias", label: "Tendencias" },
   { href: "/looks", label: "Looks" },
   { href: "/opinion", label: "Opinión" },
-  { href: "/comunidad", label: "Comunidad" },
 ];
 
 export default function Header() {

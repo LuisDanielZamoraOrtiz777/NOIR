@@ -31,7 +31,6 @@ Next.js ofrece renderizado moderno, rutas integradas y una estructura organizada
 - `/editoriales` - Editoriales recientes
 - `/looks` - Looks destacados
 - `/opinion` - Opinión
-- `/comunidad` - Comunidad
 - `/contacto` - Contacto
 - `/privacidad` - Privacidad
 - `/terminos` - Términos y condiciones

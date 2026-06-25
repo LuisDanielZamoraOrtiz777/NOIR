@@ -9,7 +9,7 @@ export default function FooterLayout() {
         <div className="footer-brand">
           <p>Noir Atelier — Alta costura editorial.</p>
           <p className="footer-copy">
-            Creamos experiencias editoriales que conectan arte, moda y comunidad con un enfoque profesional.
+            Creamos experiencias editoriales que conectan arte y moda con un enfoque profesional.
           </p>
         </div>
 
@@ -18,7 +18,6 @@ export default function FooterLayout() {
           <ul>
             <li><Link href="/editoriales">Editoriales</Link></li>
             <li><Link href="/looks">Looks</Link></li>
-            <li><Link href="/comunidad">Comunidad</Link></li>
             <li><Link href="/contacto">Contacto</Link></li>
           </ul>
         </div>

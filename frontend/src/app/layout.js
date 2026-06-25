@@ -1,14 +1,15 @@
 import "./globals.css";
+import "./tendencias.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata = {
   title: "Noir Atelier | Alta costura editorial",
-  description: "Blog editorial de moda, comunidad y contacto profesional.",
+  description: "Blog editorial de moda y contacto profesional.",
   openGraph: {
     title: "Noir Atelier | Alta costura editorial",
-    description: "Blog editorial de moda, comunidad y contacto profesional.",
+    description: "Blog editorial de moda y contacto profesional.",
     url: "https://noiratelier.example",
     siteName: "Noir Atelier",
     type: "website",
@@ -24,7 +25,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Noir Atelier",
-    description: "Blog editorial de moda, comunidad y contacto profesional.",
+    description: "Blog editorial de moda y contacto profesional.",
   }
 };
 

@@ -11,7 +11,6 @@ const menuItems = [
       { href: "/editoriales", label: "Editoriales" },
       { href: "/looks", label: "Looks" },
       { href: "/opinion", label: "Opinión" },
-      { href: "/comunidad", label: "Comunidad" },
     ],
   },
   {

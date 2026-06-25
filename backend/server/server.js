@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const sisterStoreRouter = require("./routes/sisterStore");
+const rssRouter = require("./routes/rss");
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(
 
 app.use(express.json());
 app.use("/api/sister-store", sisterStoreRouter);
+app.use("/api/rss", rssRouter);
 
 app.get("/api/health", (_req, res) => {
   res.status(200).json({ status: "ok", message: "Sister store backend is ready." });

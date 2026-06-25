@@ -1,8 +1,9 @@
-import express from "express";
-import cors from "cors";
-import { Pool } from "pg";
-import dotenv from "dotenv";
-import sisterStoreRouter from "./routes/sisterStore";
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
+const dotenv = require("dotenv");
+const sisterStoreRouter = require("./routes/sisterStore");
+const rssRouter = require("./routes/rss");
 
 dotenv.config();
 
@@ -16,7 +17,6 @@ const allowedOrigins = [process.env.FRONTEND_ORIGIN || "http://localhost:3000"];
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
       return callback(new Error("CORS policy: origin not allowed"));
@@ -27,6 +27,7 @@ app.use(
 );
 app.use(express.json());
 app.use("/api/sister-store", sisterStoreRouter);
+app.use("/api/rss", rssRouter);
 
 app.post("/api/contact", async (req, res) => {
   const { name, email, message } = req.body || {};

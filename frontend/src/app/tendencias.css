@@ -1,0 +1,423 @@
+/* ═══════════════════════════════════════════════════════════════
+   TENDENCIAS — Estilos para la página hermana y el feed RSS
+   (incluye también estilos reutilizados en Home)
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Subtítulo de sección ────────────────────────────────────────────────── */
+.section-subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 4px 0 0;
+}
+
+/* ── Botón "Ver más" ─────────────────────────────────────────────────────── */
+.ver-mas-btn {
+  white-space: nowrap;
+  align-self: flex-start;
+  font-size: 0.85rem;
+  padding: 10px 18px;
+}
+
+/* ══════════════════════════════════════
+   HERO: mosaico de revistas
+══════════════════════════════════════ */
+.hero-magazine-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  height: 480px;
+}
+
+.mag-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  border-radius: 4px;
+  transition: transform 0.3s ease;
+  cursor: default;
+}
+
+.mag-tile:hover { transform: scale(1.02); }
+
+.mag-tile--dark   { background: #0b0b0b; }
+.mag-tile--light  { background: #e8e5df; }
+.mag-tile--mid    { background: #2a2a2a; }
+.mag-tile--accent { background: #c9b99a; }
+
+.mag-name {
+  display: block;
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+  line-height: 1.2;
+}
+.mag-tile--dark .mag-name,
+.mag-tile--mid .mag-name  { color: #fff; }
+.mag-tile--light .mag-name  { color: #111; }
+.mag-tile--accent .mag-name { color: #111; }
+
+.mag-tag {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-top: 4px;
+  opacity: 0.65;
+}
+.mag-tile--dark .mag-tag,
+.mag-tile--mid .mag-tag  { color: #fff; }
+.mag-tile--light .mag-tag  { color: #444; }
+.mag-tile--accent .mag-tag { color: #444; }
+
+/* ══════════════════════════════════════
+   REVISTAS HERMANAS (Home)
+══════════════════════════════════════ */
+.revistas-hermanas {
+  background: #fff;
+  border-top: 1px solid #e8e6e0;
+  border-bottom: 1px solid #e8e6e0;
+}
+
+.revistas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.revista-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px solid #e0dcd5;
+  text-decoration: none;
+  color: inherit;
+  background: #fafaf8;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  border-radius: 4px;
+}
+
+.revista-card:hover {
+  background: #0b0b0b;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.revista-card:hover .revista-info span,
+.revista-card:hover .revista-info p {
+  color: rgba(255,255,255,0.7);
+}
+
+.revista-inicial {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b0b0b;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  border-radius: 4px;
+  font-family: "Playfair Display", Georgia, serif;
+  transition: background 0.2s;
+}
+
+.revista-card:hover .revista-inicial {
+  background: rgba(255,255,255,0.15);
+}
+
+.revista-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.revista-info strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.revista-info span {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #888;
+  margin-bottom: 6px;
+  transition: color 0.2s;
+}
+
+.revista-info p {
+  font-size: 0.88rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+  transition: color 0.2s;
+}
+
+.revista-arrow {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.revista-card:hover .revista-arrow { opacity: 1; }
+
+/* ══════════════════════════════════════
+   TARJETAS DE TENDENCIA (con imagen)
+══════════════════════════════════════ */
+.tendencias-grid {
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+}
+
+.tendencia-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e8e8e4;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.tendencia-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+}
+
+/* Imagen */
+.tendencia-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #e8e5df;
+  flex-shrink: 0;
+}
+
+.tendencia-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  display: block;
+}
+
+.tendencia-card:hover .tendencia-img { transform: scale(1.04); }
+
+/* Placeholder cuando no hay imagen */
+.tendencia-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+}
+
+.tendencia-img-placeholder span {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.2);
+}
+
+/* Badge de fuente sobre la imagen */
+.tendencia-fuente-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  backdrop-filter: blur(4px);
+}
+
+/* Cuerpo de la tarjeta */
+.tendencia-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px 20px;
+  flex: 1;
+}
+
+.tendencia-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tendencia-pais {
+  font-size: 0.72rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tendencia-fecha {
+  font-size: 0.72rem;
+  color: #bbb;
+  margin-left: auto;
+}
+
+.tendencia-titulo {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #111;
+  flex: 1;
+}
+
+.tendencia-resumen {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.tendencia-link {
+  margin-top: auto;
+  display: inline-block;
+  font-size: 0.82rem;
+  padding: 8px 14px;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════
+   PÁGINA TENDENCIAS — Hero y filtros
+══════════════════════════════════════ */
+.tendencias-hero {
+  padding: 48px 0 32px;
+  border-bottom: 1px solid #e0e0dc;
+  margin-bottom: 40px;
+}
+
+.tendencias-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.tendencias-intro {
+  font-size: 1.05rem;
+  color: #555;
+  max-width: 640px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.tendencias-fuentes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.fuente-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  color: #111;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.fuente-badge:hover {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.tendencias-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.filtro-btn {
+  padding: 6px 16px;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #444;
+  transition: all 0.2s;
+}
+
+.filtro-btn:hover   { border-color: #111; color: #111; }
+.filtro-btn.activo  { background: #111; color: #fff; border-color: #111; }
+
+.tendencias-estado {
+  text-align: center;
+  color: #888;
+  padding: 48px 0;
+  font-size: 0.95rem;
+}
+
+.tendencias-error {
+  text-align: center;
+  padding: 40px;
+  background: #fff5f5;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  color: #c00;
+}
+
+.tendencias-error .error-detail {
+  font-size: 0.8rem;
+  color: #c66;
+  margin-top: 4px;
+}
+
+.tendencias-nota {
+  margin-top: 48px;
+  padding: 20px 24px;
+  background: #f7f7f5;
+  border-left: 3px solid #ccc;
+  font-size: 0.85rem;
+  color: #777;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero-magazine-grid { height: 380px; }
+}
+
+@media (max-width: 900px) {
+  .hero-magazine-grid {
+    display: none; /* en móvil se oculta el mosaico para no sobrecargar */
+  }
+  .revistas-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .tendencias-filtros { gap: 6px; }
+  .filtro-btn { font-size: 0.78rem; padding: 5px 12px; }
+  .tendencia-img-wrapper { height: 160px; }
+}
