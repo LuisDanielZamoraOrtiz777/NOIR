@@ -1,0 +1,140 @@
+
+/* ══════════════════════════════════════
+   TARJETAS DE EDITORIAL (página /editoriales)
+══════════════════════════════════════ */
+
+.editoriales-grid-cards {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.editorial-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-card, rgba(0,0,0,0.08));
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.editorial-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+  transform: translateY(-4px);
+}
+
+/* Imagen / placeholder */
+.editorial-card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.editorial-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.editorial-card:hover .editorial-card-img {
+  transform: scale(1.05);
+}
+
+.editorial-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.editorial-placeholder-letra {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.12);
+  line-height: 1;
+  user-select: none;
+}
+
+.editorial-placeholder-cat {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.22);
+  user-select: none;
+}
+
+/* Badge de categoría sobre la imagen */
+.editorial-cat-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  background: rgba(0,0,0,0.72);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 3px 9px;
+  border-radius: 3px;
+  backdrop-filter: blur(4px);
+}
+
+/* Cuerpo de la tarjeta */
+.editorial-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  flex: 1;
+}
+
+.editorial-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.editorial-autor {
+  font-size: 0.75rem;
+  color: var(--text-faint, #888);
+  font-style: italic;
+}
+
+.editorial-fecha {
+  font-size: 0.72rem;
+  color: var(--text-faint, #bbb);
+}
+
+.editorial-titulo {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-heading, #111);
+  margin: 0;
+}
+
+.editorial-resumen {
+  font-size: 0.875rem;
+  color: var(--text-muted, #555);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Dark mode */
+html.dark .editorial-card {
+  background: var(--bg-card);
+  border-color: var(--border-card);
+}
+html.dark .editorial-titulo { color: var(--text-heading); }
+html.dark .editorial-resumen { color: var(--text-muted); }
+html.dark .editorial-autor,
+html.dark .editorial-fecha { color: var(--text-faint); }

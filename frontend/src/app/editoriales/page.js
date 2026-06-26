@@ -2,136 +2,128 @@
 
 import { useState, useEffect } from "react";
 
-// Ahora usa rutas relativas (/api/...) gracias a las API Routes de Next.js
-const API_BASE = "/api";
+const PALETAS = {
+  Pasarela:     "#0d1b2a",
+  Editorial:    "#0b0b0b",
+  Trend:        "#1a0d2e",
+  Tendencia:    "#0a2e1a",
+  Colaboración: "#2e1a0a",
+  Opinión:      "#1a1a2e",
+};
+
+function formatearFecha(fecha) {
+  if (!fecha) return "";
+  try {
+    return new Date(fecha).toLocaleDateString("es-MX", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+  } catch { return fecha; }
+}
+
+function EditorialCard({ ed }) {
+  const [imgError, setImgError] = useState(false);
+  const bg = PALETAS[ed.categoria] || "#0b0b0b";
+  const inicial = ed.titulo?.charAt(0) || "N";
+
+  return (
+    <article className="editorial-card">
+      {/* Imagen o placeholder */}
+      <div className="editorial-card-img-wrap">
+        {ed.imagen_url && !imgError ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={ed.imagen_url}
+            alt={ed.titulo}
+            className="editorial-card-img"
+            onError={() => setImgError(true)}
+            loading="lazy"
+          />
+        ) : (
+          <div className="editorial-card-placeholder" style={{ background: bg }}>
+            <span className="editorial-placeholder-letra">{inicial}</span>
+            <span className="editorial-placeholder-cat">{ed.categoria}</span>
+          </div>
+        )}
+        <span className="editorial-cat-badge">{ed.categoria}</span>
+      </div>
+
+      {/* Cuerpo */}
+      <div className="editorial-card-body">
+        <div className="editorial-card-meta">
+          {ed.autor && <span className="editorial-autor">Por {ed.autor}</span>}
+          {ed.fecha && (
+            <time className="editorial-fecha" dateTime={ed.fecha}>
+              {formatearFecha(ed.fecha)}
+            </time>
+          )}
+        </div>
+        <h3 className="editorial-titulo">{ed.titulo}</h3>
+        {ed.resumen && <p className="editorial-resumen">{ed.resumen}</p>}
+      </div>
+    </article>
+  );
+}
 
 export default function EditorialesPage() {
   const [editoriales, setEditoriales] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState("");
 
   useEffect(() => {
-    cargarEditoriales();
+    async function cargar() {
+      try {
+        const r = await fetch("/api/editoriales/publicas");
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error || "Error al cargar editoriales");
+        setEditoriales(j.data || []);
+      } catch (e) { setError(e.message); }
+      finally { setLoading(false); }
+    }
+    cargar();
   }, []);
 
-  const cargarEditoriales = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/editoriales/publicas`);
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || "Error al cargar editoriales");
-      }
-
-      setEditoriales(data.data || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatearFecha = (fecha) => {
-    if (!fecha) return "";
-    try {
-      return new Date(fecha).toLocaleDateString("es-MX", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return fecha;
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-vh-100 flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="text-center">
-          <div className="spinner-border text-dark mb-3" role="status"></div>
-          <p style={{ color: "var(--text-muted)" }}>Cargando editoriales...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-vh-100 flex items-center justify-center" style={{ background: "var(--bg)" }}>
-        <div className="alert alert-danger" role="alert">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-vh-100 py-5" style={{ background: "var(--bg)" }}>
-      <div className="container" style={{ maxWidth: 900 }}>
-        <div className="text-center mb-5">
-          <h1 className="display-4 fw-bold mb-3" style={{ fontFamily: "Playfair Display, Georgia, serif", color: "var(--text-heading)" }}>
-            Editoriales
-          </h1>
-          <p className="lead" style={{ color: "var(--text-muted)" }}>
-            Descubre las últimas tendencias y análisis de moda
-          </p>
+    <main className="page-content">
+      {/* Hero */}
+      <section className="editoriales-hero" data-element="editoriales-hero">
+        <h1>Editoriales</h1>
+        <p className="editoriales-intro">
+          Análisis, tendencias y narrativa visual desde las pasarelas más influyentes del mundo.
+        </p>
+        <div className="editoriales-stats">
+          <div className="stat-item"><strong>{editoriales.length}</strong><span>Publicaciones</span></div>
+          <div className="stat-item"><strong>5</strong><span>Autores</span></div>
+          <div className="stat-item"><strong>SS26</strong><span>Temporada</span></div>
         </div>
+      </section>
 
-        {editoriales.length === 0 ? (
-          <div className="alert alert-info" role="alert">
-            No hay editoriales publicadas en este momento.
-          </div>
-        ) : (
-          <div className="row g-4">
-            {editoriales.map((editorial) => (
-              <div className="col-md-6 col-lg-4" key={editorial.id}>
-                <div className="card h-100 border-0 shadow-sm" style={{ backgroundColor: "var(--bg-card)" }}>
-              <div className="card-body d-flex flex-column">
-                {editorial.imagen_url && (
-                  <img 
-                    src={editorial.imagen_url} 
-                    alt={editorial.titulo}
-                    className="card-img-top mb-3"
-                    style={{ 
-                      height: 200, 
-                      objectFit: "cover",
-                      borderRadius: "8px"
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                )}
-                <h5 className="card-title mb-3" style={{ fontFamily: "Playfair Display, Georgia, serif", color: "var(--text-heading)" }}>
-                  {editorial.titulo}
-                </h5>
-                <p className="small mb-2" style={{ color: "var(--text-muted)" }}>
-                  Por <strong style={{ color: "var(--text)" }}>{editorial.autor}</strong>
-                </p>
-                <p className="small mb-3" style={{ color: "var(--text-muted)" }}>
-                  {formatearFecha(editorial.fecha)}
-                </p>
-                <p className="card-text flex-grow-1" style={{ color: "var(--text)" }}>
-                  {editorial.resumen}
-                </p>
-                <span className={`badge align-self-start ${editorial.publicado ? "bg-success" : "bg-warning"}`}>
-                  {editorial.publicado ? "Publicada" : "Borrador"}
-                </span>
-              </div>
-                </div>
-              </div>
-            ))}
+      {/* Contenido */}
+      <section data-element="editoriales-grid">
+        {loading && (
+          <div className="tendencias-estado">Cargando editoriales…</div>
+        )}
+
+        {error && !loading && (
+          <div className="tendencias-error" role="alert">
+            <p>No se pudieron cargar las editoriales.</p>
+            <p className="error-detail">{error}</p>
           </div>
         )}
 
-        <div className="text-center mt-5">
-          <a href="/" className="btn btn-outline-dark">
-            ← Volver al inicio
-          </a>
-        </div>
-      </div>
-    </div>
+        {!loading && !error && editoriales.length === 0 && (
+          <div className="tendencias-estado">
+            No hay editoriales publicadas aún.
+          </div>
+        )}
+
+        {!loading && !error && editoriales.length > 0 && (
+          <div className="card-grid editoriales-grid-cards">
+            {editoriales.map((ed) => (
+              <EditorialCard key={ed.id} ed={ed} />
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
   );
 }
