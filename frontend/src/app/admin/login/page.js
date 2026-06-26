@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+// Usar rutas relativas (/api/...) gracias a las API Routes de Next.js
+const API_BASE = "/api";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/admin/login`, {
+      const res = await fetch(`${API_BASE}/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
