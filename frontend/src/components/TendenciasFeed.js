@@ -11,7 +11,6 @@ function formatearFecha(fechaStr) {
   } catch { return null; }
 }
 
-// Placeholder SVG cuando no hay imagen
 function ImagenPlaceholder({ fuente }) {
   return (
     <div className="tendencia-img-placeholder" aria-hidden="true">
@@ -25,7 +24,6 @@ function TendenciaCard({ articulo }) {
 
   return (
     <article className="tendencia-card">
-      {/* Imagen */}
       <div className="tendencia-img-wrapper">
         {articulo.imagen && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -42,7 +40,6 @@ function TendenciaCard({ articulo }) {
         <span className="tendencia-fuente-badge">{articulo.fuente}</span>
       </div>
 
-      {/* Contenido */}
       <div className="tendencia-card-body">
         <div className="tendencia-card-meta">
           {articulo.pais && <span className="tendencia-pais">{articulo.pais}</span>}
@@ -52,13 +49,10 @@ function TendenciaCard({ articulo }) {
             </time>
           )}
         </div>
-
         <h3 className="tendencia-titulo">{articulo.titulo}</h3>
-
         {articulo.resumen && (
           <p className="tendencia-resumen">{articulo.resumen}&hellip;</p>
         )}
-
         <a
           href={articulo.enlace}
           target="_blank"
@@ -108,7 +102,6 @@ export default function TendenciasFeed({ limite }) {
 
   return (
     <div className="tendencias-feed">
-      {/* Filtros — solo si no hay límite (vista completa) */}
       {!limite && fuentes.length > 1 && (
         <div className="tendencias-filtros" role="group" aria-label="Filtrar por revista">
           {fuentes.map((f) => (
@@ -125,16 +118,13 @@ export default function TendenciasFeed({ limite }) {
       )}
 
       {isLoading && (
-        <p className="tendencias-estado" aria-live="polite">
-          Cargando tendencias internacionales…
-        </p>
+        <p className="tendencias-estado" aria-live="polite">Cargando tendencias internacionales…</p>
       )}
 
       {error && !isLoading && (
         <div className="tendencias-error" role="alert">
-          <p>No se pudieron cargar las tendencias ahora mismo.</p>
+          <p>No se pudieron cargar las tendencias en este momento.</p>
           <p className="error-detail">{error}</p>
-          <p className="error-detail">Verifica que el backend esté corriendo en el puerto 4000.</p>
         </div>
       )}
 
@@ -147,9 +137,7 @@ export default function TendenciasFeed({ limite }) {
       )}
 
       {!isLoading && !error && articulosFiltrados.length === 0 && (
-        <p className="tendencias-estado">
-          No hay artículos disponibles para esta fuente en este momento.
-        </p>
+        <p className="tendencias-estado">No hay artículos disponibles para esta fuente ahora mismo.</p>
       )}
     </div>
   );

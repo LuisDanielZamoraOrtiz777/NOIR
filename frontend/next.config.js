@@ -1,36 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Rewrite: /api/* → backend en puerto 4000
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "http://localhost:4000/api/:path*",
-      },
-    ];
-  },
+  // ⚠️  NO hay rewrites hacia localhost.
+  //     En Vercel, las rutas /api/* son servidas por las Route Handlers
+  //     de Next.js que están en src/app/api/.
+  //     En desarrollo local, idem — next dev sirve esas rutas directamente.
+  //
+  //     Si en local quieres también levantar el servidor Express (backend/),
+  //     hazlo en un puerto distinto y llámalo directamente desde donde lo
+  //     necesites, SIN redirigir /api/* a él.
 
-  // Dominios permitidos para <img> externas (imágenes de RSS y CDNs de moda)
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.harpersbazaar.com" },
       { protocol: "https", hostname: "**.elle.com" },
       { protocol: "https", hostname: "**.highsnobiety.com" },
       { protocol: "https", hostname: "**.hearstapps.com" },
-      { protocol: "https", hostname: "**.media-amazon.com" },
-      { protocol: "https", hostname: "**.condé.net" },
       { protocol: "https", hostname: "**.condenast.com" },
       { protocol: "https", hostname: "**.wp.com" },
       { protocol: "https", hostname: "**.wordpress.com" },
-      { protocol: "https", hostname: "**.squarespace-cdn.com" },
-      { protocol: "https", hostname: "**.cdninstagram.com" },
-      { protocol: "https", hostname: "**.fbcdn.net" },
-      { protocol: "https", hostname: "**.pinimg.com" },
-      { protocol: "https", hostname: "**.akamaized.net" },
       { protocol: "https", hostname: "**.cloudfront.net" },
       { protocol: "https", hostname: "**.imgix.net" },
       { protocol: "https", hostname: "**.unsplash.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "**.cdninstagram.com" },
+      { protocol: "https", hostname: "**.pinimg.com" },
+      { protocol: "https", hostname: "**.akamaized.net" },
     ],
   },
 };
