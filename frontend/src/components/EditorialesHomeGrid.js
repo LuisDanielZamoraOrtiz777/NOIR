@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-const API_BASE = "/api";
+// Ahora usa rutas relativas (/api/...) gracias a las API Routes de Next.js
+const API_BASE = "";
 
 export default function EditorialesHomeGrid() {
   const [editoriales, setEditoriales] = useState([]);

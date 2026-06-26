@@ -1,22 +1,27 @@
-import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
 
 export async function POST(request) {
   try {
-    const body = await request.json();
-    const { name, email, message } = body || {};
+    const { name, email, message } = await request.json();
 
     if (!name || !email || !message) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return Response.json(
+        { error: "Todos los campos son obligatorios." },
+        { status: 400 }
+      );
     }
 
-    // TODO: Integrate with email provider or db. For now log and return OK.
-    // eslint-disable-next-line no-console
-    console.log("Contact form received:", { name, email, message });
+    const result = await query(
+      "INSERT INTO contacts(name, email, message, created_at) VALUES($1, $2, $3, NOW()) RETURNING id",
+      [name, email, message]
+    );
 
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    return Response.json({ ok: true, id: result.rows[0].id }, { status: 201 });
+  } catch (error) {
+    console.error("Error en /api/contact:", error);
+    return Response.json(
+      { error: "No se pudo enviar el mensaje." },
+      { status: 500 }
+    );
   }
 }
