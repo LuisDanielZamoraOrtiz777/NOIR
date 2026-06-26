@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// ─── API DIRECTA al backend (bypass CORS) ─────────────────────────────────────
-const API = "http://localhost:4000/api";
+// Usar rutas relativas (/api/...) gracias a las API Routes de Next.js
+const API = "/api";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 function authHeaders() {
