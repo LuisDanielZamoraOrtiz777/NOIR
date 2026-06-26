@@ -55,6 +55,9 @@ export default function Header() {
           <div className="header-actions" data-element="header-acciones">
             <SearchBox />
             <DarkToggle />
+            <Link href="/admin/login" className="btn btn-sm btn-outline-dark ms-2">
+              Admin
+            </Link>
           </div>
         </div>
       </div>
