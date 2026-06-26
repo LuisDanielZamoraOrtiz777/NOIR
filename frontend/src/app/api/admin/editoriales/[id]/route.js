@@ -1,109 +1,80 @@
-import { NextResponse } from "next/server";
-import { query } from "@/lib/db";
+import { neon } from "@neondatabase/serverless";
 import { authenticateJWT } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
+function getSql() {
+  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL no definida");
+  return neon(process.env.DATABASE_URL);
+}
+
+// ── PATCH /api/admin/editoriales/[id] ────────────────────────────────────────
 export async function PATCH(request, { params }) {
   const auth = authenticateJWT(request);
-  if (auth.error) {
-    return NextResponse.json(
-      { error: auth.error },
-      { status: auth.status }
-    );
+  if (auth.status !== 200) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
-    const id = params.id;
-    const body = await request.json();
-
-    const {
-      titulo,
-      autor,
-      fecha,
-      categoria,
-      resumen,
-      contenido,
-      imagen_url,
-      publicado,
-    } = body || {};
-
-    const result = await query(
-      `UPDATE editoriales SET
-        titulo = COALESCE($1, titulo),
-        autor = COALESCE($2, autor),
-        fecha = COALESCE($3, fecha),
-        categoria = COALESCE($4, categoria),
-        resumen = COALESCE($5, resumen),
-        contenido = COALESCE($6, contenido),
-        imagen_url = COALESCE($7, imagen_url),
-        publicado = COALESCE($8, publicado)
-       WHERE id = $9
-       RETURNING *`,
-      [
-        titulo || null,
-        autor || null,
-        fecha || null,
-        categoria || null,
-        resumen || null,
-        contenido || null,
-        imagen_url || null,
-        typeof publicado === "boolean" ? publicado : null,
-        id,
-      ]
-    );
-
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: "No encontrado", detail: `No existe editorial ${id}` },
-        { status: 404 }
-      );
+    const id = Number(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID inválido." }, { status: 400 });
     }
 
-    return NextResponse.json({
-      status: "success",
-      message: "Editorial actualizada",
-      data: result.rows[0],
-    });
+    const body = await request.json();
+    const { titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado } = body;
+
+    const sql = getSql();
+    const rows = await sql`
+      UPDATE editoriales SET
+        titulo      = COALESCE(${titulo?.trim()     || null}, titulo),
+        autor       = COALESCE(${autor?.trim()      || null}, autor),
+        fecha       = COALESCE(${fecha              || null}, fecha),
+        categoria   = COALESCE(${categoria?.trim()  || null}, categoria),
+        resumen     = COALESCE(${resumen?.trim()    || null}, resumen),
+        contenido   = COALESCE(${contenido?.trim()  || null}, contenido),
+        imagen_url  = COALESCE(${imagen_url?.trim() || null}, imagen_url),
+        publicado   = COALESCE(${typeof publicado === "boolean" ? publicado : null}, publicado),
+        updated_at  = NOW()
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: `No existe editorial con id ${id}.` }, { status: 404 });
+    }
+
+    return NextResponse.json({ status: "success", message: "Editorial actualizada", data: rows[0] });
   } catch (err) {
-    return NextResponse.json(
-      { error: "Error interno del servidor", detail: err.message },
-      { status: 500 }
-    );
+    console.error("[PATCH /api/admin/editoriales/[id]]", err.message);
+    return NextResponse.json({ error: "Error interno.", detail: err.message }, { status: 500 });
   }
 }
 
+// ── DELETE /api/admin/editoriales/[id] ───────────────────────────────────────
 export async function DELETE(request, { params }) {
   const auth = authenticateJWT(request);
-  if (auth.error) {
-    return NextResponse.json(
-      { error: auth.error },
-      { status: auth.status }
-    );
+  if (auth.status !== 200) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
-    const id = params.id;
-
-    const result = await query(
-      "DELETE FROM editoriales WHERE id = $1 RETURNING *",
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: "No encontrado", detail: `No existe editorial ${id}` },
-        { status: 404 }
-      );
+    const id = Number(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID inválido." }, { status: 400 });
     }
 
-    return NextResponse.json({
-      status: "success",
-      message: "Editorial eliminada",
-      data: result.rows[0],
-    });
+    const sql = getSql();
+    const rows = await sql`DELETE FROM editoriales WHERE id = ${id} RETURNING *`;
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: `No existe editorial con id ${id}.` }, { status: 404 });
+    }
+
+    return NextResponse.json({ status: "success", message: "Editorial eliminada", data: rows[0] });
   } catch (err) {
-    return NextResponse.json(
-      { error: "Error interno del servidor", detail: err.message },
-      { status: 500 }
-    );
+    console.error("[DELETE /api/admin/editoriales/[id]]", err.message);
+    return NextResponse.json({ error: "Error interno.", detail: err.message }, { status: 500 });
   }
 }

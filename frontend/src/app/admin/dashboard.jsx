@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Usa rutas relativas → Next.js las resuelve localmente o en Vercel
 const API = "";
 
 function authHeaders() {
@@ -14,9 +13,8 @@ function authHeaders() {
 
 function fmt(d) {
   if (!d) return "—";
-  try {
-    return new Date(d).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
-  } catch { return d; }
+  try { return new Date(d).toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" }); }
+  catch { return d; }
 }
 
 function Alert({ msg, type, onClose }) {
@@ -46,7 +44,7 @@ function TabPartners() {
     try {
       const r = await fetch(`${API}/api/admin/partners`, { headers: authHeaders() });
       const j = await r.json();
-      if (!r.ok) throw new Error(j.error || j.detail || "Error al cargar partners");
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar partners");
       setLista(j.data || []);
     } catch (e) { setErr(e.message); }
     finally { setLoading(false); }
@@ -70,13 +68,9 @@ function TabPartners() {
 
   const toggle = async (partner) => {
     setActionId(partner.id); setErr(""); setOk("");
-    // PATCH en [id]/route.js maneja tanto activar (activo=true) como desactivar (activo=false)
-    // DELETE desactiva, PATCH reactiva — ambos están en /api/admin/partners/[id]
     const method = partner.activo ? "DELETE" : "PATCH";
     try {
-      const r = await fetch(`${API}/api/admin/partners/${partner.id}`, {
-        method, headers: authHeaders(),
-      });
+      const r = await fetch(`${API}/api/admin/partners/${partner.id}`, { method, headers: authHeaders() });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk(j.message); cargar();
@@ -98,22 +92,16 @@ function TabPartners() {
             <div className="row g-3">
               <div className="col-md-5">
                 <label className="form-label text-light small">Nombre *</label>
-                <input className="form-control bg-dark text-white border-secondary"
-                  placeholder="Ej: Vogue España"
-                  value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  required disabled={saving} />
+                <input className="form-control bg-dark text-white border-secondary" placeholder="Ej: Vogue España"
+                  value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-5">
                 <label className="form-label text-light small">URL *</label>
-                <input type="url" className="form-control bg-dark text-white border-secondary"
-                  placeholder="https://..."
-                  value={form.url_api} onChange={(e) => setForm({ ...form, url_api: e.target.value })}
-                  required disabled={saving} />
+                <input type="url" className="form-control bg-dark text-white border-secondary" placeholder="https://..."
+                  value={form.url_api} onChange={(e) => setForm({ ...form, url_api: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-2 d-flex align-items-end">
-                <button className="btn btn-light w-100" disabled={saving}>
-                  {saving ? "…" : "Agregar"}
-                </button>
+                <button className="btn btn-light w-100" disabled={saving}>{saving ? "…" : "Agregar"}</button>
               </div>
             </div>
           </form>
@@ -123,9 +111,7 @@ function TabPartners() {
       <div className="card border-0" style={{ background: "#1a1a1a" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Páginas hermanas ({lista.length})</h5>
-          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>
-            {loading ? "…" : "↺"}
-          </button>
+          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
@@ -148,22 +134,14 @@ function TabPartners() {
                     <tr key={p.id}>
                       <td className="text-muted small">{p.id}</td>
                       <td className="fw-medium">{p.nombre}</td>
-                      <td>
-                        <a href={p.url_api} target="_blank" rel="noreferrer" className="text-info text-decoration-none small">
-                          {p.url_api.length > 35 ? p.url_api.slice(0, 35) + "…" : p.url_api}
-                        </a>
-                      </td>
-                      <td>
-                        <span className={`badge ${p.activo ? "bg-success" : "bg-secondary"}`}>
-                          {p.activo ? "Activo" : "Inactivo"}
-                        </span>
-                      </td>
+                      <td><a href={p.url_api} target="_blank" rel="noreferrer" className="text-info text-decoration-none small">
+                        {p.url_api.length > 35 ? p.url_api.slice(0, 35) + "…" : p.url_api}
+                      </a></td>
+                      <td><span className={`badge ${p.activo ? "bg-success" : "bg-secondary"}`}>{p.activo ? "Activo" : "Inactivo"}</span></td>
                       <td className="text-muted small">{fmt(p.creado_en)}</td>
                       <td className="text-end">
-                        <button
-                          className={`btn btn-sm ${p.activo ? "btn-outline-danger" : "btn-outline-success"}`}
-                          onClick={() => toggle(p)} disabled={actionId === p.id}
-                        >
+                        <button className={`btn btn-sm ${p.activo ? "btn-outline-danger" : "btn-outline-success"}`}
+                          onClick={() => toggle(p)} disabled={actionId === p.id}>
                           {actionId === p.id ? "…" : p.activo ? "Desactivar" : "Reactivar"}
                         </button>
                       </td>
@@ -182,27 +160,27 @@ function TabPartners() {
 // ════════════════════════════════════════
 //  TAB: EDITORIALES
 // ════════════════════════════════════════
-const VACIO = {
-  titulo: "", autor: "", fecha: "", categoria: "Editorial",
-  resumen: "", contenido: "", imagen_url: "", publicado: false,
-};
+const VACIO = { titulo: "", autor: "", fecha: "", categoria: "Editorial", resumen: "", contenido: "", imagen_url: "", publicado: false };
 
 function TabEditoriales() {
   const [lista, setLista]           = useState([]);
   const [loading, setLoading]       = useState(true);
   const [saving, setSaving]         = useState(false);
+  const [setting, setSetting]       = useState(false);
   const [actionId, setActionId]     = useState(null);
   const [ok, setOk]                 = useState("");
   const [err, setErr]               = useState("");
   const [form, setForm]             = useState(VACIO);
   const [editandoId, setEditandoId] = useState(null);
+  const [tablaFalta, setTablaFalta] = useState(false);
 
   const cargar = useCallback(async () => {
-    setLoading(true);
+    setLoading(true); setTablaFalta(false);
     try {
       const r = await fetch(`${API}/api/admin/editoriales`, { headers: authHeaders() });
       const j = await r.json();
-      if (!r.ok) throw new Error(j.error || j.detail || "Error al cargar editoriales");
+      if (r.status === 503 || j.error?.includes("no existe")) { setTablaFalta(true); setLista([]); return; }
+      if (!r.ok) throw new Error(j.error || "Error al cargar editoriales");
       setLista(j.data || []);
     } catch (e) { setErr(e.message); }
     finally { setLoading(false); }
@@ -210,14 +188,24 @@ function TabEditoriales() {
 
   useEffect(() => { cargar(); }, [cargar]);
 
+  // Crear tabla + seed automáticamente
+  const runSetup = async () => {
+    setSetting(true); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/setup`, { headers: authHeaders() });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "Error en setup");
+      setOk(j.log?.join(" | ") || "Setup completado");
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setSetting(false); }
+  };
+
   const iniciarEdicion = (ed) => {
     setEditandoId(ed.id);
-    setForm({
-      titulo: ed.titulo || "", autor: ed.autor || "", fecha: ed.fecha || "",
-      categoria: ed.categoria || "Editorial", resumen: ed.resumen || "",
-      contenido: ed.contenido || "", imagen_url: ed.imagen_url || "",
-      publicado: Boolean(ed.publicado),
-    });
+    setForm({ titulo: ed.titulo || "", autor: ed.autor || "", fecha: ed.fecha ? ed.fecha.split("T")[0] : "",
+      categoria: ed.categoria || "Editorial", resumen: ed.resumen || "", contenido: ed.contenido || "",
+      imagen_url: ed.imagen_url || "", publicado: Boolean(ed.publicado) });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -229,12 +217,11 @@ function TabEditoriales() {
     const url    = editandoId ? `${API}/api/admin/editoriales/${editandoId}` : `${API}/api/admin/editoriales`;
     const method = editandoId ? "PATCH" : "POST";
     try {
-      const body = { ...form };
-      if (!body.imagen_url?.trim()) body.imagen_url = null;
+      const body = { ...form, imagen_url: form.imagen_url?.trim() || null };
       const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
-      setOk(j.message || (editandoId ? "Editorial actualizada" : "Editorial creada"));
+      setOk(j.message || (editandoId ? "Editorial actualizada ✓" : "Editorial creada ✓"));
       cancelar(); cargar();
     } catch (e) { setErr(e.message); }
     finally { setSaving(false); }
@@ -244,90 +231,85 @@ function TabEditoriales() {
     if (!confirm("¿Eliminar esta editorial permanentemente?")) return;
     setActionId(id); setErr(""); setOk("");
     try {
-      const r = await fetch(`${API}/api/admin/editoriales/${id}`, {
-        method: "DELETE", headers: authHeaders(),
-      });
+      const r = await fetch(`${API}/api/admin/editoriales/${id}`, { method: "DELETE", headers: authHeaders() });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
-      setOk(j.message || "Editorial eliminada"); cargar();
+      setOk(j.message || "Editorial eliminada ✓"); cargar();
     } catch (e) { setErr(e.message); }
     finally { setActionId(null); }
   };
 
-  const campo = (key) => ({
-    value: form[key],
-    onChange: (e) => setForm({ ...form, [key]: e.target.value }),
-  });
+  const campo = (key) => ({ value: form[key], onChange: (e) => setForm({ ...form, [key]: e.target.value }) });
 
   return (
     <>
-      <Alert msg={ok} type="success" onClose={() => setOk("")} />
-      <Alert msg={err} type="danger" onClose={() => setErr("")} />
+      <Alert msg={ok}  type="success" onClose={() => setOk("")} />
+      <Alert msg={err} type="danger"  onClose={() => setErr("")} />
 
-      {/* Formulario */}
+      {/* Banner: tabla no existe */}
+      {tablaFalta && (
+        <div className="alert alert-warning d-flex align-items-center justify-content-between gap-3">
+          <div>
+            <strong>⚠️ La tabla &quot;editoriales&quot; no existe en la base de datos.</strong><br/>
+            <span className="small">Haz clic en el botón para crearla y cargar las editoriales de ejemplo.</span>
+          </div>
+          <button className="btn btn-warning fw-bold flex-shrink-0" onClick={runSetup} disabled={setting}>
+            {setting ? "Creando tabla…" : "🛠 Crear tabla y cargar datos"}
+          </button>
+        </div>
+      )}
+
+      {/* Formulario crear / editar */}
       <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 text-white">
-            {editandoId ? `✏️ Editando: ${form.titulo || "…"}` : "➕ Nueva editorial"}
-          </h5>
-          {editandoId && (
-            <button className="btn btn-sm btn-outline-secondary" onClick={cancelar}>Cancelar</button>
-          )}
+          <h5 className="mb-0 text-white">{editandoId ? `✏️ Editando: ${form.titulo || "…"}` : "➕ Nueva editorial"}</h5>
+          {editandoId && <button className="btn btn-sm btn-outline-secondary" onClick={cancelar}>Cancelar</button>}
         </div>
         <div className="card-body">
           <form onSubmit={guardar}>
             <div className="row g-3">
               <div className="col-md-7">
                 <label className="form-label text-light small">Título *</label>
-                <input className="form-control bg-dark text-white border-secondary"
-                  placeholder="Título de la editorial" {...campo("titulo")} required disabled={saving} />
+                <input className="form-control bg-dark text-white border-secondary" placeholder="Título de la editorial"
+                  {...campo("titulo")} required disabled={saving} />
               </div>
               <div className="col-md-3">
                 <label className="form-label text-light small">Autor</label>
-                <input className="form-control bg-dark text-white border-secondary"
-                  placeholder="Nombre del autor" {...campo("autor")} disabled={saving} />
+                <input className="form-control bg-dark text-white border-secondary" placeholder="Nombre del autor"
+                  {...campo("autor")} disabled={saving} />
               </div>
               <div className="col-md-2">
                 <label className="form-label text-light small">Categoría</label>
                 <select className="form-select bg-dark text-white border-secondary" {...campo("categoria")} disabled={saving}>
-                  {["Editorial","Pasarela","Trend","Tendencia","Colaboración","Opinión"].map(c => (
-                    <option key={c}>{c}</option>
-                  ))}
+                  {["Editorial","Pasarela","Trend","Tendencia","Colaboración","Opinión"].map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div className="col-md-3">
                 <label className="form-label text-light small">Fecha</label>
-                <input type="date" className="form-control bg-dark text-white border-secondary"
-                  {...campo("fecha")} disabled={saving} />
+                <input type="date" className="form-control bg-dark text-white border-secondary" {...campo("fecha")} disabled={saving} />
               </div>
               <div className="col-md-9">
                 <label className="form-label text-light small">Resumen * <span className="text-muted">(visible en tarjeta)</span></label>
-                <input className="form-control bg-dark text-white border-secondary"
-                  placeholder="Descripción breve…" {...campo("resumen")} required disabled={saving} />
+                <input className="form-control bg-dark text-white border-secondary" placeholder="Descripción breve…"
+                  {...campo("resumen")} required disabled={saving} />
               </div>
               <div className="col-12">
-                <label className="form-label text-light small">
-                  URL de imagen <span className="text-muted">(opcional — se muestra en la tarjeta)</span>
-                </label>
+                <label className="form-label text-light small">URL de imagen <span className="text-muted">(opcional)</span></label>
                 <input type="url" className="form-control bg-dark text-white border-secondary"
-                  placeholder="https://ejemplo.com/imagen.jpg" {...campo("imagen_url")} disabled={saving} />
+                  placeholder="https://images.unsplash.com/..." {...campo("imagen_url")} disabled={saving} />
               </div>
               <div className="col-12">
-                <label className="form-label text-light small">Contenido</label>
+                <label className="form-label text-light small">Contenido completo</label>
                 <textarea rows={4} className="form-control bg-dark text-white border-secondary"
                   placeholder="Texto completo de la editorial…" {...campo("contenido")} disabled={saving} />
               </div>
               <div className="col-12 d-flex align-items-center gap-3 flex-wrap">
                 <div className="form-check form-switch">
                   <input className="form-check-input" type="checkbox" id="publicado"
-                    checked={form.publicado}
-                    onChange={(e) => setForm({ ...form, publicado: e.target.checked })}
-                    disabled={saving} />
-                  <label className="form-check-label text-light" htmlFor="publicado">
-                    Publicada (visible en el sitio)
-                  </label>
+                    checked={form.publicado} onChange={(e) => setForm({ ...form, publicado: e.target.checked })} disabled={saving} />
+                  <label className="form-check-label text-light" htmlFor="publicado">Publicada (visible en el sitio)</label>
                 </div>
-                <button type="submit" className="btn btn-light px-4" disabled={saving}>
+                <button type="submit" className="btn btn-light px-4" disabled={saving || tablaFalta}>
                   {saving ? "Guardando…" : editandoId ? "Guardar cambios" : "Crear editorial"}
                 </button>
               </div>
@@ -340,22 +322,14 @@ function TabEditoriales() {
       <div className="card border-0" style={{ background: "#1a1a1a" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Editoriales ({lista.length})</h5>
-          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>
-            {loading ? "…" : "↺ Actualizar"}
-          </button>
+          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺ Actualizar"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
             <div className="text-center py-5"><div className="spinner-border text-light" /></div>
-          ) : lista.length === 0 ? (
-            <div className="text-center py-5">
-              <p className="text-muted mb-2">Sin editoriales.</p>
-              <p className="text-muted small">
-                Puede que la tabla no esté creada en la BD. <br/>
-                Corre <code className="text-warning">migration_editoriales.sql</code> en tu base de datos.
-              </p>
-            </div>
-          ) : (
+          ) : lista.length === 0 && !tablaFalta ? (
+            <p className="text-muted text-center py-4">Sin editoriales. Crea la primera arriba.</p>
+          ) : !tablaFalta && (
             <div className="table-responsive">
               <table className="table table-dark table-hover mb-0">
                 <thead><tr>
@@ -363,38 +337,26 @@ function TabEditoriales() {
                   <th className="text-muted fw-normal small">Autor</th>
                   <th className="text-muted fw-normal small">Categoría</th>
                   <th className="text-muted fw-normal small">Fecha</th>
-                  <th className="text-muted fw-normal small">Imagen</th>
+                  <th className="text-muted fw-normal small">Img</th>
                   <th className="text-muted fw-normal small">Estado</th>
                   <th className="text-muted fw-normal small text-end">Acciones</th>
                 </tr></thead>
                 <tbody>
                   {lista.map((ed) => (
                     <tr key={ed.id}>
-                      <td className="fw-medium" style={{ maxWidth: 200 }}>
-                        <span title={ed.titulo}>
-                          {ed.titulo?.length > 30 ? ed.titulo.slice(0, 30) + "…" : ed.titulo}
-                        </span>
+                      <td className="fw-medium" style={{ maxWidth: 200 }} title={ed.titulo}>
+                        {ed.titulo?.length > 30 ? ed.titulo.slice(0, 30) + "…" : ed.titulo}
                       </td>
                       <td className="text-muted small">{ed.autor || "—"}</td>
                       <td><span className="badge bg-secondary">{ed.categoria}</span></td>
                       <td className="text-muted small">{fmt(ed.fecha)}</td>
-                      <td>
-                        {ed.imagen_url
-                          ? <span className="badge bg-success">✓</span>
-                          : <span className="badge bg-secondary text-muted">—</span>
-                        }
-                      </td>
-                      <td>
-                        <span className={`badge ${ed.publicado ? "bg-success" : "bg-warning text-dark"}`}>
-                          {ed.publicado ? "Publicada" : "Borrador"}
-                        </span>
-                      </td>
+                      <td>{ed.imagen_url ? <span className="badge bg-success">✓</span> : <span className="text-muted">—</span>}</td>
+                      <td><span className={`badge ${ed.publicado ? "bg-success" : "bg-warning text-dark"}`}>
+                        {ed.publicado ? "Publicada" : "Borrador"}
+                      </span></td>
                       <td className="text-end">
-                        <button className="btn btn-sm btn-outline-light me-2" onClick={() => iniciarEdicion(ed)}>
-                          Editar
-                        </button>
-                        <button className="btn btn-sm btn-outline-danger"
-                          onClick={() => eliminar(ed.id)} disabled={actionId === ed.id}>
+                        <button className="btn btn-sm btn-outline-light me-2" onClick={() => iniciarEdicion(ed)}>Editar</button>
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => eliminar(ed.id)} disabled={actionId === ed.id}>
                           {actionId === ed.id ? "…" : "Eliminar"}
                         </button>
                       </td>
@@ -434,7 +396,6 @@ export default function AdminDashboard() {
   return (
     <div className="min-vh-100 bg-dark text-light py-4">
       <div className="container-fluid" style={{ maxWidth: 1200 }}>
-
         <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
           <div>
             <h1 className="h3 fw-bold text-white mb-0">Panel de Administración</h1>
@@ -447,19 +408,12 @@ export default function AdminDashboard() {
         </div>
 
         <ul className="nav nav-tabs mb-4 border-secondary">
-          {[
-            { key: "editoriales", label: "📝 Editoriales" },
-            { key: "partners",    label: "🔗 Páginas hermanas" },
-          ].map(({ key, label }) => (
+          {[{ key: "editoriales", label: "📝 Editoriales" }, { key: "partners", label: "🔗 Páginas hermanas" }].map(({ key, label }) => (
             <li className="nav-item" key={key}>
               <button
-                className={`nav-link ${tab === key
-                  ? "active bg-dark text-white border-secondary border-bottom-0"
-                  : "text-muted border-0 bg-transparent"}`}
+                className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
                 onClick={() => setTab(key)}
-              >
-                {label}
-              </button>
+              >{label}</button>
             </li>
           ))}
         </ul>
