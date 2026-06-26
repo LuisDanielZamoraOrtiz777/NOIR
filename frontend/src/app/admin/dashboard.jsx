@@ -224,9 +224,13 @@ function TabEditoriales() {
   const iniciarEdicion = (ed) => {
     setEditandoId(ed.id);
     setForm({
-      titulo: ed.titulo, autor: ed.autor, fecha: ed.fecha,
-      categoria: ed.categoria, resumen: ed.resumen,
-      contenido: ed.contenido || "", publicado: ed.publicado,
+      titulo: ed.titulo, 
+      autor: ed.autor, 
+      fecha: ed.fecha ? ed.fecha.slice(0, 10) : "",
+      categoria: ed.categoria, 
+      resumen: ed.resumen,
+      contenido: ed.contenido || "", 
+      publicado: ed.publicado,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
