@@ -19,7 +19,7 @@ const menuItems = [
     description: "Accede a colaboraciones, coaching y publicaciones premium.",
     links: [
       { href: "/contacto", label: "Consultoría editorial" },
-      { href: "/contacto", label: "Propuestas de colaboración" },
+      { href: "/contacto#colaboracion", label: "Propuestas de colaboración" },
     ],
   },
 ];

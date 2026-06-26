@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import SearchBox from "@/components/SearchBox";
+import DarkToggle from "@/components/DarkToggle";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -29,14 +30,19 @@ export default function Header() {
           className={`nav-toggle ${menuOpen ? "is-open" : ""}`}
           aria-expanded={menuOpen}
           aria-controls="main-navigation"
-          onClick={() => setMenuOpen((value) => !value)}
+          onClick={() => setMenuOpen((v) => !v)}
         >
           <span className="sr-only">Abrir menú</span>
           <span aria-hidden="true" />
         </button>
 
         <div className={`header-menu ${menuOpen ? "is-open" : ""}`}>
-          <nav id="main-navigation" className="main-navigation" aria-label="Navegación principal" data-element="menu-navegacion">
+          <nav
+            id="main-navigation"
+            className="main-navigation"
+            aria-label="Navegación principal"
+            data-element="menu-navegacion"
+          >
             <ul>
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -45,8 +51,10 @@ export default function Header() {
               ))}
             </ul>
           </nav>
+
           <div className="header-actions" data-element="header-acciones">
             <SearchBox />
+            <DarkToggle />
           </div>
         </div>
       </div>

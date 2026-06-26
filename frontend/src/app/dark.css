@@ -1,0 +1,336 @@
+/* ═══════════════════════════════════════════════════════
+   MODO OSCURO — dark.css
+   Se activa añadiendo la clase "dark" al elemento <html>
+═══════════════════════════════════════════════════════ */
+
+/* ── Variables base (modo claro) ──────────────────────── */
+:root {
+  --bg:           #f7f7f5;
+  --bg-alt:       #fff;
+  --bg-card:      #fff;
+  --bg-input:     #fff;
+  --bg-section:   #f7f7f5;
+  --border:       #e0dcd5;
+  --border-card:  rgba(0,0,0,0.08);
+  --text:         #111;
+  --text-muted:   #555;
+  --text-faint:   #888;
+  --text-heading: #0b0b0b;
+  --accent:       #0b0b0b;
+  --accent-fg:    #fff;
+  --shadow:       rgba(0,0,0,0.08);
+  --transition:   background 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
+/* ── Variables modo oscuro ────────────────────────────── */
+html.dark {
+  --bg:           #0d0d0d;
+  --bg-alt:       #141414;
+  --bg-card:      #1a1a1a;
+  --bg-input:     #1e1e1e;
+  --bg-section:   #111;
+  --border:       rgba(255,255,255,0.1);
+  --border-card:  rgba(255,255,255,0.08);
+  --text:         #e8e6e3;
+  --text-muted:   #999;
+  --text-faint:   #666;
+  --text-heading: #f0ede8;
+  --accent:       #e8e6e3;
+  --accent-fg:    #0d0d0d;
+  --shadow:       rgba(0,0,0,0.4);
+}
+
+/* ── Aplicar variables a los elementos ──────────────────── */
+html { transition: var(--transition); }
+
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  transition: var(--transition);
+}
+
+h1, h2, h3, h4 { color: var(--text-heading) !important; }
+p, li          { color: var(--text); }
+
+/* Cards y secciones */
+.post-card,
+.dom-card,
+.community-card,
+.featured-article,
+.featured-editorial,
+.community-mission,
+.chat-widget,
+.faq,
+.editoriales-process,
+.favorites-empty,
+.favorites-panel,
+.dom-lab,
+.dom-box {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+  transition: var(--transition);
+}
+
+/* Textos dentro de cards */
+.post-card-copy p,
+.post-card-copy h3,
+.author-card p,
+.member-bio,
+.trend-card p,
+.testimonial-card p,
+.mission-content p,
+.faq li,
+.event-info p,
+.process-step p {
+  color: var(--text) !important;
+}
+
+.post-category,
+.post-card-fecha,
+.post-card-autor,
+.text-muted,
+.article-meta,
+.editorial-meta,
+.member-role,
+.event-location,
+.post-card-placeholder-cat {
+  color: var(--text-faint) !important;
+}
+
+/* Tags */
+.post-tag {
+  background: var(--bg-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Botones */
+.button,
+.secondary-button,
+.favorite-button {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  transition: var(--transition), transform 240ms ease, box-shadow 240ms ease;
+}
+
+.button:hover,
+.secondary-button:hover,
+.favorite-button:hover {
+  background: var(--accent) !important;
+  color: var(--accent-fg) !important;
+}
+
+/* Inputs y textareas */
+.contact-form input,
+.contact-form textarea,
+.chat-controls textarea {
+  background: var(--bg-input) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Secciones de fondo */
+.section-block,
+.page-content,
+.hero-section {
+  background: var(--bg);
+}
+
+/* Hero intro */
+.hero-text { color: var(--text-muted) !important; }
+.hero-copy .eyebrow { color: var(--text-faint) !important; }
+
+/* Formulario de contacto */
+.contact-hero { border-color: var(--border) !important; }
+.contact-hero p { color: var(--text-muted) !important; }
+.contact-info p { color: var(--text-muted) !important; }
+.contact-info a { color: var(--text) !important; }
+.contact-info h3 { color: var(--text-faint) !important; }
+.faq li { border-color: var(--border) !important; }
+.faq li strong { color: var(--text) !important; }
+
+/* Mosaico hero en home */
+html.dark .mag-tile--light {
+  background: #2a2a2a !important;
+}
+html.dark .mag-tile--light .mag-name,
+html.dark .mag-tile--light .mag-tag {
+  color: #e0ddd8 !important;
+}
+html.dark .mag-tile--accent {
+  background: #3a2e1c !important;
+}
+
+/* Revistas hermanas en home */
+html.dark .revista-card {
+  background: #1a1a1a !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: var(--text) !important;
+}
+html.dark .revista-card:hover {
+  background: var(--accent) !important;
+  color: var(--accent-fg) !important;
+}
+html.dark .revista-info span,
+html.dark .revista-info p { color: var(--text-faint) !important; }
+
+/* Chat */
+html.dark .chat-window {
+  background: #111 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+html.dark .chat-message.system,
+html.dark .chat-message.assistant {
+  background: #1e1e1e !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: var(--text) !important;
+}
+
+/* Tendencias */
+html.dark .tendencia-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+}
+html.dark .tendencia-titulo { color: var(--text-heading) !important; }
+html.dark .tendencia-resumen { color: var(--text-muted) !important; }
+
+/* Filtros tendencias */
+html.dark .filtro-btn {
+  border-color: rgba(255,255,255,0.15) !important;
+  color: var(--text-muted) !important;
+}
+html.dark .filtro-btn.activo {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+  border-color: var(--text) !important;
+}
+
+/* Secciones hero de páginas internas */
+html.dark .opinion-hero,
+html.dark .community-hero,
+html.dark .editoriales-hero,
+html.dark .looks-hero,
+html.dark .tendencias-hero {
+  border-color: var(--border) !important;
+}
+
+html.dark .opinion-intro,
+html.dark .community-intro,
+html.dark .editoriales-intro,
+html.dark .looks-intro,
+html.dark .tendencias-intro {
+  color: var(--text-muted) !important;
+}
+
+html.dark .opinion-stats .stat-item strong,
+html.dark .community-stats .stat-item strong,
+html.dark .editoriales-stats .stat-item strong,
+html.dark .looks-stats .stat-item strong {
+  color: var(--text-heading) !important;
+}
+
+html.dark .opinion-stats .stat-item span,
+html.dark .community-stats .stat-item span,
+html.dark .editoriales-stats .stat-item span,
+html.dark .looks-stats .stat-item span {
+  color: var(--text-faint) !important;
+}
+
+/* Author / member cards */
+html.dark .author-card,
+html.dark .member-card,
+html.dark .trend-card,
+html.dark .influencer-card,
+html.dark .testimonial-card,
+html.dark .event-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-card) !important;
+}
+
+html.dark .author-card h4,
+html.dark .member-card h4,
+html.dark .trend-card h4,
+html.dark .influencer-card h4 {
+  color: var(--text-heading) !important;
+}
+
+html.dark .testimonial-card { border-left-color: var(--text-faint) !important; }
+html.dark .testimonial-card footer { color: var(--text-faint) !important; }
+
+/* Community join */
+html.dark .community-join {
+  background: var(--bg-alt) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+html.dark .community-join p { color: var(--text-muted) !important; }
+
+/* Interactive menu */
+html.dark .interactive-menu-trigger {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+html.dark .interactive-menu-panel {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+}
+html.dark .interactive-menu-panel .menu-description { color: var(--text-muted) !important; }
+html.dark .interactive-menu-panel .menu-link { color: var(--text) !important; }
+html.dark .interactive-menu-panel .menu-link:hover { background: rgba(255,255,255,0.05) !important; }
+
+/* Search results / no results */
+html.dark .search-results-banner {
+  background: var(--bg-alt) !important;
+  border-color: var(--border) !important;
+}
+html.dark .search-results-banner p { color: var(--text) !important; }
+html.dark .no-results-box {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+}
+html.dark .no-results-box p { color: var(--text-muted) !important; }
+
+/* Visitor greeting */
+html.dark .visitor-greeting-banner {
+  background: var(--bg-alt) !important;
+  border-color: var(--border) !important;
+}
+
+/* Favorites section */
+html.dark .favorites-section {
+  background: var(--bg-alt) !important;
+  border-color: var(--border) !important;
+}
+html.dark .favorites-empty {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+}
+html.dark .favorites-empty p { color: var(--text-faint) !important; }
+
+/* ── Botón de modo oscuro ──────────────────────────────── */
+.dark-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  transition: background 200ms ease, border-color 200ms ease, transform 200ms ease;
+  flex-shrink: 0;
+}
+
+.dark-toggle:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.4);
+  transform: rotate(15deg);
+}
+
+.dark-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import EventBanner from "@/components/EventBanner";
 import InteractiveMenu from "@/components/InteractiveMenu";

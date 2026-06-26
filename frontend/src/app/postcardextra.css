@@ -1,0 +1,40 @@
+
+/* ── POST CARD — metadatos enriquecidos ──────────────────────────────────────*/
+.post-card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.post-card-fecha {
+  font-size: 0.72rem;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.post-card-autor {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 6px 0 8px;
+}
+
+.post-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.post-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border: 1px solid #ddd;
+  color: #555;
+  border-radius: 2px;
+  background: #fafafa;
+}
