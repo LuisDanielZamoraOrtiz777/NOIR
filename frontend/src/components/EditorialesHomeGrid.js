@@ -78,7 +78,7 @@ export default function EditorialesHomeGrid() {
                       borderRadius: "8px"
                     }}
                     onError={(e) => {
-                      e.target.style.display = 'none';
+                      e.currentTarget.style.display = 'none';
                     }}
                   />
                 )}

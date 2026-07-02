@@ -17,6 +17,10 @@ function fmt(d) {
   catch { return d; }
 }
 
+function isValidPublicUrl(url) {
+  return typeof url === "string" && /^(https?:\/\/)/i.test(url.trim());
+}
+
 function Alert({ msg, type, onClose }) {
   if (!msg) return null;
   return (
@@ -203,9 +207,16 @@ function TabEditoriales() {
 
   const iniciarEdicion = (ed) => {
     setEditandoId(ed.id);
-    setForm({ titulo: ed.titulo || "", autor: ed.autor || "", fecha: ed.fecha ? ed.fecha.split("T")[0] : "",
-      categoria: ed.categoria || "Editorial", resumen: ed.resumen || "", contenido: ed.contenido || "",
-      imagen_url: ed.imagen_url || "", publicado: Boolean(ed.publicado) });
+    setForm({
+      titulo: ed.titulo || "",
+      autor: ed.autor || "",
+      fecha: ed.fecha ? ed.fecha.slice(0, 10) : "",
+      categoria: ed.categoria || "Editorial",
+      resumen: ed.resumen || "",
+      contenido: ed.contenido || "",
+      imagen_url: ed.imagen_url || "",
+      publicado: Boolean(ed.publicado),
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -217,8 +228,24 @@ function TabEditoriales() {
     const url    = editandoId ? `${API}/api/admin/editoriales/${editandoId}` : `${API}/api/admin/editoriales`;
     const method = editandoId ? "PATCH" : "POST";
     try {
-      const body = { ...form, imagen_url: form.imagen_url?.trim() || null };
-      const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+      const payload = {
+        titulo: form.titulo?.trim(),
+        autor: form.autor?.trim() || "Equipo Editorial Noir",
+        fecha: form.fecha || new Date().toISOString().slice(0, 10),
+        categoria: form.categoria?.trim() || "Editorial",
+        resumen: form.resumen?.trim(),
+        contenido: form.contenido?.trim() || "",
+        imagen_url: form.imagen_url?.trim() || null,
+        publicado: Boolean(form.publicado),
+      };
+
+      if (payload.imagen_url && !isValidPublicUrl(payload.imagen_url)) {
+        throw new Error("La imagen debe ser una URL pública válida.");
+      }
+
+      console.log("Payload editorial:", payload);
+
+      const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk(j.message || (editandoId ? "Editorial actualizada ✓" : "Editorial creada ✓"));
@@ -297,6 +324,11 @@ function TabEditoriales() {
                 <label className="form-label text-light small">URL de imagen <span className="text-muted">(opcional)</span></label>
                 <input type="url" className="form-control bg-dark text-white border-secondary"
                   placeholder="https://images.unsplash.com/..." {...campo("imagen_url")} disabled={saving} />
+                {!isValidPublicUrl(form.imagen_url) && form.imagen_url ? (
+                  <p className="form-text text-warning small mt-2">
+                    La imagen debe ser una URL pública válida (https://...).
+                  </p>
+                ) : null}
               </div>
               <div className="col-12">
                 <label className="form-label text-light small">Contenido completo</label>
@@ -306,7 +338,7 @@ function TabEditoriales() {
               <div className="col-12 d-flex align-items-center gap-3 flex-wrap">
                 <div className="form-check form-switch">
                   <input className="form-check-input" type="checkbox" id="publicado"
-                    checked={form.publicado} onChange={(e) => setForm({ ...form, publicado: e.target.checked })} disabled={saving} />
+                    checked={Boolean(form.publicado)} onChange={(e) => setForm({ ...form, publicado: e.target.checked })} disabled={saving} />
                   <label className="form-check-label text-light" htmlFor="publicado">Publicada (visible en el sitio)</label>
                 </div>
                 <button type="submit" className="btn btn-light px-4" disabled={saving || tablaFalta}>

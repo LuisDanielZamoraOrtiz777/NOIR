@@ -12,10 +12,14 @@ function getSql() {
 function parseBoolean(value) {
   if (typeof value === "boolean") return value;
   if (typeof value === "string") {
-    if (value === "true") return true;
+    if (value === "true" || value === "on") return true;
     if (value === "false") return false;
   }
   return null;
+}
+
+function isValidPublicUrl(value) {
+  return typeof value === "string" && /^(https?:\/\/)/i.test(value.trim());
 }
 
 // ── PATCH /api/admin/editoriales/[id] ────────────────────────────────────────
@@ -33,6 +37,11 @@ export async function PATCH(request, { params }) {
 
     const body = await request.json();
     const { titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado } = body;
+
+    if (imagen_url && !isValidPublicUrl(imagen_url)) {
+      return NextResponse.json({ error: "La imagen debe ser una URL pública válida." }, { status: 400 });
+    }
+
     const publishedValue = parseBoolean(publicado);
 
     const sql = getSql();

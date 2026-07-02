@@ -14,10 +14,14 @@ function getSql() {
 function parseBoolean(value) {
   if (typeof value === "boolean") return value;
   if (typeof value === "string") {
-    if (value === "true") return true;
+    if (value === "true" || value === "on") return true;
     if (value === "false") return false;
   }
   return null;
+}
+
+function isValidPublicUrl(value) {
+  return typeof value === "string" && /^(https?:\/\/)/i.test(value.trim());
 }
 
 // ── GET /api/admin/editoriales ────────────────────────────────────────────────
@@ -62,6 +66,9 @@ export async function POST(request) {
     }
     if (!resumen?.trim()) {
       return NextResponse.json({ error: "El resumen es obligatorio." }, { status: 400 });
+    }
+    if (imagen_url && !isValidPublicUrl(imagen_url)) {
+      return NextResponse.json({ error: "La imagen debe ser una URL pública válida." }, { status: 400 });
     }
 
     const sql = getSql();

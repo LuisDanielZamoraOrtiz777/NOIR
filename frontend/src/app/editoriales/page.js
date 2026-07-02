@@ -35,7 +35,10 @@ function EditorialCard({ ed }) {
             src={ed.imagen_url}
             alt={ed.titulo}
             className="editorial-card-img"
-            onError={() => setImgError(true)}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              setImgError(true);
+            }}
             loading="lazy"
           />
         ) : (
