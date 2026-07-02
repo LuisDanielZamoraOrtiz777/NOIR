@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Usar rutas relativas (/api/...) gracias a las API Routes de Next.js
-const API_BASE = "/api";
+// Usar rutas relativas (/api/...) o una API externa si se configura NEXT_PUBLIC_API_BASE
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "/api";
 
 export default function AdminLogin() {
   const router = useRouter();

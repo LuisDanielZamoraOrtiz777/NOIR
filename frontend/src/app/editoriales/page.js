@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+
 const PALETAS = {
   Pasarela:     "#0d1b2a",
   Editorial:    "#0b0b0b",
@@ -25,6 +27,10 @@ function EditorialCard({ ed }) {
   const bg = PALETAS[ed.categoria] || "#0b0b0b";
   const inicial = ed.titulo?.charAt(0) || "N";
 
+  useEffect(() => {
+    setImgError(false);
+  }, [ed.imagen_url]);
+
   return (
     <article className="editorial-card">
       {/* Imagen o placeholder */}
@@ -32,6 +38,7 @@ function EditorialCard({ ed }) {
         {ed.imagen_url && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            key={ed.imagen_url}
             src={ed.imagen_url}
             alt={ed.titulo}
             className="editorial-card-img"
@@ -75,7 +82,7 @@ export default function EditorialesPage() {
   useEffect(() => {
     async function cargar() {
       try {
-        const r = await fetch("/api/editoriales/publicas");
+        const r = await fetch(`${API_BASE}/api/editoriales/publicas`, { cache: "no-store" });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || "Error al cargar editoriales");
         setEditoriales(j.data || []);

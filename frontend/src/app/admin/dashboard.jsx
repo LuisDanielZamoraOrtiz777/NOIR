@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API = "";
+const API = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
 
 function authHeaders() {
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : "";
@@ -181,7 +181,7 @@ function TabEditoriales() {
   const cargar = useCallback(async () => {
     setLoading(true); setTablaFalta(false);
     try {
-      const r = await fetch(`${API}/api/admin/editoriales`, { headers: authHeaders() });
+      const r = await fetch(`${API}/api/admin/editoriales`, { headers: authHeaders(), cache: "no-store" });
       const j = await r.json();
       if (r.status === 503 || j.error?.includes("no existe")) { setTablaFalta(true); setLista([]); return; }
       if (!r.ok) throw new Error(j.error || "Error al cargar editoriales");
@@ -196,7 +196,7 @@ function TabEditoriales() {
   const runSetup = async () => {
     setSetting(true); setErr(""); setOk("");
     try {
-      const r = await fetch(`${API}/api/admin/setup`, { headers: authHeaders() });
+      const r = await fetch(`${API}/api/admin/setup`, { headers: authHeaders(), cache: "no-store" });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || "Error en setup");
       setOk(j.log?.join(" | ") || "Setup completado");
@@ -245,7 +245,7 @@ function TabEditoriales() {
 
       console.log("Payload editorial:", payload);
 
-      const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+      const r = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload), cache: "no-store" });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk(j.message || (editandoId ? "Editorial actualizada ✓" : "Editorial creada ✓"));
@@ -258,7 +258,7 @@ function TabEditoriales() {
     if (!confirm("¿Eliminar esta editorial permanentemente?")) return;
     setActionId(id); setErr(""); setOk("");
     try {
-      const r = await fetch(`${API}/api/admin/editoriales/${id}`, { method: "DELETE", headers: authHeaders() });
+      const r = await fetch(`${API}/api/admin/editoriales/${id}`, { method: "DELETE", headers: authHeaders(), cache: "no-store" });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk(j.message || "Editorial eliminada ✓"); cargar();

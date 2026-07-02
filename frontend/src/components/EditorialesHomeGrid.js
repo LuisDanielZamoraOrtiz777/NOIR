@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-// Ahora usa rutas relativas (/api/...) gracias a las API Routes de Next.js
-const API_BASE = "";
+// Usar rutas relativas (/api/...) o un backend externo configurado con NEXT_PUBLIC_API_BASE
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
 
 export default function EditorialesHomeGrid() {
   const [editoriales, setEditoriales] = useState([]);
@@ -16,7 +16,7 @@ export default function EditorialesHomeGrid() {
   const cargarEditoriales = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/editoriales/publicas`);
+      const res = await fetch(`${API_BASE}/api/editoriales/publicas`, { cache: "no-store" });
       const data = await res.json();
       
       if (!res.ok) {
