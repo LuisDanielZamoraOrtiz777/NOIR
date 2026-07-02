@@ -16,7 +16,7 @@ export default function EditorialesHomeGrid() {
   const cargarEditoriales = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/admin/editoriales/publicas`);
+      const res = await fetch(`/api/editoriales/publicas`);
       const data = await res.json();
       
       if (!res.ok) {

@@ -9,6 +9,15 @@ function getSql() {
   return neon(process.env.DATABASE_URL);
 }
 
+function parseBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value === "true") return true;
+    if (value === "false") return false;
+  }
+  return null;
+}
+
 // ── PATCH /api/admin/editoriales/[id] ────────────────────────────────────────
 export async function PATCH(request, { params }) {
   const auth = authenticateJWT(request);
@@ -24,6 +33,7 @@ export async function PATCH(request, { params }) {
 
     const body = await request.json();
     const { titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado } = body;
+    const publishedValue = parseBoolean(publicado);
 
     const sql = getSql();
     const rows = await sql`
@@ -35,7 +45,7 @@ export async function PATCH(request, { params }) {
         resumen     = COALESCE(${resumen?.trim()    || null}, resumen),
         contenido   = COALESCE(${contenido?.trim()  || null}, contenido),
         imagen_url  = COALESCE(${imagen_url?.trim() || null}, imagen_url),
-        publicado   = COALESCE(${typeof publicado === "boolean" ? publicado : null}, publicado),
+        publicado   = COALESCE(${publishedValue !== null ? publishedValue : null}, publicado),
         updated_at  = NOW()
       WHERE id = ${id}
       RETURNING *

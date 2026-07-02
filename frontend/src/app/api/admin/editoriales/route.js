@@ -11,6 +11,15 @@ function getSql() {
   return neon(process.env.DATABASE_URL);
 }
 
+function parseBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value === "true") return true;
+    if (value === "false") return false;
+  }
+  return null;
+}
+
 // ── GET /api/admin/editoriales ────────────────────────────────────────────────
 export async function GET(request) {
   const auth = authenticateJWT(request);
@@ -56,6 +65,7 @@ export async function POST(request) {
     }
 
     const sql = getSql();
+    const publishedValue = parseBoolean(publicado);
     const rows = await sql`
       INSERT INTO editoriales (titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado)
       VALUES (
@@ -66,7 +76,7 @@ export async function POST(request) {
         ${resumen.trim()},
         ${contenido?.trim() || ""},
         ${imagen_url?.trim() || null},
-        ${publicado === true || publicado === "true"}
+        ${publishedValue !== null ? publishedValue : false}
       )
       RETURNING *
     `;

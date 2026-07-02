@@ -10,8 +10,7 @@ export default function SisterStoreCatalog() {
   const [hoveredProduct, setHoveredProduct] = useState(null);
 
   useEffect(() => {
-    const apiRoot = process.env.NEXT_PUBLIC_API_URL || "/api";
-    const url = `${apiRoot.replace(/\/$/, "")}/sister-store/products`;
+    const url = "/api/sister-store/products";
 
     async function fetchProducts() {
       setIsLoading(true);

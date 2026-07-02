@@ -69,11 +69,11 @@ function TabPartners() {
   const toggle = async (partner) => {
     setActionId(partner.id); setErr(""); setOk("");
     const method = partner.activo ? "DELETE" : "PATCH";
-    try {
-      const r = await fetch(`${API}/api/admin/partners/${partner.id}`, { method, headers: authHeaders() });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || j.error || "Error");
-      setOk(j.message); cargar();
+      const url = partner.activo
+        ? `${API}/api/admin/partners/${partner.id}`
+        : `${API}/api/admin/partners/${partner.id}/activar`;
+      try {
+        const r = await fetch(url, { method, headers: authHeaders() });
     } catch (e) { setErr(e.message); }
     finally { setActionId(null); }
   };
