@@ -10,7 +10,7 @@ import TendenciasFeed from "@/components/TendenciasFeed";
 
 export default function HomePage() {
   return (
-    <main id="main-content" data-element="hero">
+    <main id="main-content">
       <EventBanner />
       <InteractiveMenu />
       <SeasonalHero />

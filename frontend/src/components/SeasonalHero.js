@@ -89,10 +89,10 @@ export default function SeasonalHero() {
         ) : null}
 
         <div className="hero-buttons">
-          <Link href="/tendencias" className="button cta-button" id="cta-principal" data-element="cta-principal">
+          <Link href="/tendencias" className="button cta-button" id="cta-principal">
             Ver tendencias globales
           </Link>
-          <Link href="/editoriales" className="button" id="cta-editoriales" data-element="cta-editoriales">
+          <Link href="/editoriales" className="button" id="cta-editoriales">
             Explorar editoriales
           </Link>
         </div>
