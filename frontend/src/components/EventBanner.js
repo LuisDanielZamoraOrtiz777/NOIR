@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 
-export export const eventDefinitions = [
+export const eventDefinitions = [
   {
     id: "fashion-week",
     label: "Semana de Moda Noir",
