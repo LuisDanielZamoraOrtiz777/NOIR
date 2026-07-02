@@ -454,6 +454,40 @@ textarea {
               #081f16;
 }
 
+.hero-section.hero-event-winter {
+  background: radial-gradient(circle at top left, rgba(215, 192, 166, 0.12), transparent 42%),
+              radial-gradient(circle at bottom right, rgba(54, 46, 31, 0.12), transparent 35%),
+              #181216;
+}
+
+.hero-section.hero-event-summer {
+  background: radial-gradient(circle at top left, rgba(242, 233, 228, 0.18), transparent 38%),
+              radial-gradient(circle at bottom right, rgba(74, 78, 105, 0.16), transparent 42%),
+              #1b1f38;
+}
+
+.hero-section[class*="hero-event-"] .hero-copy {
+  color: #fff;
+}
+
+.hero-section[class*="hero-event-"] .hero-copy .eyebrow {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hero-section[class*="hero-event-"] .hero-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-section[class*="hero-event-"] .button {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.hero-section[class*="hero-event-"] .season-update-summary {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .hero-copy { max-width: 540px; }
 
 .hero-copy .eyebrow {

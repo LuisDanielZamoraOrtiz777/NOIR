@@ -64,7 +64,9 @@ export default function SeasonalHero() {
 
   const nowTs = useMemo(() => getCurrentDateTimestamp(), []);
   const activeEvent = useMemo(() => getActiveEvent(nowTs, events), [nowTs, events]);
-  const heroThemeClass = activeEvent ? `hero-event-${activeEvent.id}` : "";
+  const heroThemeClass = activeEvent
+    ? activeEvent.backgroundClass.replace("event-banner-", "hero-event-")
+    : "";
 
   return (
     <section id="hero-section" className={`hero-section ${heroThemeClass}`} data-element="hero" aria-labelledby="home-title">
