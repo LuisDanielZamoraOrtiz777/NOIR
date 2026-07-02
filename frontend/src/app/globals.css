@@ -387,6 +387,18 @@ textarea {
   margin: 0 auto;
 }
 
+.hero-section.hero-event-fashion-week {
+  background: radial-gradient(circle at top left, rgba(255, 215, 150, 0.08), transparent 42%),
+              radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.08), transparent 35%),
+              #0e0b0b;
+}
+
+.hero-section.hero-event-sustainability {
+  background: radial-gradient(circle at top left, rgba(137, 192, 157, 0.15), transparent 38%),
+              radial-gradient(circle at bottom right, rgba(10, 61, 43, 0.15), transparent 40%),
+              #081f16;
+}
+
 .hero-copy { max-width: 540px; }
 
 .hero-copy .eyebrow {
@@ -417,6 +429,77 @@ textarea {
 }
 
 .hero-buttons .button { flex: 0 1 auto; }
+
+.season-update-summary {
+  margin: 24px 0 18px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.season-update-summary strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.event-dates-inline {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.hero-magazine-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  height: 480px;
+}
+
+.mag-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  border-radius: 4px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+  cursor: pointer;
+}
+
+.mag-tile:hover,
+.mag-tile:focus-visible,
+.mag-tile.is-highlighted {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.14);
+  filter: saturate(1.08);
+}
+
+.mag-tile .mag-name,
+.mag-tile .mag-tag {
+  transition: color 0.25s ease;
+}
+
+.mag-tile.is-highlighted .mag-name,
+.mag-tile.is-highlighted .mag-tag {
+  color: #ffffff;
+}
+
+.hero-tile-tooltip {
+  max-width: 1180px;
+  margin: 22px auto 0;
+  padding: 18px 22px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
 
 .button,
 .secondary-button,

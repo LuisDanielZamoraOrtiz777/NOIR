@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 
-const eventDefinitions = [
+export export const eventDefinitions = [
   {
     id: "fashion-week",
     label: "Semana de Moda Noir",
@@ -9,6 +9,7 @@ const eventDefinitions = [
     end: "2026-07-16",
     backgroundClass: "event-banner-fashion-week",
     message: "Edición especial: descubre contenido exclusivo de nuestra Semana de Moda Noir.",
+    details: "La actualización de temporada incluye nuevos editoriales, banners dinámicos y un menú interactivo que resalta colecciones clave por puntero.",
   },
   {
     id: "sustainability-day",
@@ -17,12 +18,21 @@ const eventDefinitions = [
     end: "2026-06-05",
     backgroundClass: "event-banner-sustainability",
     message: "Hoy celebramos la moda sostenible con colecciones y artículos dedicados.",
+    details: "La interfaz cambia con un esquema verde y mensajes especiales para reforzar la campaña sostenible del sitio.",
   },
 ];
 
 function parseDate(value) {
   const [year, month, day] = value.split("-").map(Number);
   return Date.UTC(year, month - 1, day);
+}
+
+export function getActiveEvent(nowTs) {
+  return eventDefinitions.find((event) => {
+    const startTs = parseDate(event.start);
+    const endTs = parseDate(event.end) + 24 * 60 * 60 * 1000 - 1; // include end day
+    return nowTs >= startTs && nowTs <= endTs;
+  });
 }
 
 export default function EventBanner({ currentDate }) {
@@ -32,13 +42,7 @@ export default function EventBanner({ currentDate }) {
     return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
   }, [currentDate]);
 
-  const activeEvent = useMemo(() => {
-    return eventDefinitions.find((event) => {
-      const startTs = parseDate(event.start);
-      const endTs = parseDate(event.end) + 24 * 60 * 60 * 1000 - 1; // include end day
-      return nowTs >= startTs && nowTs <= endTs;
-    });
-  }, [nowTs]);
+  const activeEvent = useMemo(() => getActiveEvent(nowTs), [nowTs]);
 
   if (!activeEvent) {
     return null;

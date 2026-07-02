@@ -71,8 +71,8 @@ export default function InteractiveMenu() {
         <div
           className="interactive-menu-item"
           key={item.key}
-          onMouseEnter={() => handleEnter(item.key)}
-          onMouseLeave={handleLeave}
+          onPointerEnter={() => handleEnter(item.key)}
+          onPointerLeave={handleLeave}
         >
           <button
             type="button"
@@ -80,6 +80,7 @@ export default function InteractiveMenu() {
             aria-haspopup="true"
             aria-controls={`panel-${item.key}`}
             aria-expanded={openKey === item.key}
+            onPointerDown={() => handleTouch(item.key)}
             onTouchStart={() => handleTouch(item.key)}
             onKeyDown={(e) => onTriggerKeyDown(e, item.key)}
           >
