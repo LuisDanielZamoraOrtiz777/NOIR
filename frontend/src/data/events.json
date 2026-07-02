@@ -5,8 +5,8 @@
     "start": "2026-07-01",
     "end": "2026-07-15",
     "backgroundClass": "event-banner-summer",
-    "message": "Edición de verano: descubre la colección de partners de temporada.",
-    "details": "El banner principal se actualiza según la fecha actual y el fondo cambia a un esquema cálido de verano."
+    "message": "Curaduría estival: Sastrería fluida y piezas de transición.",
+    "details": "Una propuesta de diseño minimalista con siluetas desestructuradas y fibras naturales seleccionadas para el verano contemporáneo."
   },
   {
     "id": "winter-partner-collection",
@@ -14,17 +14,17 @@
     "start": "2026-12-01",
     "end": "2026-12-21",
     "backgroundClass": "event-banner-winter",
-    "message": "Edición invernal especial: descubre la colección de aliados de temporada.",
-    "details": "El banner principal cambia para mostrar la colección invernal y las variables de color adaptan el fondo a un tono cálido y festivo."
+    "message": "Texturas de invierno: Lana merina y abrigos estructurados.",
+    "details": "Una refinada selección de prendas de abrigo y siluetas volumétricas concebidas para el clima frío bajo una estética rigurosa."
   },
   {
     "id": "fashion-week",
-    "label": "Semana de Moda Noir",
+    "label": "Semana de la Moda Noir",
     "start": "2026-07-10",
     "end": "2026-07-16",
     "backgroundClass": "event-banner-fashion-week",
-    "message": "Edición especial: descubre contenido exclusivo de nuestra Semana de Moda Noir.",
-    "details": "La actualización de temporada incluye nuevos editoriales, banners dinámicos y un menú interactivo que resalta colecciones clave por puntero."
+    "message": "Especial de pasarelas: Cobertura editorial de las colecciones internacionales.",
+    "details": "Análisis exclusivo, reportajes fotográficos y selección de tendencias clave directamente desde París, Milán y Nueva York."
   },
   {
     "id": "sustainability-day",
@@ -32,7 +32,7 @@
     "start": "2026-06-05",
     "end": "2026-06-05",
     "backgroundClass": "event-banner-sustainability",
-    "message": "Hoy celebramos la moda sostenible con colecciones y artículos dedicados.",
-    "details": "La interfaz cambia con un esquema verde y mensajes especiales para reforzar la campaña sostenible del sitio."
+    "message": "Hacia un futuro circular: Marcas conscientes y procesos artesanales.",
+    "details": "Explora nuestra guía editorial dedicada al diseño ético, materiales certificados y proyectos de bajo impacto ambiental."
   }
 ]

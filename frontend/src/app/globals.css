@@ -455,15 +455,15 @@ textarea {
 }
 
 .hero-section.hero-event-winter {
-  background: radial-gradient(circle at top left, rgba(215, 192, 166, 0.12), transparent 42%),
-              radial-gradient(circle at bottom right, rgba(54, 46, 31, 0.12), transparent 35%),
-              #181216;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 42%),
+              radial-gradient(circle at bottom right, rgba(0, 0, 0, 0.2), transparent 35%),
+              #121212;
 }
 
 .hero-section.hero-event-summer {
-  background: radial-gradient(circle at top left, rgba(242, 233, 228, 0.18), transparent 38%),
-              radial-gradient(circle at bottom right, rgba(74, 78, 105, 0.16), transparent 42%),
-              #1b1f38;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 40%),
+              radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.03), transparent 35%),
+              #0b0b0b;
 }
 
 .hero-section[class*="hero-event-"] .hero-copy {
@@ -752,11 +752,13 @@ textarea {
 }
 
 .event-banner-winter {
-  background: linear-gradient(120deg, #1f1b25 0%, #5a4f6e 40%, #d7c0a6 100%);
+  background: linear-gradient(135deg, #161616 0%, #0b0b0b 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .event-banner-summer {
-  background: linear-gradient(120deg, #1a1a2e 0%, #4a4e69 55%, #f2e9e4 100%);
+  background: linear-gradient(135deg, #0b0b0b 0%, #1c1c1c 50%, #2e2e2e 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 [data-element] {
