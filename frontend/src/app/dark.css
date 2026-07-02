@@ -38,6 +38,25 @@ html.dark {
   --accent:       #e8e6e3;
   --accent-fg:    #0d0d0d;
   --shadow:       rgba(0,0,0,0.4);
+
+  /* Variables de Evento (Modo Oscuro) */
+  --hero-fashion-week-bg: radial-gradient(circle at top left, rgba(255, 215, 150, 0.08), transparent 42%), #0e0b0b;
+  --hero-sustainability-bg: radial-gradient(circle at top left, rgba(137, 192, 157, 0.15), transparent 38%), #081f16;
+  --hero-winter-bg: radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 42%), #121212;
+  --hero-summer-bg: radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 40%), #0b0b0b;
+  
+  --event-banner-fw-bg: linear-gradient(120deg, #111 0%, #7f5a35 100%);
+  --event-banner-sus-bg: linear-gradient(120deg, #0a3d2b 0%, #89c09d 100%);
+  --event-banner-winter-bg: linear-gradient(135deg, #161616 0%, #0b0b0b 100%);
+  --event-banner-summer-bg: linear-gradient(135deg, #0b0b0b 0%, #1c1c1c 50%, #2e2e2e 100%);
+  
+  --hero-event-text: #fff;
+  --hero-event-eyebrow: rgba(255, 255, 255, 0.7);
+  --hero-event-text-muted: rgba(255, 255, 255, 0.9);
+  --hero-event-button-border: rgba(255, 255, 255, 0.16);
+  --hero-event-button-color: #fff;
+  --hero-event-summary-bg: rgba(255, 255, 255, 0.06);
+  --hero-event-summary-border: rgba(255, 255, 255, 0.14);
 }
 
 /* ── Aplicar variables a los elementos ──────────────────── */
