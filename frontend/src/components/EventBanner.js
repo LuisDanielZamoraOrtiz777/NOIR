@@ -1,48 +1,40 @@
 "use client";
-import { useMemo } from "react";
-
-export const eventDefinitions = [
-  {
-    id: "fashion-week",
-    label: "Semana de Moda Noir",
-    start: "2026-07-10",
-    end: "2026-07-16",
-    backgroundClass: "event-banner-fashion-week",
-    message: "Edición especial: descubre contenido exclusivo de nuestra Semana de Moda Noir.",
-    details: "La actualización de temporada incluye nuevos editoriales, banners dinámicos y un menú interactivo que resalta colecciones clave por puntero.",
-  },
-  {
-    id: "sustainability-day",
-    label: "Día de la Sostenibilidad",
-    start: "2026-06-05",
-    end: "2026-06-05",
-    backgroundClass: "event-banner-sustainability",
-    message: "Hoy celebramos la moda sostenible con colecciones y artículos dedicados.",
-    details: "La interfaz cambia con un esquema verde y mensajes especiales para reforzar la campaña sostenible del sitio.",
-  },
-];
-
-function parseDate(value) {
-  const [year, month, day] = value.split("-").map(Number);
-  return Date.UTC(year, month - 1, day);
-}
-
-export function getActiveEvent(nowTs) {
-  return eventDefinitions.find((event) => {
-    const startTs = parseDate(event.start);
-    const endTs = parseDate(event.end) + 24 * 60 * 60 * 1000 - 1; // include end day
-    return nowTs >= startTs && nowTs <= endTs;
-  });
-}
+import { useMemo, useState, useEffect } from "react";
+import { getActiveEvent, getCurrentDateTimestamp } from "@/lib/eventUtils";
 
 export default function EventBanner({ currentDate }) {
+  const [events, setEvents] = useState([]);
+  const [loadError, setLoadError] = useState(null);
+
+  useEffect(() => {
+    async function loadEvents() {
+      try {
+        const response = await fetch("/api/events");
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || "No se pudieron cargar los eventos.");
+        setEvents(Array.isArray(json.events) ? json.events : []);
+      } catch (error) {
+        console.error("Error cargando eventos:", error);
+        setLoadError(error.message);
+      }
+    }
+
+    loadEvents();
+  }, []);
+
   const nowTs = useMemo(() => {
-    if (currentDate) return Date.parse(currentDate);
-    const d = new Date();
-    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    if (currentDate) {
+      const parsed = new Date(currentDate);
+      return Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate());
+    }
+    return getCurrentDateTimestamp();
   }, [currentDate]);
 
-  const activeEvent = useMemo(() => getActiveEvent(nowTs), [nowTs]);
+  const activeEvent = useMemo(() => getActiveEvent(nowTs, events), [nowTs, events]);
+
+  if (loadError) {
+    return null;
+  }
 
   if (!activeEvent) {
     return null;

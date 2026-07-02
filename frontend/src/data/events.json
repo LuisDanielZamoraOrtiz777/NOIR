@@ -1,0 +1,38 @@
+[
+  {
+    "id": "summer-partner-collection",
+    "label": "Summer Partner Collection",
+    "start": "2026-07-01",
+    "end": "2026-07-15",
+    "backgroundClass": "event-banner-summer",
+    "message": "Edición de verano: descubre la colección de partners de temporada.",
+    "details": "El banner principal se actualiza según la fecha actual y el fondo cambia a un esquema cálido de verano."
+  },
+  {
+    "id": "winter-partner-collection",
+    "label": "Winter Partner Collection",
+    "start": "2026-12-01",
+    "end": "2026-12-21",
+    "backgroundClass": "event-banner-winter",
+    "message": "Edición invernal especial: descubre la colección de aliados de temporada.",
+    "details": "El banner principal cambia para mostrar la colección invernal y las variables de color adaptan el fondo a un tono cálido y festivo."
+  },
+  {
+    "id": "fashion-week",
+    "label": "Semana de Moda Noir",
+    "start": "2026-07-10",
+    "end": "2026-07-16",
+    "backgroundClass": "event-banner-fashion-week",
+    "message": "Edición especial: descubre contenido exclusivo de nuestra Semana de Moda Noir.",
+    "details": "La actualización de temporada incluye nuevos editoriales, banners dinámicos y un menú interactivo que resalta colecciones clave por puntero."
+  },
+  {
+    "id": "sustainability-day",
+    "label": "Día de la Sostenibilidad",
+    "start": "2026-06-05",
+    "end": "2026-06-05",
+    "backgroundClass": "event-banner-sustainability",
+    "message": "Hoy celebramos la moda sostenible con colecciones y artículos dedicados.",
+    "details": "La interfaz cambia con un esquema verde y mensajes especiales para reforzar la campaña sostenible del sitio."
+  }
+]

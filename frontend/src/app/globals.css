@@ -244,6 +244,61 @@ textarea {
   gap: 24px;
 }
 
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 220px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+  padding: 10px 0;
+  list-style: none;
+  margin: 0;
+  display: none;
+  z-index: 20;
+}
+
+.dropdown-menu.is-open {
+  display: block;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-link {
+  display: block;
+  padding: 10px 18px;
+  color: #0b0b0b;
+  text-decoration: none;
+  transition: background 220ms ease;
+}
+
+.dropdown-link:hover,
+.dropdown-link:focus-visible {
+  background: #f4f4f2;
+}
+
 .interactive-menu {
   max-width: 1180px;
   margin: 0 auto;
@@ -634,6 +689,41 @@ textarea {
 .section-block + .section-block { margin-top: 48px; }
 
 .card-grid { gap: 28px; }
+
+.product-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+  position: relative;
+}
+
+.product-card.is-hovered {
+  transform: translateY(-6px) scale(1.01);
+  border-color: var(--accent);
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.12);
+}
+
+.product-card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.product-card-actions .favorite-button {
+  opacity: 1;
+}
+
+.event-banner-winter {
+  background: linear-gradient(120deg, #1f1b25 0%, #5a4f6e 40%, #d7c0a6 100%);
+}
+
+.event-banner-summer {
+  background: linear-gradient(120deg, #1a1a2e 0%, #4a4e69 55%, #f2e9e4 100%);
+}
 
 [data-element] {
   opacity: 0;

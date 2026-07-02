@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getActiveEvent } from "@/components/EventBanner";
+import { getActiveEvent, getCurrentDateTimestamp } from "@/lib/eventUtils";
 
 const heroTiles = [
   {
@@ -42,15 +42,28 @@ const tileDetails = {
   accent: "Puntero activo: contempla la selección de Noir Atelier como pieza clave de la actualización de temporada.",
 };
 
-function getTodayTimestamp() {
-  const d = new Date();
-  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-}
-
 export default function SeasonalHero() {
   const [highlightedTile, setHighlightedTile] = useState(null);
-  const nowTs = useMemo(() => getTodayTimestamp(), []);
-  const activeEvent = useMemo(() => getActiveEvent(nowTs), [nowTs]);
+  const [events, setEvents] = useState([]);
+  const [loadError, setLoadError] = useState(null);
+
+  useEffect(() => {
+    async function loadEvents() {
+      try {
+        const response = await fetch("/api/events");
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || "No se pudieron cargar los eventos.");
+        setEvents(Array.isArray(json.events) ? json.events : []);
+      } catch (error) {
+        console.error("Error cargando eventos:", error);
+        setLoadError(error.message);
+      }
+    }
+    loadEvents();
+  }, []);
+
+  const nowTs = useMemo(() => getCurrentDateTimestamp(), []);
+  const activeEvent = useMemo(() => getActiveEvent(nowTs, events), [nowTs, events]);
   const heroThemeClass = activeEvent ? `hero-event-${activeEvent.id}` : "";
 
   return (

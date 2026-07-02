@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export default function SisterStoreCatalog() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
 
   useEffect(() => {
     const apiRoot = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -63,7 +65,15 @@ export default function SisterStoreCatalog() {
       ) : (
         <div className="card-grid sister-store-grid">
           {products.map((product) => (
-            <article key={product.id} className="product-card">
+            <article
+              key={product.id}
+              className={`product-card ${hoveredProduct === product.id ? "is-hovered" : ""}`}
+              onMouseEnter={() => setHoveredProduct(product.id)}
+              onMouseLeave={() => setHoveredProduct(null)}
+              onFocus={() => setHoveredProduct(product.id)}
+              onBlur={() => setHoveredProduct(null)}
+              tabIndex={0}
+            >
               <div className="product-card-body">
                 <h3>{product.name}</h3>
                 <p className="product-category">{product.category}</p>
@@ -77,6 +87,11 @@ export default function SisterStoreCatalog() {
                   {product.availability === "in_stock" ? "En stock" : "Bajo stock"}
                 </span>
               </div>
+              {hoveredProduct === product.id ? (
+                <div className="product-card-actions">
+                  <FavoriteButton postId={product.id} />
+                </div>
+              ) : null}
             </article>
           ))}
         </div>
