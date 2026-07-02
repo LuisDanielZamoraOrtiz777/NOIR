@@ -11,22 +11,8 @@ const navLinks = [
   { href: "/opinion", label: "Opinión" },
 ];
 
-const categoryItems = [
-  { href: "/looks?category=hombre", label: "Ropa de hombre" },
-  { href: "/looks?category=mujer", label: "Ropa de mujer" },
-  { href: "/opinion", label: "Blog" },
-];
-
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
-
-  const toggleCategories = useCallback((event) => {
-    event.preventDefault();
-    setCategoriesOpen((current) => !current);
-  }, []);
-
-  const closeCategories = useCallback(() => setCategoriesOpen(false), []);
 
   return (
     <header id="site-header" className="site-header" data-element="header">
@@ -62,30 +48,6 @@ export default function Header() {
                   <Link href={link.href}>{link.label}</Link>
                 </li>
               ))}
-              <li
-                className="nav-item nav-dropdown"
-                onPointerEnter={() => setCategoriesOpen(true)}
-                onPointerLeave={closeCategories}
-              >
-                <button
-                  type="button"
-                  className="nav-link nav-dropdown-trigger"
-                  aria-haspopup="true"
-                  aria-expanded={categoriesOpen}
-                  onTouchStart={toggleCategories}
-                >
-                  Categorías
-                </button>
-                <ul className={`dropdown-menu ${categoriesOpen ? "is-open" : ""}`} role="menu">
-                  {categoryItems.map((item) => (
-                    <li key={item.href}>
-                      <Link href={item.href} className="dropdown-link" onClick={closeCategories}>
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
             </ul>
           </nav>
 
