@@ -1,8 +1,10 @@
 import { neon } from "@neondatabase/serverless";
 import { authenticateJWT } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 function getSql() {
   if (!process.env.DATABASE_URL) {
@@ -87,6 +89,9 @@ export async function POST(request) {
       )
       RETURNING *
     `;
+
+    revalidatePath("/editoriales");
+    revalidatePath("/");
 
     return NextResponse.json(
       { status: "success", message: "Editorial creada", data: rows[0] },

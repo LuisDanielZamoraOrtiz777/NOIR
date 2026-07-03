@@ -1,8 +1,10 @@
 import { neon } from "@neondatabase/serverless";
 import { authenticateJWT } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 function getSql() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL no definida");
@@ -64,6 +66,9 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: `No existe editorial con id ${id}.` }, { status: 404 });
     }
 
+    revalidatePath("/editoriales");
+    revalidatePath("/");
+
     return NextResponse.json({ status: "success", message: "Editorial actualizada", data: rows[0] });
   } catch (err) {
     console.error("[PATCH /api/admin/editoriales/[id]]", err.message);
@@ -90,6 +95,9 @@ export async function DELETE(request, { params }) {
     if (rows.length === 0) {
       return NextResponse.json({ error: `No existe editorial con id ${id}.` }, { status: 404 });
     }
+
+    revalidatePath("/editoriales");
+    revalidatePath("/");
 
     return NextResponse.json({ status: "success", message: "Editorial eliminada", data: rows[0] });
   } catch (err) {

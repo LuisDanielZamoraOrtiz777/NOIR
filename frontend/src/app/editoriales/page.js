@@ -90,7 +90,10 @@ export default function EditorialesPage() {
   useEffect(() => {
     async function cargar() {
       try {
-        const r = await fetch(`${API_BASE}/api/editoriales/publicas`, { cache: "no-store" });
+        const r = await fetch("/api/editoriales/publicas", {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" },
+        });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || "Error al cargar editoriales");
         setEditoriales(j.data || []);
