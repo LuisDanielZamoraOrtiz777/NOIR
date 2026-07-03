@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { ThemeProvider } from "@/context/ThemeContext";
+import ChatWidget from "@/components/ChatWidget";
 
 export const metadata = {
   title: "Noir Atelier | Alta costura editorial",
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
           <main>{children}</main>
           <ScrollReveal />
           <Footer />
+          <ChatWidget />
         </ThemeProvider>
       </body>
     </html>

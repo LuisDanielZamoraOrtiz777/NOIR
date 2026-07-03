@@ -1,5 +1,8 @@
 import { query } from "@/lib/db";
 import { authenticateJWT } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+
+export const dynamic = "force-dynamic";
 
 export async function PATCH(request, { params }) {
   try {
@@ -17,6 +20,9 @@ export async function PATCH(request, { params }) {
     if (result.rows.length === 0) {
       return Response.json({ error: "No encontrado", detail: `No existe un partner con id ${id}` }, { status: 404 });
     }
+
+    revalidatePath("/");
+    revalidatePath("/revistas");
 
     return Response.json({ status: "success", message: "Partner activado", data: result.rows[0] });
   } catch (error) {

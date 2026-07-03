@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/editoriales", label: "Editoriales" },
   { href: "/tendencias", label: "Tendencias" },
   { href: "/opinion", label: "Opinión" },
+  { href: "/revistas", label: "Revistas" },
 ];
 
 export default function Header() {

@@ -1,5 +1,8 @@
 import { query } from "@/lib/db";
 import { authenticateJWT } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request) {
   try {
@@ -66,6 +69,9 @@ export async function POST(request) {
       "INSERT INTO sitios_partners (nombre, url_api, activo, creado_en) VALUES ($1, $2, $3, NOW()) RETURNING *",
       [nombre.trim(), url_api.trim(), true]
     );
+
+    revalidatePath("/");
+    revalidatePath("/revistas");
 
     return Response.json(
       { status: "success", message: "Partner registrado exitosamente", data: result.rows[0] },

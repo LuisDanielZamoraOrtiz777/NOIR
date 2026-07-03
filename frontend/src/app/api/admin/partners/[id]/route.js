@@ -1,5 +1,8 @@
 import { query } from "@/lib/db";
 import { authenticateJWT } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+
+export const dynamic = "force-dynamic";
 
 export async function DELETE(request, { params }) {
   try {
@@ -17,6 +20,9 @@ export async function DELETE(request, { params }) {
         { status: 404 }
       );
     }
+
+    revalidatePath("/");
+    revalidatePath("/revistas");
 
     return Response.json({
       status: "success",
@@ -48,6 +54,9 @@ export async function PATCH(request, { params }) {
         { status: 404 }
       );
     }
+
+    revalidatePath("/");
+    revalidatePath("/revistas");
 
     return Response.json({
       status: "success",
