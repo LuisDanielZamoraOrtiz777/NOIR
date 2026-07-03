@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 // Usar rutas relativas (/api/...) o un backend externo configurado con NEXT_PUBLIC_API_BASE
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+const REFRESH_INTERVAL_MS = 15000;
 
 export default function EditorialesHomeGrid() {
   const [editoriales, setEditoriales] = useState([]);
@@ -35,11 +36,14 @@ export default function EditorialesHomeGrid() {
     };
     window.addEventListener("storage", onStorage);
 
+    const intervalId = window.setInterval(handleUpdate, REFRESH_INTERVAL_MS);
+
     return () => {
       window.removeEventListener("storage", onStorage);
       if (channel) {
         channel.close();
       }
+      window.clearInterval(intervalId);
     };
   }, []);
 
@@ -99,7 +103,7 @@ export default function EditorialesHomeGrid() {
               <div className="card-body d-flex flex-column">
                 {editorial.imagen_url && (
                   <img 
-                    src={editorial.imagen_url} 
+                    src={`${editorial.imagen_url}${editorial.imagen_url.includes("?") ? "&" : "?"}bc=${encodeURIComponent(editorial.updated_at || editorial.id)}`} 
                     alt={editorial.titulo}
                     className="card-img-top mb-3"
                     style={{ 

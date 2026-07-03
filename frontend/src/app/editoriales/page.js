@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+const REFRESH_INTERVAL_MS = 15000;
 
 const PALETAS = {
   Pasarela:     "#0d1b2a",
@@ -22,7 +23,7 @@ function formatearFecha(fecha) {
   } catch { return fecha; }
 }
 
-function EditorialCard({ ed, refreshCount }) {
+function EditorialCard({ ed }) {
   const [imgError, setImgError] = useState(false);
   const bg = PALETAS[ed.categoria] || "#0b0b0b";
   const inicial = ed.titulo?.charAt(0) || "N";
@@ -31,11 +32,11 @@ function EditorialCard({ ed, refreshCount }) {
     setImgError(false);
   }, [ed.imagen_url]);
 
-  const getImageSrc = (url) => {
+  const getImageSrc = (url, cacheKey) => {
     if (!url) return url;
-    if (refreshCount === 0) return url;
+    if (!cacheKey) return url;
     const separator = url.includes("?") ? "&" : "?";
-    return `${url}${separator}bc=${refreshCount}`;
+    return `${url}${separator}bc=${encodeURIComponent(cacheKey)}`;
   };
 
   return (
@@ -45,8 +46,8 @@ function EditorialCard({ ed, refreshCount }) {
         {ed.imagen_url && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            key={`${ed.id}-${refreshCount}`}
-            src={getImageSrc(ed.imagen_url)}
+            key={`${ed.id}-${ed.updated_at || "0"}`}
+            src={getImageSrc(ed.imagen_url, ed.updated_at || ed.id)}
             alt={ed.titulo}
             className="editorial-card-img"
             onError={(e) => {
@@ -85,7 +86,6 @@ export default function EditorialesPage() {
   const [editoriales, setEditoriales] = useState([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState("");
-  const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
     async function cargar() {
@@ -104,7 +104,6 @@ export default function EditorialesPage() {
 
     const handleUpdate = () => {
       cargar();
-      setRefreshCount((count) => count + 1);
     };
 
     let channel;
@@ -124,20 +123,16 @@ export default function EditorialesPage() {
     };
     window.addEventListener("storage", onStorage);
 
+    const intervalId = window.setInterval(handleUpdate, REFRESH_INTERVAL_MS);
+
     return () => {
       window.removeEventListener("storage", onStorage);
       if (channel) {
         channel.close();
       }
+      window.clearInterval(intervalId);
     };
   }, []);
-
-  const getImageSrc = (url) => {
-    if (!url) return url;
-    if (refreshCount === 0) return url;
-    const separator = url.includes("?") ? "&" : "?";
-    return `${url}${separator}bc=${refreshCount}`;
-  };
 
   return (
     <main className="page-content">
@@ -176,7 +171,7 @@ export default function EditorialesPage() {
         {!loading && !error && editoriales.length > 0 && (
           <div className="card-grid editoriales-grid-cards">
             {editoriales.map((ed) => (
-              <EditorialCard key={ed.id} ed={ed} refreshCount={refreshCount} />
+              <EditorialCard key={`${ed.id}-${ed.updated_at || "0"}`} ed={ed} />
             ))}
           </div>
         )}
