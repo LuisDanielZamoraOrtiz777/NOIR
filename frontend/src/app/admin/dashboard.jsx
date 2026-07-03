@@ -21,6 +21,17 @@ function isValidPublicUrl(url) {
   return typeof url === "string" && /^(https?:\/\/)/i.test(url.trim());
 }
 
+function notifyEditorialChange() {
+  if (typeof window === "undefined") return;
+  if (typeof BroadcastChannel !== "undefined") {
+    const channel = new BroadcastChannel("noir-editoriales");
+    channel.postMessage({ type: "editoriales-updated" });
+    channel.close();
+    return;
+  }
+  window.localStorage.setItem("noir-editoriales-refresh", Date.now().toString());
+}
+
 function Alert({ msg, type, onClose }) {
   if (!msg) return null;
   return (
@@ -250,6 +261,7 @@ function TabEditoriales() {
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk(j.message || (editandoId ? "Editorial actualizada ✓" : "Editorial creada ✓"));
       cancelar(); cargar();
+      notifyEditorialChange();
     } catch (e) { setErr(e.message); }
     finally { setSaving(false); }
   };
@@ -262,6 +274,7 @@ function TabEditoriales() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk(j.message || "Editorial eliminada ✓"); cargar();
+      notifyEditorialChange();
     } catch (e) { setErr(e.message); }
     finally { setActionId(null); }
   };

@@ -38,8 +38,8 @@ function EditorialCard({ ed }) {
         {ed.imagen_url && !imgError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            key={ed.imagen_url}
-            src={ed.imagen_url}
+            key={`${ed.id}-${refreshCount}`}
+            src={getImageSrc(ed.imagen_url)}
             alt={ed.titulo}
             className="editorial-card-img"
             onError={(e) => {
@@ -78,6 +78,7 @@ export default function EditorialesPage() {
   const [editoriales, setEditoriales] = useState([]);
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState("");
+  const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
     async function cargar() {
@@ -89,8 +90,47 @@ export default function EditorialesPage() {
       } catch (e) { setError(e.message); }
       finally { setLoading(false); }
     }
+
     cargar();
+
+    if (typeof window === "undefined") return;
+
+    const handleUpdate = () => {
+      cargar();
+      setRefreshCount((count) => count + 1);
+    };
+
+    let channel;
+    if (typeof BroadcastChannel !== "undefined") {
+      channel = new BroadcastChannel("noir-editoriales");
+      channel.addEventListener("message", (event) => {
+        if (event?.data?.type === "editoriales-updated") {
+          handleUpdate();
+        }
+      });
+    }
+
+    const onStorage = (event) => {
+      if (event.key === "noir-editoriales-refresh") {
+        handleUpdate();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      if (channel) {
+        channel.close();
+      }
+    };
   }, []);
+
+  const getImageSrc = (url) => {
+    if (!url) return url;
+    if (refreshCount === 0) return url;
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}bc=${refreshCount}`;
+  };
 
   return (
     <main className="page-content">

@@ -11,6 +11,36 @@ export default function EditorialesHomeGrid() {
 
   useEffect(() => {
     cargarEditoriales();
+
+    if (typeof window === "undefined") return;
+
+    const handleUpdate = () => {
+      cargarEditoriales();
+    };
+
+    let channel;
+    if (typeof BroadcastChannel !== "undefined") {
+      channel = new BroadcastChannel("noir-editoriales");
+      channel.addEventListener("message", (event) => {
+        if (event?.data?.type === "editoriales-updated") {
+          handleUpdate();
+        }
+      });
+    }
+
+    const onStorage = (event) => {
+      if (event.key === "noir-editoriales-refresh") {
+        handleUpdate();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      if (channel) {
+        channel.close();
+      }
+    };
   }, []);
 
   const cargarEditoriales = async () => {
