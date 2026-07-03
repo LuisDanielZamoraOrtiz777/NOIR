@@ -22,7 +22,7 @@ function formatearFecha(fecha) {
   } catch { return fecha; }
 }
 
-function EditorialCard({ ed }) {
+function EditorialCard({ ed, refreshCount }) {
   const [imgError, setImgError] = useState(false);
   const bg = PALETAS[ed.categoria] || "#0b0b0b";
   const inicial = ed.titulo?.charAt(0) || "N";
@@ -30,6 +30,13 @@ function EditorialCard({ ed }) {
   useEffect(() => {
     setImgError(false);
   }, [ed.imagen_url]);
+
+  const getImageSrc = (url) => {
+    if (!url) return url;
+    if (refreshCount === 0) return url;
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}bc=${refreshCount}`;
+  };
 
   return (
     <article className="editorial-card">
@@ -169,7 +176,7 @@ export default function EditorialesPage() {
         {!loading && !error && editoriales.length > 0 && (
           <div className="card-grid editoriales-grid-cards">
             {editoriales.map((ed) => (
-              <EditorialCard key={ed.id} ed={ed} />
+              <EditorialCard key={ed.id} ed={ed} refreshCount={refreshCount} />
             ))}
           </div>
         )}
