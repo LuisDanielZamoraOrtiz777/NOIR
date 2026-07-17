@@ -5,6 +5,7 @@ const sisterStoreRouter = require("./routes/sisterStore");
 const rssRouter         = require("./routes/rss");
 const adminRouter       = require("./routes/admin");
 const authRouter        = require("./routes/auth");
+const userAuthRouter    = require("./routes/userAuth");
 const pool              = require("./config/database");
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use("/api/sister-store", sisterStoreRouter);
 app.use("/api/rss",          rssRouter);
 app.use("/api/admin",        authRouter);   // POST /api/admin/login, GET /api/admin/verify
 app.use("/api/admin",        adminRouter);  // CRUD partners + editoriales (autenticado)
+app.use("/api/auth",         userAuthRouter); // POST /api/auth/register, POST /api/auth/login
 
 // ── Editoriales PÚBLICAS (sin autenticación) ──────────────────────────────────
 // Separada del router de admin para que sea accesible sin token
