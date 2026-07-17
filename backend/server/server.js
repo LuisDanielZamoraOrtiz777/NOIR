@@ -16,18 +16,29 @@ app.use(helmet({
 
 // 2. CORS - Configurado para producción
 const allowedOrigins = [
-  "https://noiratelier-two.vercel.app",
+  process.env.FRONTEND_ORIGIN || "https://noiratelier-two.vercel.app",
   "http://localhost:3000",
   "http://localhost:3001",
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("No autorizado por CORS"));
+    // Allow requests with no origin (server-to-server, curl, Postman)
+    if (!origin) return callback(null, true);
+
+    // Allow explicit allowed origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    // Allow Vercel preview and other vercel domains
+    try {
+      const url = new URL(origin);
+      if (url.hostname.endsWith(".vercel.app")) return callback(null, true);
+    } catch (e) {
+      // ignore parse errors
     }
+
+    // Otherwise deny
+    callback(new Error("No autorizado por CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
