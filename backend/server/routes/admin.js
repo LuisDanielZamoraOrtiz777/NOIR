@@ -243,13 +243,14 @@ router.delete("/editoriales/:id", authenticate, isAdmin, async (req, res) => {
  */
 router.get("/usuarios", authenticate, isAdmin, async (req, res) => {
   try {
-    // Intentar con el sistema de roles (si existe la tabla)
+    // Intentar con el sistema de roles (usando usuario_rol)
     try {
       const result = await pool.query(`
         SELECT u.id, u.email, u.created_at, 
-               COALESCE(r.nombre, 'usuario') as rol
+               COALESCE(r.nombre, u.rol, 'usuario') as rol
         FROM users u
-        LEFT JOIN roles r ON r.id = u.rol_id
+        LEFT JOIN usuario_rol ur ON u.id = ur.user_id AND ur.activo = true
+        LEFT JOIN roles r ON ur.rol_id = r.id
         ORDER BY u.created_at DESC
       `);
       return res.json({ status: "success", count: result.rows.length, data: result.rows });
@@ -286,11 +287,24 @@ router.patch("/usuarios/:id", authenticate, isAdmin, async (req, res) => {
       return res.status(400).json({ error: "Rol inválido", detail: "El rol debe ser: administrador, editor o usuario" });
     }
 
-    // Actualizar directamente en la columna rol de la tabla users
-    const result = await pool.query(
-      "UPDATE users SET rol = $1 WHERE id = $2 RETURNING id, email, created_at, rol",
-      [rol, userId]
-    );
+    // 1. Actualizar la columna rol en la tabla users
+    await pool.query("UPDATE users SET rol = $1 WHERE id = $2", [rol, userId]);
+
+    // 2. Obtener el ID del rol desde la tabla roles
+    const rolResult = await pool.query("SELECT id FROM roles WHERE nombre = $1", [rol]);
+    if (rolResult.rows.length > 0) {
+      const rolId = rolResult.rows[0].id;
+      // 3. Actualizar o insertar en usuario_rol
+      const existe = await pool.query("SELECT id FROM usuario_rol WHERE user_id = $1", [userId]);
+      if (existe.rows.length > 0) {
+        await pool.query("UPDATE usuario_rol SET rol_id = $1, activo = true WHERE user_id = $2", [rolId, userId]);
+      } else {
+        await pool.query("INSERT INTO usuario_rol (user_id, rol_id, activo) VALUES ($1, $2, true)", [userId, rolId]);
+      }
+    }
+
+    // Obtener el usuario actualizado
+    const result = await pool.query("SELECT id, email, created_at, rol FROM users WHERE id = $1", [userId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Usuario no encontrado", detail: `No existe un usuario con id ${userId}` });

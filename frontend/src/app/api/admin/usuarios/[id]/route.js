@@ -32,8 +32,21 @@ export async function PATCH(request, { params }) {
 
     const sql = neon(process.env.DATABASE_URL);
 
-    // Actualizar directamente en la tabla users (la columna rol existe)
+    // 1. Actualizar la columna rol en la tabla users
     await sql`UPDATE users SET rol = ${rol} WHERE id = ${userId}`;
+    
+    // 2. Obtener el ID del rol desde la tabla roles
+    const rolResult = await sql`SELECT id FROM roles WHERE nombre = ${rol}`;
+    if (rolResult.length > 0) {
+      const rolId = rolResult[0].id;
+      // 3. Actualizar o insertar en usuario_rol
+      const existe = await sql`SELECT id FROM usuario_rol WHERE user_id = ${userId}`;
+      if (existe.length > 0) {
+        await sql`UPDATE usuario_rol SET rol_id = ${rolId}, activo = true WHERE user_id = ${userId}`;
+      } else {
+        await sql`INSERT INTO usuario_rol (user_id, rol_id, activo) VALUES (${userId}, ${rolId}, true)`;
+      }
+    }
     
     const usuario = await sql`SELECT id, email, created_at, rol FROM users WHERE id = ${userId}`;
     

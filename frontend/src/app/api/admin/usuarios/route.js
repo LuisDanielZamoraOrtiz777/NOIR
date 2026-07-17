@@ -21,18 +21,19 @@ export async function GET(request) {
 
     const sql = neon(process.env.DATABASE_URL);
 
-    // Intentar obtener usuarios con roles (si existe la tabla roles)
+    // Obtener usuarios con su rol desde usuario_rol (si existe) o desde la columna rol
     try {
       const usuarios = await sql`
         SELECT u.id, u.email, u.created_at, 
-               COALESCE(r.nombre, 'usuario') as rol
+               COALESCE(r.nombre, u.rol, 'usuario') as rol
         FROM users u
-        LEFT JOIN roles r ON r.id = u.rol_id
+        LEFT JOIN usuario_rol ur ON u.id = ur.user_id AND ur.activo = true
+        LEFT JOIN roles r ON ur.rol_id = r.id
         ORDER BY u.created_at DESC
       `;
       return NextResponse.json({ status: "success", count: usuarios.length, data: usuarios });
     } catch (error) {
-      // Si falla (no existe la tabla roles), usar consulta simple
+      // Si falla (no existe tabla usuario_rol), usar la columna rol directamente
       const usuarios = await sql`
         SELECT id, email, created_at, rol
         FROM users
