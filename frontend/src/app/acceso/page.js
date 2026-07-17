@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
 
 export default function AccesoPage() {
   const router = useRouter();
