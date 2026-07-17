@@ -5,6 +5,7 @@ const sisterStoreRouter = require("./routes/sisterStore");
 const rssRouter = require("./routes/rss");
 const adminRouter = require("./routes/admin");
 const authRouter = require("./routes/auth");
+const userAuthRouter = require("./routes/userAuth");
 const pool = require("./config/database");
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.get("/api/editoriales/publicas", async (req, res) => {
 
 app.use("/api/admin", adminRouter);
 app.use("/api/admin", authRouter);
+app.use("/api/auth", userAuthRouter);
 
 // Log de rutas cargadas para debugging
 console.log("\n========================================");
