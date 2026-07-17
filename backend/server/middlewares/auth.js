@@ -33,7 +33,7 @@ function isAdmin(req, res, next) {
     return res.status(401).json({ error: "No autorizado", detail: "Usuario no autenticado" });
   }
 
-  if (req.user.rol !== "admin") {
+  if (req.user.rol !== "admin" && req.user.rol !== "administrador") {
     return res.status(403).json({ error: "Acceso denegado", detail: "Se requiere rol de administrador" });
   }
 
