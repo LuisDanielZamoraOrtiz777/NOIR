@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { ThemeProvider } from "@/context/ThemeContext";
 import ChatWidget from "@/components/ChatWidget";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const BASE_URL = "https://noiratelier-two.vercel.app";
 
@@ -118,11 +119,13 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          <Header />
-          <main>{children}</main>
-          <ScrollReveal />
-          <Footer />
-          <ChatWidget />
+          <ErrorBoundary>
+            <Header />
+            <main>{children}</main>
+            <ScrollReveal />
+            <Footer />
+            <ChatWidget />
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>
