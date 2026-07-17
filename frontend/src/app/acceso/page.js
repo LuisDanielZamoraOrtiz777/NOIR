@@ -23,7 +23,16 @@ export default function AccesoPage() {
   useEffect(() => {
     setMounted(true);
     const token = localStorage.getItem("user_token");
+    const role = localStorage.getItem("user_rol")?.toLowerCase();
     if (token) {
+      if (role === "admin" || role === "administrador") {
+        router.push("/admin");
+        return;
+      }
+      if (role === "editor") {
+        router.push("/editor");
+        return;
+      }
       router.push("/");
     }
   }, [router]);
@@ -72,6 +81,8 @@ export default function AccesoPage() {
 
       const destination = data.user?.rol === "editor"
         ? "/editor"
+        : data.user?.rol === "administrador" || data.user?.rol === "admin"
+          ? "/admin"
         : isLogin
           ? "/"
           : "/perfil";
@@ -277,27 +288,18 @@ export default function AccesoPage() {
                   </div>
                 </form>
 
-                <div className="mt-4 pt-3 border-top border-secondary text-center">
-                  <p className="small mb-0 text-light-emphasis">
-                    {isLogin ? "¿Eres administrador? " : ""}
-                    {isLogin ? (
-                      <Link href="/admin/login" className="text-info text-decoration-none">
-                        Acceder al panel admin
-                      </Link>
-                    ) : (
-                      <>
-                        Al registrarte aceptas nuestros{" "}
-                        <Link href="/terminos" className="text-info text-decoration-none">
-                          términos
-                        </Link>{" "}
-                        y{" "}
-                        <Link href="/privacidad" className="text-info text-decoration-none">
-                          privacidad
-                        </Link>
-                      </>
-                    )}
-                  </p>
-                </div>
+                  <div className="mt-4 pt-3 border-top border-secondary text-center">
+                    <p className="small mb-0 text-light-emphasis">
+                      {isLogin ? "Usa este formulario para iniciar sesión. Si eres administrador, usa el mismo acceso." : (
+                        <>
+                          Al registrarte aceptas nuestros{" "}
+                          <Link href="/terminos" className="text-info text-decoration-none">términos</Link>{" "}
+                          y{" "}
+                          <Link href="/privacidad" className="text-info text-decoration-none">privacidad</Link>
+                        </>
+                      )}
+                    </p>
+                  </div>
               </div>
             </div>
           </div>

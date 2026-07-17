@@ -353,6 +353,23 @@ router.delete("/usuarios/:id", authenticate, isAdmin, async (req, res) => {
 // ════════════════════════════════════════
 
 /**
+ * GET /api/admin/contactos
+ * Listar mensajes enviados por usuarios desde el formulario de contacto.
+ */
+router.get("/contactos", authenticate, isAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, email, message, created_at FROM contacts ORDER BY created_at DESC"
+    );
+    res.json({ status: "success", count: result.rows.length, data: result.rows });
+  } catch (err) {
+    console.error("Error al obtener contactos:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+  }
+});
+
+
+/**
  * GET /api/admin/sesiones
  * Listar todas las sesiones activas.
  */
@@ -397,3 +414,4 @@ router.delete("/sesiones/:id", authenticate, isAdmin, async (req, res) => {
 });
 
 module.exports = router;
+

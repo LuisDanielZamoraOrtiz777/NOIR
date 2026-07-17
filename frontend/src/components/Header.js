@@ -19,99 +19,64 @@ export default function Header() {
   const [hasAdminSession, setHasAdminSession] = useState(false);
   const [hasUserSession, setHasUserSession] = useState(false);
   const [userRole, setUserRole] = useState("");
-  const [adminEmail, setAdminEmail] = useState("");
-  const [userEmail, setUserEmail] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const updateSessionState = () => {
-      const adminToken = localStorage.getItem("admin_token");
-      const userToken = localStorage.getItem("user_token");
+    const update = () => {
+      const token = localStorage.getItem("user_token");
+      const role = (localStorage.getItem("user_rol") || "").toString().toLowerCase();
+      const data = JSON.parse(localStorage.getItem("user_data") || "{}");
 
-      if (adminToken) {
+      if (token && (role === "admin" || role === "administrador")) {
         setHasAdminSession(true);
         setHasUserSession(false);
-        try {
-          const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
-          setAdminEmail(user.email || "");
-          setUserRole((user.rol || "").toString().toLowerCase());
-        } catch {
-          setAdminEmail("");
-          setUserRole("");
-        }
-      } else {
-        setHasAdminSession(false);
-        setAdminEmail("");
+        setUserRole(role);
+        setEmail(data.email || data.nombre || "");
+        return;
       }
 
-      if (userToken && !adminToken) {
+      if (token) {
         setHasUserSession(true);
-        try {
-          const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
-          setUserEmail(userData.email || userData.nombre || "");
-          setUserRole((userData.rol || "").toString().toLowerCase());
-        } catch {
-          setUserEmail("");
-          setUserRole("");
-        }
-      } else {
-        if (!adminToken) {
-          setHasUserSession(false);
-          setUserEmail("");
-          setUserRole("");
-        }
+        setHasAdminSession(false);
+        setUserRole(role);
+        setEmail(data.email || data.nombre || "");
+        return;
       }
+
+      setHasAdminSession(false);
+      setHasUserSession(false);
+      setUserRole("");
+      setEmail("");
     };
 
-    updateSessionState();
-    window.addEventListener("storage", updateSessionState);
-    return () => window.removeEventListener("storage", updateSessionState);
+    update();
+    window.addEventListener("storage", update);
+    return () => window.removeEventListener("storage", update);
   }, [pathname]);
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => setMenuOpen(false), [pathname]);
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/" || pathname === "/home";
     return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
-  const handleAdminLogout = async () => {
-    if (!confirm("¿Cerrar sesión de administrador?")) return;
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("admin_token") || ""}`,
-        },
-      });
-    } catch {}
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_user");
-    localStorage.removeItem("admin_rol");
-    setHasAdminSession(false);
-    setAdminEmail("");
-    window.location.href = "/";
-  };
-
-  const handleUserLogout = async () => {
+  const handleLogout = async () => {
     if (!confirm("¿Cerrar sesión?")) return;
     try {
       await fetch("/api/auth/logout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("user_token") || ""}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("user_token") || ""}` },
       });
     } catch {}
     localStorage.removeItem("user_token");
     localStorage.removeItem("user_data");
+    localStorage.removeItem("user_rol");
+    setHasAdminSession(false);
     setHasUserSession(false);
-    setUserEmail("");
+    setEmail("");
     window.location.href = "/";
   };
 
@@ -146,16 +111,10 @@ export default function Header() {
             <ul>
               {(() => {
                 const mainNavLinks = [...navLinks];
-                if (hasUserSession && userRole === "editor") {
-                  mainNavLinks.push({ href: "/editor", label: "Editor" });
-                }
+                if (hasUserSession && userRole === "editor") mainNavLinks.push({ href: "/editor", label: "Editor" });
                 return mainNavLinks.map((link) => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={isActive(link.href) ? "is-active" : undefined}
-                      aria-current={isActive(link.href) ? "page" : undefined}
-                    >
+                    <Link href={link.href} className={isActive(link.href) ? "is-active" : undefined} aria-current={isActive(link.href) ? "page" : undefined}>
                       {link.label}
                     </Link>
                   </li>
@@ -169,47 +128,21 @@ export default function Header() {
             <DarkToggle />
             {hasAdminSession ? (
               <>
-                <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">
-                  Panel
-                </Link>
-                <span className="text-muted small me-2 d-none d-md-inline" title={adminEmail}>
-                  {adminEmail}
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-danger ms-2"
-                  onClick={handleAdminLogout}
-                >
-                  Cerrar sesión
-                </button>
+                <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">Panel</Link>
+                <span className="text-muted small me-2 d-none d-md-inline" title={email}>{email}</span>
+                <button type="button" className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
               </>
             ) : hasUserSession ? (
               <>
-                <Link href="/perfil" className="btn btn-sm btn-outline-info me-2">
-                  Mi Perfil
-                </Link>
-                <span className="text-muted small me-2 d-none d-md-inline" title={userEmail}>
-                  {userEmail}
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-danger ms-2"
-                  onClick={handleUserLogout}
-                >
-                  Cerrar sesión
-                </button>
+                <Link href="/perfil" className="btn btn-sm btn-outline-info me-2">Mi Perfil</Link>
+                <span className="text-muted small me-2 d-none d-md-inline" title={email}>{email}</span>
+                <button type="button" className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
               </>
             ) : (
               <>
-                <Link href="/acceso" className="btn btn-sm btn-outline-light ms-2">
-                  Acceso
-                </Link>
-                <Link href="/registro" className="btn btn-sm btn-outline-secondary ms-2 d-none d-md-inline-flex">
-                  Registro
-                </Link>
-                <Link href="/admin/login" className="btn btn-sm btn-outline-dark ms-2">
-                  Admin
-                </Link>
+                <Link href="/acceso" className="btn btn-sm btn-outline-light ms-2">Acceso</Link>
+                <Link href="/registro" className="btn btn-sm btn-outline-secondary ms-2 d-none d-md-inline-flex">Registro</Link>
+                <Link href="/acceso" className="btn btn-sm btn-outline-dark ms-2">Admin</Link>
               </>
             )}
           </div>

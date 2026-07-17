@@ -277,8 +277,64 @@ export default function PerfilPage() {
               </form>
             </div>
           </div>
+          
+          <div className="card border-0 mt-4" style={{ background: "#1a1a1a" }}>
+            <div className="card-body p-4 p-md-5">
+              <h5 className="text-white mb-3">Enviar mensaje al administrador</h5>
+              <p className="text-muted small mb-3">Tus sugerencias llegarán al equipo administrativo.</p>
+              <SendToAdmin user={user} />
+            </div>
+          </div>
+
         </div>
       </div>
     </RouteProtector>
+  );
+}
+
+function SendToAdmin({ user }) {
+  const [messageText, setMessageText] = useState("");
+  const [loadingMsg, setLoadingMsg] = useState(false);
+  const [status, setStatus] = useState({ type: "", text: "" });
+
+  const name = user?.nombre || user?.email || "";
+  const email = user?.email || "";
+
+  const send = async (e) => {
+    e && e.preventDefault();
+    if (!messageText.trim()) return setStatus({ type: "danger", text: "El mensaje no puede estar vacío" });
+    setLoadingMsg(true); setStatus({ type: "", text: "" });
+    try {
+      const res = await fetch(`${API_BASE}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message: messageText }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || data.error || "Error al enviar mensaje");
+      setStatus({ type: "success", text: "Mensaje enviado. Gracias por tu sugerencia." });
+      setMessageText("");
+    } catch (err) {
+      setStatus({ type: "danger", text: err.message || "No se pudo enviar el mensaje." });
+    } finally { setLoadingMsg(false); }
+  };
+
+  return (
+    <form onSubmit={send}>
+      {status.text && (
+        <div className={`alert alert-${status.type} alert-dismissible`}>
+          {status.text}
+          <button type="button" className="btn-close" onClick={() => setStatus({ type: "", text: "" })}></button>
+        </div>
+      )}
+      <div className="mb-3">
+        <label className="form-label text-light small">Mensaje</label>
+        <textarea className="form-control bg-dark text-white border-secondary" rows={4} value={messageText} onChange={(e) => setMessageText(e.target.value)} required disabled={loadingMsg} />
+      </div>
+      <div className="d-flex gap-2">
+        <button className="btn btn-primary" type="submit" disabled={loadingMsg}>{loadingMsg ? "Enviando..." : "Enviar al admin"}</button>
+        <button className="btn btn-outline-light" type="button" onClick={() => setMessageText("")}>Limpiar</button>
+      </div>
+    </form>
   );
 }

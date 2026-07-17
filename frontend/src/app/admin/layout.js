@@ -5,17 +5,17 @@ import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/admin/login";
-
-  if (isLoginPage) {
-    return children;
+  // Redirect /admin/login to unified access page to keep single login
+  if (typeof window !== "undefined" && pathname === "/admin/login") {
+    if (typeof window !== "undefined") window.location.replace("/acceso");
+    return null;
   }
 
   return (
     <RouteProtector
-      tokenKey="admin_token"
+      tokenKey="user_token"
       requiredRole={["administrador", "admin"]}
-      redirectTo="/admin/login"
+      redirectTo="/acceso"
     >
       {children}
     </RouteProtector>

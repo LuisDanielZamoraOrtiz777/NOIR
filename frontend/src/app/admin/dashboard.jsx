@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const API = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
 
 function authHeaders() {
-  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : "";
+  const token = typeof window !== "undefined" ? localStorage.getItem("user_token") : "";
   return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 }
 
@@ -561,7 +561,7 @@ function TabUsuarios() {
 // ════════════════════════════════════════
 //  TAB: SESIONES
 // ════════════════════════════════════════
-function TabSesiones() {
+function TabContactos() {
   const [lista, setLista]       = useState([]);
   const [loading, setLoading]   = useState(true);
   const [actionId, setActionId] = useState(null);
@@ -571,31 +571,15 @@ function TabSesiones() {
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${API}/api/admin/sesiones`, { headers: authHeaders() });
+      const r = await fetch(`${API}/api/admin/contactos`, { headers: authHeaders() });
       const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar sesiones");
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar contactos");
       setLista(j.data || []);
     } catch (e) { setErr(e.message); }
     finally { setLoading(false); }
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
-
-  const revocar = async (sessionId) => {
-    if (!confirm("¿Revocar esta sesión? El usuario deberá iniciar sesión nuevamente.")) return;
-    setActionId(sessionId); setErr(""); setOk("");
-    try {
-      const r = await fetch(`${API}/api/admin/sesiones/${sessionId}`, { method: "DELETE", headers: authHeaders() });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || j.error || "Error al revocar sesión");
-      setOk("Sesión revocada exitosamente ✓"); cargar();
-    } catch (e) { setErr(e.message); }
-    finally { setActionId(null); }
-  };
-
-  const getEstadoBadge = (activa) => {
-    return <span className={`badge ${activa ? "bg-success" : "bg-secondary"}`}>{activa ? "Activa" : "Revocada"}</span>;
-  };
 
   return (
     <>
@@ -604,42 +588,32 @@ function TabSesiones() {
 
       <div className="card border-0" style={{ background: "#1a1a1a" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 text-white">Sesiones activas ({lista.filter(s => s.activa).length})</h5>
+          <h5 className="mb-0 text-white">Mensajes de usuarios ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺ Actualizar"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
             <div className="text-center py-5"><div className="spinner-border text-light" /></div>
           ) : lista.length === 0 ? (
-            <p className="text-muted text-center py-4">Sin sesiones registradas.</p>
+            <p className="text-muted text-center py-4">No hay mensajes de usuarios.</p>
           ) : (
             <div className="table-responsive">
               <table className="table table-dark table-hover mb-0">
                 <thead><tr>
                   <th className="text-muted fw-normal small">ID</th>
-                  <th className="text-muted fw-normal small">Usuario</th>
-                  <th className="text-muted fw-normal small">Token (hash)</th>
-                  <th className="text-muted fw-normal small">Estado</th>
-                  <th className="text-muted fw-normal small">Expira</th>
-                  <th className="text-muted fw-normal small">Creada</th>
-                  <th className="text-muted fw-normal small text-end">Acción</th>
+                  <th className="text-muted fw-normal small">Nombre</th>
+                  <th className="text-muted fw-normal small">Email</th>
+                  <th className="text-muted fw-normal small">Mensaje</th>
+                  <th className="text-muted fw-normal small">Enviado</th>
                 </tr></thead>
                 <tbody>
-                  {lista.map((s) => (
-                    <tr key={s.id}>
-                      <td className="text-muted small">{s.id}</td>
-                      <td className="fw-medium">{s.email || "—"}</td>
-                      <td className="text-muted small font-monospace" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }} title={s.token_hash}>
-                        {s.token_hash?.slice(0, 16) || "—"}…
-                      </td>
-                      <td>{getEstadoBadge(s.activa)}</td>
-                      <td className="text-muted small">{s.expires_at ? new Date(s.expires_at).toLocaleString("es-MX") : "—"}</td>
-                      <td className="text-muted small">{fmt(s.creado_en)}</td>
-                      <td className="text-end">
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => revocar(s.id)} disabled={actionId === s.id || !s.activa}>
-                          {actionId === s.id ? "…" : "Revocar"}
-                        </button>
-                      </td>
+                  {lista.map((m) => (
+                    <tr key={m.id}>
+                      <td className="text-muted small">{m.id}</td>
+                      <td className="fw-medium" title={m.name}>{m.name || "—"}</td>
+                      <td className="text-info small" title={m.email}>{m.email || "—"}</td>
+                      <td className="text-break small" style={{ maxWidth: 380 }}>{m.message || "—"}</td>
+                      <td className="text-muted small">{m.created_at ? new Date(m.created_at).toLocaleString("es-MX") : "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -661,23 +635,30 @@ export default function AdminDashboard() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) { router.push("/admin/login"); return; }
-    try { setUser(JSON.parse(localStorage.getItem("admin_user") || "{}")); } catch {}
+    const token = localStorage.getItem("user_token");
+    if (!token) { router.push("/acceso"); return; }
+    try { setUser(JSON.parse(localStorage.getItem("user_data") || "{}")); } catch {}
   }, [router]);
 
   const logout = async () => {
     if (!confirm("¿Cerrar sesión?")) return;
     try {
-      await fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" } });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("user_token") || ""}`,
+        },
+      });
     } catch {}
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_user");
-    router.push("/admin/login");
+    localStorage.removeItem("user_token");
+    localStorage.removeItem("user_data");
+    localStorage.removeItem("user_rol");
+    router.push("/acceso");
   };
 
   return (
-    <RouteProtector tokenKey="admin_token" redirectTo="/admin/login">
+    <RouteProtector tokenKey="user_token" requiredRole={["administrador", "admin"]} redirectTo="/acceso">
       <div className="min-vh-100 bg-dark text-light py-4">
         <div className="container-fluid" style={{ maxWidth: 1200 }}>
           <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
@@ -694,7 +675,7 @@ export default function AdminDashboard() {
           <ul className="nav nav-tabs mb-4 border-secondary">
             {[
               { key: "usuarios", label: "👥 Usuarios" },
-              { key: "sesiones", label: "🔑 Sesiones" },
+              { key: "contactos", label: "💬 Contactos" },
               { key: "editoriales", label: "📝 Editoriales" },
               { key: "partners", label: "🔗 Páginas hermanas" },
             ].map(({ key, label }) => (
@@ -710,7 +691,7 @@ export default function AdminDashboard() {
           {tab === "editoriales" && <TabEditoriales />}
           {tab === "partners"    && <TabPartners />}
           {tab === "usuarios"    && <TabUsuarios />}
-          {tab === "sesiones"    && <TabSesiones />}
+          {tab === "contactos"   && <TabContactos />}
         </div>
       </div>
     </RouteProtector>
