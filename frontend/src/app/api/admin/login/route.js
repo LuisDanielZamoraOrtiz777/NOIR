@@ -1,6 +1,7 @@
 import { query } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { saveSession } from "@/lib/sessionUtils";
 
 export async function POST(request) {
   try {
@@ -42,11 +43,18 @@ export async function POST(request) {
       );
     }
 
+    const expiresInSeconds = 24 * 60 * 60;
     const token = jwt.sign(
       { id: user.id, email: user.email, rol: user.rol },
       process.env.JWT_SECRET || "noir_atelier_secret_2025",
       { expiresIn: "24h" }
     );
+
+    const expiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString();
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || null;
+    const userAgent = request.headers.get("user-agent") || null;
+
+    await saveSession({ userId: user.id, token, expiresAt, ip, userAgent });
 
     return Response.json({
       status: "success",

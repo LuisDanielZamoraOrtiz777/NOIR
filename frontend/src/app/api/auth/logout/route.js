@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 
-export async function POST() {
+export async function POST(request) {
   try {
-    // En el futuro se podría invalidar el token en la base de datos
-    // Por ahora solo retornamos éxito
+    const authHeader = request.headers.get("authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      await revokeSessionByToken(token);
+    }
+
     return NextResponse.json({ status: "success", message: "Sesión cerrada" });
   } catch (error) {
     console.error("Error en logout:", error);
