@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const pool = require("../config/database");
+const { validateLogin, sanitizeInput } = require("../middlewares/validate");
 
 const JWT_SECRET = process.env.JWT_SECRET || "noiratelier_secret_key_change_in_production";
 
@@ -11,16 +12,11 @@ const JWT_SECRET = process.env.JWT_SECRET || "noiratelier_secret_key_change_in_p
  * Autenticar usuario contra PostgreSQL y devolver JWT.
  * Body: { email, password }
  */
-router.post("/login", async (req, res) => {
+router.post("/login", sanitizeInput, validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
 
     console.log("🔐 Intento de login:", email);
-
-    // Validaciones básicas
-    if (!email || !password) {
-      return res.status(400).json({ error: "Datos incompletos", detail: "Email y password son obligatorios" });
-    }
 
     // Consultar usuario en PostgreSQL con su rol
     const result = await pool.query(`
@@ -31,19 +27,20 @@ router.post("/login", async (req, res) => {
     `, [email]);
 
     if (result.rows.length === 0) {
-      console.log("❌ Usuario no encontrado:", email);
+      // Logging de intento fallido
+      await logLoginAttempt(email, req.ip, false);
       return res.status(401).json({ error: "Credenciales inválidas", detail: "Email o password incorrectos" });
     }
 
     const usuario = result.rows[0];
     const rolNombre = usuario.rol_nombre || usuario.rol;
-    console.log("✅ Usuario encontrado:", usuario.email, "Rol:", rolNombre);
 
     // Verificar password
     const passwordValido = await bcrypt.compare(password, usuario.password_hash);
 
     if (!passwordValido) {
-      console.log("❌ Password incorrecto para:", email);
+      // Logging de intento fallido
+      await logLoginAttempt(email, req.ip, false);
       return res.status(401).json({ error: "Credenciales inválidas", detail: "Email o password incorrectos" });
     }
 
@@ -51,9 +48,13 @@ router.post("/login", async (req, res) => {
     const esAdmin = rolNombre === "administrador" || usuario.rol === "admin" || usuario.rol === "administrador";
     
     if (!esAdmin) {
-      console.log("❌ Usuario no es admin:", email);
+      // Logging de intento fallido
+      await logLoginAttempt(email, req.ip, false);
       return res.status(403).json({ error: "Acceso denegado", detail: "Se requiere rol de administrador" });
     }
+
+    // Logging de intento exitoso
+    await logLoginAttempt(email, req.ip, true);
 
     // Generar JWT
     const token = jwt.sign(
@@ -79,6 +80,21 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor", detail: err.message });
   }
 });
+
+/**
+ * Función para registrar intentos de login en la BD
+ */
+async function logLoginAttempt(email, ip, exitoso) {
+  try {
+    await pool.query(
+      "INSERT INTO login_intentos (email, ip, exitoso) VALUES ($1, $2, $3)",
+      [email, ip, exitoso]
+    );
+  } catch (err) {
+    // Si la tabla no existe, ignorar silenciosamente
+    console.warn("⚠️ No se pudo registrar intento de login (tabla login_intentos no existe)");
+  }
+}
 
 /**
  * GET /api/admin/verify

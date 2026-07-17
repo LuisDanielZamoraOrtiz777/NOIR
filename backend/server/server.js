@@ -1,87 +1,120 @@
 const express = require("express");
+const helmet = require("helmet");
 const cors = require("cors");
-const dotenv = require("dotenv");
-const sisterStoreRouter = require("./routes/sisterStore");
-const rssRouter = require("./routes/rss");
-const adminRouter = require("./routes/admin");
-const authRouter = require("./routes/auth");
-const userAuthRouter = require("./routes/userAuth");
-const pool = require("./config/database");
-
-dotenv.config();
-
+const rateLimit = require("express-rate-limit");
 const app = express();
-const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
-const port = Number(process.env.PORT || 4000);
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || origin === frontendOrigin) {
-        return callback(null, true);
-      }
-      return callback(new Error("CORS policy: origin not allowed"));
-    },
-    methods: ["GET", "POST", "OPTIONS"],
-  })
-);
+// ════════════════════════════════════════
+//  SEGURIDAD - Configuración global
+// ════════════════════════════════════════
 
-app.use(express.json());
-app.use("/api/sister-store", sisterStoreRouter);
-app.use("/api/rss", rssRouter);
+// 1. Helmet - Headers HTTP seguros
+app.use(helmet({
+  contentSecurityPolicy: false, // Desactivado para permitir Bootstrap/Google Fonts
+  crossOriginEmbedderPolicy: false,
+}));
 
-// ── Endpoint público de editoriales (sin autenticación) ───────────────────────
-app.get("/api/editoriales/publicas", async (req, res) => {
-  try {
-    console.log("📰 [PÚBLICO] Solicitando editoriales públicas");
-    const result = await pool.query("SELECT * FROM editoriales WHERE publicado = true ORDER BY fecha DESC");
-    console.log(`✅ [PÚBLICO] Enviando ${result.rows.length} editoriales`);
-    res.json({ status: "success", total: result.rows.length, data: result.rows });
-  } catch (err) {
-    console.error("❌ [PÚBLICO] Error:", err);
-    res.status(500).json({ error: "Error al obtener editoriales", detail: err.message });
+// 2. CORS - Configurado para producción
+const allowedOrigins = [
+  "https://noiratelier-two.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("No autorizado por CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+// 3. Rate Limiting Global
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // límite de 100 requests por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiadas solicitudes", detail: "Intenta de nuevo en 15 minutos" },
+});
+
+// 4. Rate Limiting para Login (más restrictivo)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5, // solo 5 intentos por IP cada 15 min
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiados intentos de login", detail: "Espera 15 minutos antes de intentar de nuevo" },
+  skipSuccessfulRequests: true, // no contar logins exitosos
+});
+
+// 5. Rate Limiting para Registro
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 3, // solo 3 registros por IP por hora
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Demasiados registros", detail: "Espera 1 hora antes de intentar de nuevo" },
+});
+
+// Aplicar rate limiters
+app.use("/api/", globalLimiter);
+app.use("/api/admin/login", loginLimiter);
+app.use("/api/auth/login", loginLimiter);
+app.use("/api/auth/register", registerLimiter);
+
+// Body parser
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// ════════════════════════════════════════
+//  RUTAS
+// ════════════════════════════════════════
+
+const authRoutes = require("./routes/auth");
+const adminRoutes = require("./routes/admin");
+const userAuthRoutes = require("./routes/userAuth");
+
+app.use("/api/admin", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/auth", userAuthRoutes);
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// ════════════════════════════════════════
+//  Error handling global
+// ════════════════════════════════════════
+app.use((err, req, res, next) => {
+  console.error("❌ Error global:", err);
+
+  if (err.name === "ValidationError") {
+    return res.status(400).json({ error: "Error de validación", detail: err.message });
   }
-});
 
-app.use("/api/admin", adminRouter);
-app.use("/api/admin", authRouter);
-app.use("/api/auth", userAuthRouter);
-
-// Log de rutas cargadas para debugging
-console.log("\n========================================");
-console.log("RUTAS DISPONIBLES:");
-console.log("========================================");
-console.log("GET  /api/admin/partners");
-console.log("POST /api/admin/partners");
-console.log("DELETE /api/admin/partners/:id");
-console.log("PATCH /api/admin/partners/:id/activar");
-console.log("GET  /api/admin/editoriales");
-console.log("GET  /api/editoriales/publicas");
-console.log("POST /api/admin/editoriales");
-console.log("PATCH /api/admin/editoriales/:id");
-console.log("DELETE /api/admin/editoriales/:id");
-console.log("GET  /api/admin/usuarios");
-console.log("PATCH /api/admin/usuarios/:id");
-console.log("DELETE /api/admin/usuarios/:id");
-console.log("GET  /api/admin/sesiones");
-console.log("DELETE /api/admin/sesiones/:id");
-console.log("POST /api/admin/login");
-console.log("GET  /api/admin/verify");
-console.log("POST /api/admin/logout");
-console.log("========================================\n");
-
-app.get("/api/health", (_req, res) => {
-  res.status(200).json({ status: "ok", message: "Sister store backend is ready." });
-});
-
-app.use((err, _req, res, _next) => {
-  if (err?.message?.includes("CORS")) {
-    return res.status(403).json({ error: "Forbidden origin", detail: err.message });
+  if (err.message?.includes("CORS")) {
+    return res.status(403).json({ error: "Acceso denegado por CORS" });
   }
-  console.error(err);
-  res.status(500).json({ error: "Internal Server Error", detail: err?.message || "Unknown error" });
+
+  res.status(500).json({ error: "Error interno del servidor" });
 });
 
-app.listen(port, () => {
-  console.log(`Express API server listening on http://localhost:${port}`);
+// ════════════════════════════════════════
+//  INICIO DEL SERVIDOR
+// ════════════════════════════════════════
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`✅ Servidor seguro corriendo en puerto ${PORT}`);
+  console.log(`🔒 Helmet activado - Headers HTTP seguros`);
+  console.log(`🔒 Rate limiting activado - 100 req/15min`);
+  console.log(`🔒 Login rate limit: 5 intentos/15min`);
 });
+
+module.exports = app;
