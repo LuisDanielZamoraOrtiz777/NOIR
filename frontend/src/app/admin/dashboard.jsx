@@ -460,10 +460,8 @@ function TabUsuarios() {
       if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar rol");
       setOk(`Rol actualizado para ${usuario.email} ✓`);
       
-      // Recargar la página completa después de 1.5 segundos para ver los cambios
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // Actualizar la lista de usuarios inmediatamente
+      cargar();
     } catch (e) { setErr(e.message); }
     finally { setCambiandoId(null); }
   };
