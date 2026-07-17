@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import RouteProtector from "@/components/RouteProtector";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const API = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
@@ -669,40 +670,42 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-vh-100 bg-dark text-light py-4">
-      <div className="container-fluid" style={{ maxWidth: 1200 }}>
-        <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
-          <div>
-            <h1 className="h3 fw-bold text-white mb-0">Panel de Administración</h1>
-            <p className="text-muted small mb-0">Noir Atelier · Gestión de contenido</p>
+    <RouteProtector tokenKey="admin_token" redirectTo="/admin/login">
+      <div className="min-vh-100 bg-dark text-light py-4">
+        <div className="container-fluid" style={{ maxWidth: 1200 }}>
+          <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+            <div>
+              <h1 className="h3 fw-bold text-white mb-0">Panel de Administración</h1>
+              <p className="text-muted small mb-0">Noir Atelier · Gestión de contenido</p>
+            </div>
+            <div className="d-flex align-items-center gap-3">
+              {user?.email && <span className="text-muted small">{user.email}</span>}
+              <button className="btn btn-sm btn-outline-danger" onClick={logout}>Cerrar sesión</button>
+            </div>
           </div>
-          <div className="d-flex align-items-center gap-3">
-            {user?.email && <span className="text-muted small">{user.email}</span>}
-            <button className="btn btn-sm btn-outline-danger" onClick={logout}>Cerrar sesión</button>
-          </div>
+
+          <ul className="nav nav-tabs mb-4 border-secondary">
+            {[
+              { key: "editoriales", label: "📝 Editoriales" },
+              { key: "partners", label: "🔗 Páginas hermanas" },
+              { key: "usuarios", label: "👥 Usuarios" },
+              { key: "sesiones", label: "🔑 Sesiones" },
+            ].map(({ key, label }) => (
+              <li className="nav-item" key={key}>
+                <button
+                  className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
+                  onClick={() => setTab(key)}
+                >{label}</button>
+              </li>
+            ))}
+          </ul>
+
+          {tab === "editoriales" && <TabEditoriales />}
+          {tab === "partners"    && <TabPartners />}
+          {tab === "usuarios"    && <TabUsuarios />}
+          {tab === "sesiones"    && <TabSesiones />}
         </div>
-
-        <ul className="nav nav-tabs mb-4 border-secondary">
-          {[
-            { key: "editoriales", label: "📝 Editoriales" },
-            { key: "partners", label: "🔗 Páginas hermanas" },
-            { key: "usuarios", label: "👥 Usuarios" },
-            { key: "sesiones", label: "🔑 Sesiones" },
-          ].map(({ key, label }) => (
-            <li className="nav-item" key={key}>
-              <button
-                className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
-                onClick={() => setTab(key)}
-              >{label}</button>
-            </li>
-          ))}
-        </ul>
-
-        {tab === "editoriales" && <TabEditoriales />}
-        {tab === "partners"    && <TabPartners />}
-        {tab === "usuarios"    && <TabUsuarios />}
-        {tab === "sesiones"    && <TabSesiones />}
       </div>
-    </div>
+    </RouteProtector>
   );
 }

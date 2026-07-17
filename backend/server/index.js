@@ -35,7 +35,6 @@ app.use("/api/rss",          rssRouter);
 app.use("/api/admin",        authRouter);   // POST /api/admin/login, GET /api/admin/verify
 app.use("/api/admin",        adminRouter);  // CRUD partners + editoriales (autenticado)
 app.use("/api/auth",         userAuthRouter); // POST /api/auth/register, POST /api/auth/login
-
 // ── Editoriales PÚBLICAS (sin autenticación) ──────────────────────────────────
 // Separada del router de admin para que sea accesible sin token
 app.get("/api/editoriales/publicas", async (_req, res) => {
