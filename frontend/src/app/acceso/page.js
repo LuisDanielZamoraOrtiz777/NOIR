@@ -50,9 +50,22 @@ export default function AccesoPage() {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json().catch(() => ({}));
+      let data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
+      // Si este login de usuario falla por ser admin, reintentar contra /admin/login
+      if (!res.ok && res.status === 403 && (data.detail || "").toString().toLowerCase().includes("administrador")) {
+        const r2 = await fetch(`${API_BASE}/admin/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: form.email, password: form.password }),
+        });
+        data = await r2.json().catch(() => ({}));
+        if (!r2.ok) {
+          throw new Error(data.detail || data.error || "Credenciales admin inválidas.");
+        }
+      }
+
+      if (!res.ok && res.status !== 403) {
         if (res.status === 429) {
           throw new Error(
             data.detail ||
@@ -60,7 +73,7 @@ export default function AccesoPage() {
               "Demasiados intentos. Espera unos minutos e inténtalo de nuevo."
           );
         }
-        if (res.status === 401 || res.status === 403) {
+        if (res.status === 401) {
           throw new Error(data.detail || data.error || "Credenciales incorrectas.");
         }
         if (res.status === 409) {

@@ -278,13 +278,7 @@ export default function PerfilPage() {
             </div>
           </div>
           
-          <div className="card border-0 mt-4" style={{ background: "#1a1a1a" }}>
-            <div className="card-body p-4 p-md-5">
-              <h5 className="text-white mb-3">Enviar mensaje al administrador</h5>
-              <p className="text-muted small mb-3">Tus sugerencias llegarán al equipo administrativo.</p>
-              <SendToAdmin user={user} />
-            </div>
-          </div>
+          {/* Envío de mensajes al admin movido a la sección Opinión */}
 
         </div>
       </div>
