@@ -33,7 +33,12 @@ export default function RouteProtector({ tokenKey, redirectTo = "/acceso", requi
   const verifyToken = async (token) => {
     try {
       const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
-      const endpoint = tokenKey === "admin_token" ? "/api/admin/verify" : "/api/auth/verify";
+      // Si la ruta requiere rol admin, verificar contra el endpoint admin.
+      const wantsAdmin = requiredRole && (Array.isArray(requiredRole)
+        ? requiredRole.map(r => r.toString().toLowerCase()).includes("admin") || requiredRole.map(r => r.toString().toLowerCase()).includes("administrador")
+        : [requiredRole.toString().toLowerCase()].includes("admin") || [requiredRole.toString().toLowerCase()].includes("administrador")
+      );
+      const endpoint = wantsAdmin ? "/api/admin/verify" : (tokenKey === "admin_token" ? "/api/admin/verify" : "/api/auth/verify");
       
       const res = await fetch(`${API_BASE}${endpoint}`, {
         headers: {
