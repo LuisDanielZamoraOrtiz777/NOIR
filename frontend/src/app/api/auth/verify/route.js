@@ -17,15 +17,15 @@ export async function GET(request) {
     // Conectar a Neon
     const sql = neon(process.env.DATABASE_URL);
 
-    // Verificar que el usuario existe y está activo
+    // Verificar que el usuario existe
     const usuarios = await sql`
-      SELECT id, nombre, email, telefono, activo 
+      SELECT id, email, rol, created_at 
       FROM users 
       WHERE id = ${decoded.id}
     `;
 
-    if (usuarios.length === 0 || !usuarios[0].activo) {
-      return NextResponse.json({ error: "Token inválido", detail: "Usuario no encontrado o inactivo" }, { status: 401 });
+    if (usuarios.length === 0) {
+      return NextResponse.json({ error: "Token inválido", detail: "Usuario no encontrado" }, { status: 401 });
     }
 
     const usuario = usuarios[0];
@@ -34,10 +34,9 @@ export async function GET(request) {
       status: "success",
       user: {
         id: usuario.id,
-        nombre: usuario.nombre,
+        nombre: decoded.nombre || usuario.email.split('@')[0],
         email: usuario.email,
-        telefono: usuario.telefono,
-        rol: decoded.rol,
+        rol: usuario.rol || decoded.rol,
       },
     });
 

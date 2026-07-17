@@ -10,10 +10,10 @@ export async function POST(request) {
     const { nombre, email, password, telefono } = await request.json();
 
     // Validaciones
-    if (!nombre?.trim() || !email?.trim() || !password) {
+    if (!email?.trim() || !password) {
       return NextResponse.json({ 
         error: "Datos incompletos", 
-        detail: "Nombre, email y password son obligatorios" 
+        detail: "Email y password son obligatorios" 
       }, { status: 400 });
     }
 
@@ -39,22 +39,18 @@ export async function POST(request) {
     // Hash del password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Obtener rol de usuario por defecto
-    const roles = await sql`SELECT id FROM roles WHERE nombre = 'usuario'`;
-    const rolId = roles.length > 0 ? roles[0].id : null;
-
-    // Crear usuario
+    // Crear usuario (estructura original de la tabla)
     const result = await sql`
-      INSERT INTO users (nombre, email, password_hash, telefono, rol_id, activo, creado_en) 
-      VALUES (${nombre.trim()}, ${email.trim()}, ${passwordHash}, ${telefono?.trim() || null}, ${rolId}, true, NOW())
-      RETURNING id, nombre, email, telefono, creado_en
+      INSERT INTO users (email, password_hash, rol) 
+      VALUES (${email.trim()}, ${passwordHash}, 'usuario')
+      RETURNING id, email, rol, created_at
     `;
 
     const usuario = result[0];
 
     // Generar JWT
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, rol: "usuario", nombre: usuario.nombre },
+      { id: usuario.id, email: usuario.email, rol: usuario.rol, nombre: nombre || email.split('@')[0] },
       JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -65,10 +61,9 @@ export async function POST(request) {
       token,
       user: {
         id: usuario.id,
-        nombre: usuario.nombre,
+        nombre: nombre || email.split('@')[0],
         email: usuario.email,
-        telefono: usuario.telefono,
-        rol: "usuario",
+        rol: usuario.rol,
       },
     }, { status: 201 });
 

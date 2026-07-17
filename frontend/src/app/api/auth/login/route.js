@@ -22,12 +22,11 @@ export async function POST(request) {
     // Conectar a Neon
     const sql = neon(process.env.DATABASE_URL);
 
-    // Consultar usuario
+    // Consultar usuario (estructura original de la tabla)
     const usuarios = await sql`
-      SELECT u.*, r.nombre as rol_nombre
-      FROM users u
-      LEFT JOIN roles r ON r.id = u.rol_id
-      WHERE u.email = ${email} AND u.activo = true
+      SELECT id, email, password_hash, rol, created_at
+      FROM users
+      WHERE email = ${email}
     `;
 
     if (usuarios.length === 0) {
@@ -39,7 +38,7 @@ export async function POST(request) {
     }
 
     const usuario = usuarios[0];
-    const rolNombre = usuario.rol_nombre || usuario.rol || "usuario";
+    const rolNombre = usuario.rol || "usuario";
 
     // Verificar password
     const passwordValido = await bcrypt.compare(password, usuario.password_hash);
@@ -53,7 +52,7 @@ export async function POST(request) {
     }
 
     // No permitir admins en este login
-    if (rolNombre === "administrador" || usuario.rol === "admin") {
+    if (rolNombre === "administrador" || rolNombre === "admin") {
       return NextResponse.json({ 
         error: "Acceso denegado", 
         detail: "Los administradores deben usar el panel de administración" 
@@ -62,7 +61,7 @@ export async function POST(request) {
 
     // Generar JWT
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, rol: rolNombre, nombre: usuario.nombre },
+      { id: usuario.id, email: usuario.email, rol: rolNombre, nombre: email.split('@')[0] },
       JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -75,9 +74,8 @@ export async function POST(request) {
       token,
       user: {
         id: usuario.id,
-        nombre: usuario.nombre,
+        nombre: email.split('@')[0],
         email: usuario.email,
-        telefono: usuario.telefono,
         rol: rolNombre,
       },
     });
