@@ -460,21 +460,19 @@ function TabUsuarios() {
       if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar rol");
       setOk(`Rol actualizado para ${usuario.email} ✓`);
       
-      // Si el usuario cambió su propio rol, actualizar el token y recargar la página
-      const currentUserId = user?.id || JSON.parse(localStorage.getItem("admin_user") || "{}")?.id;
-      if (usuario.id === currentUserId) {
-        // Actualizar el token en localStorage
-        const newToken = j.data?.token;
-        if (newToken) {
-          localStorage.setItem("admin_token", newToken);
-          // Actualizar el usuario en localStorage
-          const updatedUser = { ...user, rol: rolSeleccionado };
-          localStorage.setItem("admin_user", JSON.stringify(updatedUser));
-          setUser(updatedUser);
-        }
-      }
-      
+      // Recargar la lista de usuarios
       cargar();
+      
+      // Si el usuario cambió su propio rol, recargar la página para actualizar el token
+      const currentUserId = typeof window !== "undefined" 
+        ? JSON.parse(localStorage.getItem("admin_user") || "{}")?.id 
+        : null;
+      if (usuario.id === currentUserId) {
+        // Recargar la página después de 1 segundo para que el usuario vea el mensaje de éxito
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
     } catch (e) { setErr(e.message); }
     finally { setCambiandoId(null); }
   };
