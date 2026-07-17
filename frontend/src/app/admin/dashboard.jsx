@@ -460,6 +460,11 @@ function TabUsuarios() {
       if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar rol");
       setOk(`Rol actualizado para ${usuario.email} ✓`);
       
+      // Limpiar el estado de nuevoRol para este usuario
+      const nuevoEstado = { ...nuevoRol };
+      delete nuevoEstado[usuario.id];
+      setNuevoRol(nuevoEstado);
+      
       // Actualizar la lista de usuarios inmediatamente
       cargar();
     } catch (e) { setErr(e.message); }
