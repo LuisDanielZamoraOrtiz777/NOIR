@@ -32,40 +32,20 @@ export async function PATCH(request, { params }) {
 
     const sql = neon(process.env.DATABASE_URL);
 
-    // Intentar actualizar usando el sistema de roles (si existe la tabla roles)
-    try {
-      // Obtener el ID del rol
-      const rolResult = await sql`SELECT id FROM roles WHERE nombre = ${rol}`;
-      if (rolResult.length === 0) {
-        return NextResponse.json({ error: "Rol no encontrado" }, { status: 404 });
-      }
-      const rolId = rolResult[0].id;
-
-      // Actualizar o insertar el rol del usuario
-      const existe = await sql`SELECT id FROM usuario_rol WHERE user_id = ${userId}`;
-      if (existe.length > 0) {
-        await sql`UPDATE usuario_rol SET rol_id = ${rolId}, activo = true WHERE user_id = ${userId}`;
-      } else {
-        await sql`INSERT INTO usuario_rol (user_id, rol_id, activo) VALUES (${userId}, ${rolId}, true)`;
-      }
-
-      // Obtener el usuario actualizado
-      const usuario = await sql`
-        SELECT u.id, u.email, u.created_at, r.nombre as rol
-        FROM users u
-        LEFT JOIN usuario_rol ur ON u.id = ur.user_id AND ur.activo = true
-        LEFT JOIN roles r ON ur.rol_id = r.id
-        WHERE u.id = ${userId}
-      `;
-
-      return NextResponse.json({ status: "success", message: "Rol actualizado exitosamente", data: usuario[0] });
-    } catch (error) {
-      // Si no existe el sistema de roles, actualizar directamente en la tabla users
-      await sql`UPDATE users SET rol = ${rol} WHERE id = ${userId}`;
-      
-      const usuario = await sql`SELECT id, email, created_at, rol FROM users WHERE id = ${userId}`;
-      return NextResponse.json({ status: "success", message: "Rol actualizado exitosamente", data: usuario[0] });
+    // Actualizar directamente en la tabla users (la columna rol existe)
+    await sql`UPDATE users SET rol = ${rol} WHERE id = ${userId}`;
+    
+    const usuario = await sql`SELECT id, email, created_at, rol FROM users WHERE id = ${userId}`;
+    
+    if (usuario.length === 0) {
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
     }
+
+    return NextResponse.json({ 
+      status: "success", 
+      message: "Rol actualizado exitosamente", 
+      data: usuario[0] 
+    });
 
   } catch (err) {
     console.error("Error al actualizar rol:", err);
