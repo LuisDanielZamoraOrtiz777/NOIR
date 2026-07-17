@@ -48,7 +48,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Verificar que sea admin (soporta tanto rol legacy como nuevo sistema)
-    const esAdmin = rolNombre === "administrador" || usuario.rol === "admin";
+    const esAdmin = rolNombre === "administrador" || usuario.rol === "admin" || usuario.rol === "administrador";
     
     if (!esAdmin) {
       console.log("❌ Usuario no es admin:", email);

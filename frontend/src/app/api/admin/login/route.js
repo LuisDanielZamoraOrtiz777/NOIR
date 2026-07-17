@@ -35,7 +35,7 @@ export async function POST(request) {
       );
     }
 
-    if (user.rol !== "admin") {
+    if (user.rol !== "admin" && user.rol !== "administrador") {
       return Response.json(
         { error: "No tienes permisos de administrador." },
         { status: 403 }
