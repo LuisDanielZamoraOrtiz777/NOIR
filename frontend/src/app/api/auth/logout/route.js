@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revokeSessionByToken } from "@/lib/sessionUtils";
 
 export async function POST(request) {
   try {

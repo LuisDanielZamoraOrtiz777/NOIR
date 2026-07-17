@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import SearchBox from "@/components/SearchBox";
 import DarkToggle from "@/components/DarkToggle";
 
@@ -10,9 +11,11 @@ const navLinks = [
   { href: "/tendencias", label: "Tendencias" },
   { href: "/opinion", label: "Opinión" },
   { href: "/revistas", label: "Revistas" },
+  { href: "/editor", label: "Editor" },
 ];
 
 export default function Header() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasAdminSession, setHasAdminSession] = useState(false);
   const [hasUserSession, setHasUserSession] = useState(false);
@@ -21,35 +24,65 @@ export default function Header() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
-    // Verificar sesión de admin
-    const adminToken = localStorage.getItem("admin_token");
-    if (adminToken) {
-      setHasAdminSession(true);
-      try {
-        const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
-        setAdminEmail(user.email || "");
-      } catch {}
-    }
-    
-    // Verificar sesión de usuario normal
-    const userToken = localStorage.getItem("user_token");
-    if (userToken) {
-      setHasUserSession(true);
-      try {
-        const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
-        setUserEmail(userData.email || userData.nombre || "");
-      } catch {}
-    }
-  }, []);
+
+    const updateSessionState = () => {
+      const adminToken = localStorage.getItem("admin_token");
+      if (adminToken) {
+        setHasAdminSession(true);
+        try {
+          const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
+          setAdminEmail(user.email || "");
+        } catch {
+          setAdminEmail("");
+        }
+      } else {
+        setHasAdminSession(false);
+        setAdminEmail("");
+      }
+
+      const userToken = localStorage.getItem("user_token");
+      if (userToken) {
+        setHasUserSession(true);
+        try {
+          const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
+          setUserEmail(userData.email || userData.nombre || "");
+        } catch {
+          setUserEmail("");
+        }
+      } else {
+        setHasUserSession(false);
+        setUserEmail("");
+      }
+    };
+
+    updateSessionState();
+    window.addEventListener("storage", updateSessionState);
+    return () => window.removeEventListener("storage", updateSessionState);
+  }, [pathname]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  const isActive = (href) => {
+    if (href === "/") return pathname === "/" || pathname === "/home";
+    return pathname === href || pathname?.startsWith(`${href}/`);
+  };
 
   const handleAdminLogout = async () => {
     if (!confirm("¿Cerrar sesión de administrador?")) return;
     try {
-      await fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" } });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("admin_token") || ""}`,
+        },
+      });
     } catch {}
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
+    localStorage.removeItem("admin_rol");
     setHasAdminSession(false);
     setAdminEmail("");
     window.location.href = "/";
@@ -58,7 +91,13 @@ export default function Header() {
   const handleUserLogout = async () => {
     if (!confirm("¿Cerrar sesión?")) return;
     try {
-      await fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" } });
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("user_token") || ""}`,
+        },
+      });
     } catch {}
     localStorage.removeItem("user_token");
     localStorage.removeItem("user_data");
@@ -71,7 +110,7 @@ export default function Header() {
     <header id="site-header" className="site-header" data-element="header">
       <div className="header-inner">
         <div className="brand" data-element="logo">
-          <Link href="/">
+          <Link href="/" aria-label="Noir Atelier - Inicio">
             <span className="logo-mark">NA</span>
             <span className="logo-text">Noir Atelier</span>
           </Link>
@@ -98,7 +137,13 @@ export default function Header() {
             <ul>
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href}>{link.label}</Link>
+                  <Link
+                    href={link.href}
+                    className={isActive(link.href) ? "is-active" : undefined}
+                    aria-current={isActive(link.href) ? "page" : undefined}
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -109,8 +154,17 @@ export default function Header() {
             <DarkToggle />
             {hasAdminSession ? (
               <>
-                <span className="text-muted small me-2 d-none d-md-inline">{adminEmail}</span>
-                <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleAdminLogout}>
+                <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">
+                  Panel
+                </Link>
+                <span className="text-muted small me-2 d-none d-md-inline" title={adminEmail}>
+                  {adminEmail}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger ms-2"
+                  onClick={handleAdminLogout}
+                >
                   Cerrar sesión
                 </button>
               </>
@@ -119,8 +173,14 @@ export default function Header() {
                 <Link href="/perfil" className="btn btn-sm btn-outline-info me-2">
                   Mi Perfil
                 </Link>
-                <span className="text-muted small me-2 d-none d-md-inline">{userEmail}</span>
-                <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleUserLogout}>
+                <span className="text-muted small me-2 d-none d-md-inline" title={userEmail}>
+                  {userEmail}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger ms-2"
+                  onClick={handleUserLogout}
+                >
                   Cerrar sesión
                 </button>
               </>
@@ -128,6 +188,9 @@ export default function Header() {
               <>
                 <Link href="/acceso" className="btn btn-sm btn-outline-light ms-2">
                   Acceso
+                </Link>
+                <Link href="/registro" className="btn btn-sm btn-outline-secondary ms-2 d-none d-md-inline-flex">
+                  Registro
                 </Link>
                 <Link href="/admin/login" className="btn btn-sm btn-outline-dark ms-2">
                   Admin
