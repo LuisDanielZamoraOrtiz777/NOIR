@@ -243,14 +243,25 @@ router.delete("/editoriales/:id", authenticate, isAdmin, async (req, res) => {
  */
 router.get("/usuarios", authenticate, isAdmin, async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT u.id, u.email, u.creado_en, 
-             COALESCE(r.nombre, 'usuario') as rol
-      FROM users u
-      LEFT JOIN roles r ON r.id = u.rol_id
-      ORDER BY u.creado_en DESC
-    `);
-    res.json({ status: "success", count: result.rows.length, data: result.rows });
+    // Intentar con el sistema de roles (si existe la tabla)
+    try {
+      const result = await pool.query(`
+        SELECT u.id, u.email, u.created_at, 
+               COALESCE(r.nombre, 'usuario') as rol
+        FROM users u
+        LEFT JOIN roles r ON r.id = u.rol_id
+        ORDER BY u.created_at DESC
+      `);
+      return res.json({ status: "success", count: result.rows.length, data: result.rows });
+    } catch (error) {
+      // Si falla, usar consulta simple con la columna rol
+      const result = await pool.query(`
+        SELECT id, email, created_at, rol
+        FROM users
+        ORDER BY created_at DESC
+      `);
+      return res.json({ status: "success", count: result.rows.length, data: result.rows });
+    }
   } catch (err) {
     console.error("Error al obtener usuarios:", err);
     res.status(500).json({ error: "Error interno del servidor", detail: err.message });
@@ -275,31 +286,18 @@ router.patch("/usuarios/:id", authenticate, isAdmin, async (req, res) => {
       return res.status(400).json({ error: "Rol inválido", detail: "El rol debe ser: administrador, editor o usuario" });
     }
 
-    // Obtener el ID del rol
-    const rolResult = await pool.query("SELECT id FROM roles WHERE nombre = $1", [rol]);
-    if (rolResult.rows.length === 0) {
-      return res.status(404).json({ error: "Rol no encontrado", detail: `El rol ${rol} no existe` });
-    }
-    const rolId = rolResult.rows[0].id;
+    // Actualizar directamente en la columna rol de la tabla users
+    const result = await pool.query(
+      "UPDATE users SET rol = $1 WHERE id = $2 RETURNING id, email, created_at, rol",
+      [rol, userId]
+    );
 
-    // Actualizar o insertar el rol del usuario
-    const existe = await pool.query("SELECT id FROM usuario_rol WHERE user_id = $1", [userId]);
-    if (existe.rows.length > 0) {
-      await pool.query("UPDATE usuario_rol SET rol_id = $1, activo = true WHERE user_id = $2", [rolId, userId]);
-    } else {
-      await pool.query("INSERT INTO usuario_rol (user_id, rol_id, activo) VALUES ($1, $2, true)", [userId, rolId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado", detail: `No existe un usuario con id ${userId}` });
     }
 
-    // Obtener el usuario actualizado
-    const usuario = await pool.query(`
-      SELECT u.id, u.email, u.creado_en, r.nombre as rol
-      FROM users u
-      LEFT JOIN usuario_rol ur ON u.id = ur.user_id AND ur.activo = true
-      LEFT JOIN roles r ON ur.rol_id = r.id
-      WHERE u.id = $1
-    `, [userId]);
-
-    res.json({ status: "success", message: "Rol actualizado exitosamente", data: usuario.rows[0] });
+    console.log("✅ Rol actualizado para usuario", userId, "a", rol);
+    res.json({ status: "success", message: "Rol actualizado exitosamente", data: result.rows[0] });
   } catch (err) {
     console.error("Error al actualizar rol:", err);
     res.status(500).json({ error: "Error interno del servidor", detail: err.message });
