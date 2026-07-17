@@ -15,7 +15,7 @@ export async function PATCH(request) {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    const { nombre, email, telefono, passwordActual, passwordNuevo } = await request.json();
+    const { nombre, email, passwordActual, passwordNuevo } = await request.json();
 
     // Conectar a Neon
     const sql = neon(process.env.DATABASE_URL);
@@ -52,38 +52,24 @@ export async function PATCH(request) {
       }
     }
 
-    // Actualizar usuario
-    let updateQuery;
-    let updateParams;
-
+    // Actualizar usuario (solo email y password_hash, ya que la tabla no tiene nombre/telefono)
+    let result;
     if (passwordNuevo) {
       const passwordHash = await bcrypt.hash(passwordNuevo, 10);
-      updateQuery = `
+      result = await sql`
         UPDATE users 
-        SET nombre = $1, email = $2, telefono = $3, password_hash = $4 
-        WHERE id = $5 
+        SET email = ${email}, password_hash = ${passwordHash}
+        WHERE id = ${decoded.id}
         RETURNING id, email, rol, created_at
       `;
-      updateParams = [nombre, email, telefono || null, passwordHash, decoded.id];
     } else {
-      updateQuery = `
+      result = await sql`
         UPDATE users 
-        SET nombre = $1, email = $2, telefono = $3 
-        WHERE id = $4 
+        SET email = ${email}
+        WHERE id = ${decoded.id}
         RETURNING id, email, rol, created_at
       `;
-      updateParams = [nombre, email, telefono || null, decoded.id];
     }
-
-    // Nota: La tabla users original no tiene columnas nombre y telefono
-    // Por ahora solo actualizamos email y password_hash
-    const result = await sql`
-      UPDATE users 
-      SET email = ${email}
-      ${passwordNuevo ? `, password_hash = ${await bcrypt.hash(passwordNuevo, 10)}` : ""}
-      WHERE id = ${decoded.id}
-      RETURNING id, email, rol, created_at
-    `;
 
     const usuarioActualizado = result[0];
 
