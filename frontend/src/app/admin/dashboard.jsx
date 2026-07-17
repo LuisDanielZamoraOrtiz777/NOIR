@@ -461,7 +461,8 @@ function TabUsuarios() {
       setOk(`Rol actualizado para ${usuario.email} ✓`);
       
       // Si el usuario cambió su propio rol, actualizar el token y recargar la página
-      if (usuario.id === user?.id) {
+      const currentUserId = user?.id || JSON.parse(localStorage.getItem("admin_user") || "{}")?.id;
+      if (usuario.id === currentUserId) {
         // Actualizar el token en localStorage
         const newToken = j.data?.token;
         if (newToken) {
