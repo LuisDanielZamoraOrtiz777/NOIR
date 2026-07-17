@@ -59,6 +59,13 @@ function TabPartners() {
     setLoading(true);
     try {
       const r = await fetch(`${API}/api/admin/partners`, { headers: authHeaders() });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        window.location.href = "/acceso";
+        return;
+      }
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar partners");
       setLista(j.data || []);
@@ -198,6 +205,13 @@ function TabEditoriales() {
     setLoading(true); setTablaFalta(false);
     try {
       const r = await fetch(`${API}/api/admin/editoriales`, { headers: authHeaders(), cache: "no-store" });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        window.location.href = "/acceso";
+        return;
+      }
       const j = await r.json();
       if (r.status === 503 || j.error?.includes("no existe")) { setTablaFalta(true); setLista([]); return; }
       if (!r.ok) throw new Error(j.error || "Error al cargar editoriales");
@@ -572,6 +586,13 @@ function TabContactos() {
     setLoading(true);
     try {
       const r = await fetch(`${API}/api/admin/contactos`, { headers: authHeaders() });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        window.location.href = "/acceso";
+        return;
+      }
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar contactos");
       setLista(j.data || []);
