@@ -11,7 +11,6 @@ const navLinks = [
   { href: "/tendencias", label: "Tendencias" },
   { href: "/opinion", label: "Opinión" },
   { href: "/revistas", label: "Revistas" },
-  { href: "/editor", label: "Editor" },
 ];
 
 export default function Header() {
@@ -19,6 +18,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasAdminSession, setHasAdminSession] = useState(false);
   const [hasUserSession, setHasUserSession] = useState(false);
+  const [userRole, setUserRole] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   const [userEmail, setUserEmail] = useState("");
 
@@ -27,31 +27,40 @@ export default function Header() {
 
     const updateSessionState = () => {
       const adminToken = localStorage.getItem("admin_token");
+      const userToken = localStorage.getItem("user_token");
+
       if (adminToken) {
         setHasAdminSession(true);
+        setHasUserSession(false);
         try {
           const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
           setAdminEmail(user.email || "");
+          setUserRole((user.rol || "").toString().toLowerCase());
         } catch {
           setAdminEmail("");
+          setUserRole("");
         }
       } else {
         setHasAdminSession(false);
         setAdminEmail("");
       }
 
-      const userToken = localStorage.getItem("user_token");
-      if (userToken) {
+      if (userToken && !adminToken) {
         setHasUserSession(true);
         try {
           const userData = JSON.parse(localStorage.getItem("user_data") || "{}");
           setUserEmail(userData.email || userData.nombre || "");
+          setUserRole((userData.rol || "").toString().toLowerCase());
         } catch {
           setUserEmail("");
+          setUserRole("");
         }
       } else {
-        setHasUserSession(false);
-        setUserEmail("");
+        if (!adminToken) {
+          setHasUserSession(false);
+          setUserEmail("");
+          setUserRole("");
+        }
       }
     };
 
@@ -135,17 +144,23 @@ export default function Header() {
             data-element="menu-navegacion"
           >
             <ul>
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={isActive(link.href) ? "is-active" : undefined}
-                    aria-current={isActive(link.href) ? "page" : undefined}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {(() => {
+                const mainNavLinks = [...navLinks];
+                if (hasUserSession && userRole === "editor") {
+                  mainNavLinks.push({ href: "/editor", label: "Editor" });
+                }
+                return mainNavLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={isActive(link.href) ? "is-active" : undefined}
+                      aria-current={isActive(link.href) ? "page" : undefined}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ));
+              })()}
             </ul>
           </nav>
 

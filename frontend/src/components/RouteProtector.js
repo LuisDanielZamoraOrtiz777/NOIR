@@ -11,7 +11,7 @@ import Link from "next/link";
  * @param {string} props.redirectTo - Ruta a redirigir si no hay token
  * @param {React.ReactNode} props.children - Contenido a proteger
  */
-export default function RouteProtector({ tokenKey, redirectTo = "/acceso", children }) {
+export default function RouteProtector({ tokenKey, redirectTo = "/acceso", requiredRole, children }) {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +28,7 @@ export default function RouteProtector({ tokenKey, redirectTo = "/acceso", child
       // Hay token, verificar que sea válido
       verifyToken(token);
     }
-  }, [router, tokenKey, redirectTo]);
+  }, [router, tokenKey, redirectTo, requiredRole]);
 
   const verifyToken = async (token) => {
     try {
@@ -42,23 +42,45 @@ export default function RouteProtector({ tokenKey, redirectTo = "/acceso", child
       });
 
       if (!res.ok) {
-        // Token inválido o expirado, limpiar
-        localStorage.removeItem(tokenKey);
-        if (tokenKey === "admin_token") {
-          localStorage.removeItem("admin_user");
-        } else {
-          localStorage.removeItem("user_data");
-        }
+        clearSession();
         setIsAuthorized(false);
-      } else {
-        // Token válido
-        setIsAuthorized(true);
+        return;
       }
+
+      const data = await res.json();
+      const userRole = data?.user?.rol?.toString()?.toLowerCase() || "";
+
+      if (requiredRole) {
+        const allowedRoles = Array.isArray(requiredRole)
+          ? requiredRole.map((role) => role.toString().toLowerCase())
+          : [requiredRole.toString().toLowerCase()];
+
+        if (!allowedRoles.includes(userRole)) {
+          clearSession();
+          setIsAuthorized(false);
+          return;
+        }
+      }
+
+      setIsAuthorized(true);
     } catch (error) {
       console.error("Error verificando token:", error);
+      clearSession();
       setIsAuthorized(false);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const clearSession = () => {
+    localStorage.removeItem(tokenKey);
+
+    if (tokenKey === "admin_token") {
+      localStorage.removeItem("admin_user");
+      localStorage.removeItem("admin_rol");
+    } else {
+      localStorage.removeItem("user_data");
+      localStorage.removeItem("user_rol");
     }
   };
 

@@ -10,11 +10,11 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "/api";
 export default function AccesoPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-  const [form, setForm] = useState({ 
-    nombre: "", 
-    email: "", 
-    password: "", 
-    telefono: "" 
+  const [form, setForm] = useState({
+    nombre: "",
+    email: "",
+    password: "",
+    telefono: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,6 @@ export default function AccesoPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Si ya hay sesión de usuario, redirigir
     const token = localStorage.getItem("user_token");
     if (token) {
       router.push("/");
@@ -42,21 +41,45 @@ export default function AccesoPage() {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error(
+            data.detail ||
+              data.error ||
+              "Demasiados intentos. Espera unos minutos e inténtalo de nuevo."
+          );
+        }
+        if (res.status === 401 || res.status === 403) {
+          throw new Error(data.detail || data.error || "Credenciales incorrectas.");
+        }
+        if (res.status === 409) {
+          throw new Error(data.detail || data.error || "Este correo ya está registrado.");
+        }
         throw new Error(data.detail || data.error || "Error en la operación");
       }
 
-      // Guardar token y datos del usuario
-      localStorage.setItem("user_token", data.token);
-      localStorage.setItem("user_data", JSON.stringify(data.user));
+      if (!data.token) {
+        throw new Error("Respuesta inválida del servidor. Intenta de nuevo.");
+      }
 
-      // Redirigir al inicio
-      router.push("/");
+      localStorage.setItem("user_token", data.token);
+      localStorage.setItem("user_data", JSON.stringify(data.user || {}));
+      if (data.user?.rol) {
+        localStorage.setItem("user_rol", data.user.rol);
+      }
+
+      const destination = data.user?.rol === "editor"
+        ? "/editor"
+        : isLogin
+          ? "/"
+          : "/perfil";
+
+      router.push(destination);
       router.refresh();
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "No se pudo completar la operación.");
     } finally {
       setLoading(false);
     }
@@ -116,7 +139,7 @@ export default function AccesoPage() {
                 </div>
 
                 {error && (
-                  <div className="alert alert-danger border-0 rounded-3" role="alert">
+                  <div className="alert alert-danger border-0 rounded-3" role="alert" aria-live="polite">
                     {error}
                   </div>
                 )}
@@ -136,6 +159,7 @@ export default function AccesoPage() {
                         placeholder="Tu nombre"
                         required
                         disabled={loading}
+                        autoComplete="name"
                         style={{
                           backgroundColor: "rgba(255,255,255,0.06)",
                           color: "#f8fafc",
@@ -158,6 +182,7 @@ export default function AccesoPage() {
                       placeholder="tu@correo.com"
                       required
                       disabled={loading}
+                      autoComplete="email"
                       style={{
                         backgroundColor: "rgba(255,255,255,0.06)",
                         color: "#f8fafc",
@@ -179,6 +204,7 @@ export default function AccesoPage() {
                         onChange={(e) => setForm({ ...form, telefono: e.target.value })}
                         placeholder="+52 123 456 7890"
                         disabled={loading}
+                        autoComplete="tel"
                         style={{
                           backgroundColor: "rgba(255,255,255,0.06)",
                           color: "#f8fafc",
@@ -202,6 +228,7 @@ export default function AccesoPage() {
                       required
                       disabled={loading}
                       minLength={6}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
                       style={{
                         backgroundColor: "rgba(255,255,255,0.06)",
                         color: "#f8fafc",
@@ -258,7 +285,16 @@ export default function AccesoPage() {
                         Acceder al panel admin
                       </Link>
                     ) : (
-                      "Al registrarte aceptas nuestros términos y condiciones"
+                      <>
+                        Al registrarte aceptas nuestros{" "}
+                        <Link href="/terminos" className="text-info text-decoration-none">
+                          términos
+                        </Link>{" "}
+                        y{" "}
+                        <Link href="/privacidad" className="text-info text-decoration-none">
+                          privacidad
+                        </Link>
+                      </>
                     )}
                   </p>
                 </div>

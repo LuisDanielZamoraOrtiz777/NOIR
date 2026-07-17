@@ -1,91 +1,100 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function EditorPage() {
-  const [form, setForm] = useState({ nombre: "", email: "", tipo: "", mensaje: "" });
-  const [enviado, setEnviado] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setEnviado(true);
-  };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  if (enviado) {
-    return (
-      <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dark text-light">
-        <div className="text-center">
-          <h1 className="mb-3">Solicitud enviada</h1>
-          <p>Nos pondremos en contacto contigo pronto.</p>
-        </div>
-      </div>
-    );
-  }
+    try {
+      const stored = JSON.parse(localStorage.getItem("user_data") || "{}");
+      setUser(stored);
+    } catch {
+      setUser(null);
+    }
+  }, []);
 
   return (
     <div className="min-vh-100 bg-dark text-light py-5">
-      <div className="container" style={{ maxWidth: 600 }}>
+      <div className="container" style={{ maxWidth: 900 }}>
         <div className="text-center mb-5">
-          <h1 className="fw-bold">Editor</h1>
-          <p className="text-muted">Formulario para colaboradores editoriales</p>
+          <p className="text-uppercase small mb-2" style={{ letterSpacing: "0.15em", color: "#facc15" }}>
+            Área exclusiva para editores
+          </p>
+          <h1 className="fw-bold">Panel de Editor</h1>
+          <p className="text-muted mb-0">
+            Esta sección está reservada para usuarios con rol <strong>editor</strong>. Si no tienes acceso, solicita el rol en tu perfil.
+          </p>
         </div>
 
-        <div className="card border-0" style={{ background: "#1a1a1a" }}>
-          <div className="card-body p-4">
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label text-light">Nombre completo *</label>
-                <input
-                  type="text"
-                  className="form-control bg-dark text-white border-secondary"
-                  value={form.nombre}
-                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  required
-                />
+        <div className="row g-4">
+          <div className="col-12 col-lg-6">
+            <div className="card border-0 h-100" style={{ background: "#151515" }}>
+              <div className="card-body">
+                <h2 className="h5 text-white mb-3">Tu perfil editorial</h2>
+                <p className="text-muted mb-3">
+                  Accede a enlaces y recursos pensados para tu rol. Aquí puedes ver tu información de sesión y navegar directamente a contenido relevante.
+                </p>
+                <dl className="row text-light-emphasis">
+                  <dt className="col-4">Nombre</dt>
+                  <dd className="col-8">{user?.nombre || "—"}</dd>
+                  <dt className="col-4">Email</dt>
+                  <dd className="col-8">{user?.email || "—"}</dd>
+                  <dt className="col-4">Rol</dt>
+                  <dd className="col-8">{user?.rol || "editor"}</dd>
+                </dl>
+                <div className="d-flex flex-wrap gap-2">
+                  <Link href="/perfil" className="btn btn-sm btn-outline-light">
+                    Mi perfil
+                  </Link>
+                  <Link href="/editoriales" className="btn btn-sm btn-light">
+                    Ver editoriales
+                  </Link>
+                </div>
               </div>
+            </div>
+          </div>
 
-              <div className="mb-3">
-                <label className="form-label text-light">Correo electrónico *</label>
-                <input
-                  type="email"
-                  className="form-control bg-dark text-white border-secondary"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  required
-                />
+          <div className="col-12 col-lg-6">
+            <div className="card border-0 h-100" style={{ background: "#151515" }}>
+              <div className="card-body">
+                <h2 className="h5 text-white mb-3">Recursos del editor</h2>
+                <ul className="list-unstyled text-light-emphasis mb-4">
+                  <li>• Consulta las últimas editoriales publicadas.</li>
+                  <li>• Revisa las propuestas de colaboración.</li>
+                  <li>• Solicita soporte editorial desde tu perfil.</li>
+                </ul>
+                <p className="text-muted">
+                  Si necesitas ampliar tus permisos, contacta al administrador para que te asignen el rol adecuado.
+                </p>
+                <div className="d-flex flex-wrap gap-2">
+                  <Link href="/contacto" className="btn btn-sm btn-outline-info">
+                    Contactar soporte
+                  </Link>
+                  <Link href="/acceso" className="btn btn-sm btn-outline-light">
+                    Cambiar cuenta
+                  </Link>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <div className="mb-3">
-                <label className="form-label text-light">Tipo de colaboración *</label>
-                <select
-                  className="form-select bg-dark text-white border-secondary"
-                  value={form.tipo}
-                  onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                  required
-                >
-                  <option value="">Selecciona una opción</option>
-                  <option value="articulo">Artículo</option>
-                  <option value="editorial">Editorial</option>
-                  <option value="columna">Columna</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label text-light">Mensaje o propuesta *</label>
-                <textarea
-                  className="form-control bg-dark text-white border-secondary"
-                  rows="6"
-                  value={form.mensaje}
-                  onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
-                  required
-                />
-              </div>
-
-              <button type="submit" className="btn btn-light w-100">
-                Enviar solicitud
-              </button>
-            </form>
+        <div className="mt-5">
+          <div className="card border-0" style={{ background: "#111111" }}>
+            <div className="card-body">
+              <h2 className="h5 text-white mb-3">¿Eres un editor y necesitas más herramientas?</h2>
+              <p className="text-muted mb-3">
+                El rol <strong>editor</strong> está pensado para acceso restringido al contenido editorial sin permisos administrativos. Si necesitas ayuda para crear o publicar editoriales, coordina con el equipo administrativo.
+              </p>
+              <Link href="/editoriales" className="btn btn-sm btn-light me-2">
+                Explorar editoriales</Link>
+              <Link href="/contacto" className="btn btn-sm btn-outline-light">
+                Solicitar apoyo</Link>
+            </div>
           </div>
         </div>
       </div>

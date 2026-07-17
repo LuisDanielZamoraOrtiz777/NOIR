@@ -693,10 +693,10 @@ export default function AdminDashboard() {
 
           <ul className="nav nav-tabs mb-4 border-secondary">
             {[
-              { key: "editoriales", label: "📝 Editoriales" },
-              { key: "partners", label: "🔗 Páginas hermanas" },
               { key: "usuarios", label: "👥 Usuarios" },
               { key: "sesiones", label: "🔑 Sesiones" },
+              { key: "editoriales", label: "📝 Editoriales" },
+              { key: "partners", label: "🔗 Páginas hermanas" },
             ].map(({ key, label }) => (
               <li className="nav-item" key={key}>
                 <button
