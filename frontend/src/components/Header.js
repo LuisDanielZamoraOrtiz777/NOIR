@@ -141,8 +141,6 @@ export default function Header() {
             ) : (
               <>
                 <Link href="/acceso" className="btn btn-sm btn-outline-light ms-2">Acceso</Link>
-                <Link href="/registro" className="btn btn-sm btn-outline-secondary ms-2 d-none d-md-inline-flex">Registro</Link>
-                <Link href="/acceso" className="btn btn-sm btn-outline-dark ms-2">Admin</Link>
               </>
             )}
           </div>

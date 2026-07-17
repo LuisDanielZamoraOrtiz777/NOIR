@@ -52,13 +52,7 @@ export async function POST(request) {
       }, { status: 401 });
     }
 
-    // No permitir admins en este login
-    if (rolNombre === "administrador" || rolNombre === "admin") {
-      return NextResponse.json({ 
-        error: "Acceso denegado", 
-        detail: "Los administradores deben usar el panel de administración" 
-      }, { status: 403 });
-    }
+    // Nota: ahora permitimos que administradores inicien sesión desde el acceso unificado.
 
     // Generar JWT
     const expiresInSeconds = 7 * 24 * 60 * 60;
