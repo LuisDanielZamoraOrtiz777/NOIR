@@ -24,19 +24,19 @@ export async function GET(request) {
     // Intentar obtener usuarios con roles (si existe la tabla roles)
     try {
       const usuarios = await sql`
-        SELECT u.id, u.email, u.creado_en, 
+        SELECT u.id, u.email, u.created_at, 
                COALESCE(r.nombre, 'usuario') as rol
         FROM users u
         LEFT JOIN roles r ON r.id = u.rol_id
-        ORDER BY u.creado_en DESC
+        ORDER BY u.created_at DESC
       `;
       return NextResponse.json({ status: "success", count: usuarios.length, data: usuarios });
     } catch (error) {
       // Si falla (no existe la tabla roles), usar consulta simple
       const usuarios = await sql`
-        SELECT id, email, creado_en, rol
+        SELECT id, email, created_at, rol
         FROM users
-        ORDER BY creado_en DESC
+        ORDER BY created_at DESC
       `;
       return NextResponse.json({ status: "success", count: usuarios.length, data: usuarios });
     }
