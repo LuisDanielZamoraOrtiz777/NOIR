@@ -233,4 +233,155 @@ router.delete("/editoriales/:id", authenticate, isAdmin, async (req, res) => {
   }
 });
 
+// ════════════════════════════════════════
+//  USUARIOS — gestión de usuarios
+// ════════════════════════════════════════
+
+/**
+ * GET /api/admin/usuarios
+ * Listar todos los usuarios con su rol.
+ */
+router.get("/usuarios", authenticate, isAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT u.id, u.email, u.creado_en, 
+             COALESCE(r.nombre, 'usuario') as rol
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.rol_id
+      ORDER BY u.creado_en DESC
+    `);
+    res.json({ status: "success", count: result.rows.length, data: result.rows });
+  } catch (err) {
+    console.error("Error al obtener usuarios:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+  }
+});
+
+/**
+ * PATCH /api/admin/usuarios/:id
+ * Cambiar el rol de un usuario.
+ * Body: { rol: "administrador" | "editor" | "usuario" }
+ */
+router.patch("/usuarios/:id", authenticate, isAdmin, async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    const { rol } = req.body;
+
+    if (isNaN(userId) || userId <= 0) {
+      return res.status(400).json({ error: "ID inválido", detail: "El parámetro id debe ser un número entero positivo" });
+    }
+
+    if (!rol || !["administrador", "editor", "usuario"].includes(rol)) {
+      return res.status(400).json({ error: "Rol inválido", detail: "El rol debe ser: administrador, editor o usuario" });
+    }
+
+    // Obtener el ID del rol
+    const rolResult = await pool.query("SELECT id FROM roles WHERE nombre = $1", [rol]);
+    if (rolResult.rows.length === 0) {
+      return res.status(404).json({ error: "Rol no encontrado", detail: `El rol ${rol} no existe` });
+    }
+    const rolId = rolResult.rows[0].id;
+
+    // Actualizar o insertar el rol del usuario
+    const existe = await pool.query("SELECT id FROM usuario_rol WHERE user_id = $1", [userId]);
+    if (existe.rows.length > 0) {
+      await pool.query("UPDATE usuario_rol SET rol_id = $1, activo = true WHERE user_id = $2", [rolId, userId]);
+    } else {
+      await pool.query("INSERT INTO usuario_rol (user_id, rol_id, activo) VALUES ($1, $2, true)", [userId, rolId]);
+    }
+
+    // Obtener el usuario actualizado
+    const usuario = await pool.query(`
+      SELECT u.id, u.email, u.creado_en, r.nombre as rol
+      FROM users u
+      LEFT JOIN usuario_rol ur ON u.id = ur.user_id AND ur.activo = true
+      LEFT JOIN roles r ON ur.rol_id = r.id
+      WHERE u.id = $1
+    `, [userId]);
+
+    res.json({ status: "success", message: "Rol actualizado exitosamente", data: usuario.rows[0] });
+  } catch (err) {
+    console.error("Error al actualizar rol:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+  }
+});
+
+/**
+ * DELETE /api/admin/usuarios/:id
+ * Eliminar un usuario.
+ */
+router.delete("/usuarios/:id", authenticate, isAdmin, async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+
+    if (isNaN(userId) || userId <= 0) {
+      return res.status(400).json({ error: "ID inválido", detail: "El parámetro id debe ser un número entero positivo" });
+    }
+
+    // No permitir eliminar el propio usuario
+    if (req.user.id === userId) {
+      return res.status(400).json({ error: "Operación no permitida", detail: "No puedes eliminar tu propio usuario" });
+    }
+
+    const result = await pool.query("DELETE FROM users WHERE id = $1 RETURNING id, email", [userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "No encontrado", detail: `No existe un usuario con id ${userId}` });
+    }
+
+    res.json({ status: "success", message: "Usuario eliminado exitosamente", data: result.rows[0] });
+  } catch (err) {
+    console.error("Error al eliminar usuario:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+  }
+});
+
+// ════════════════════════════════════════
+//  SESIONES — gestión de sesiones activas
+// ════════════════════════════════════════
+
+/**
+ * GET /api/admin/sesiones
+ * Listar todas las sesiones activas.
+ */
+router.get("/sesiones", authenticate, isAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT s.id, s.user_id, u.email, s.token_hash, s.activa, s.expires_at, s.creado_en
+      FROM sesiones s
+      LEFT JOIN users u ON s.user_id = u.id
+      ORDER BY s.creado_en DESC
+    `);
+    res.json({ status: "success", count: result.rows.length, data: result.rows });
+  } catch (err) {
+    console.error("Error al obtener sesiones:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+  }
+});
+
+/**
+ * DELETE /api/admin/sesiones/:id
+ * Revocar una sesión individual.
+ */
+router.delete("/sesiones/:id", authenticate, isAdmin, async (req, res) => {
+  try {
+    const sessionId = Number(req.params.id);
+
+    if (isNaN(sessionId) || sessionId <= 0) {
+      return res.status(400).json({ error: "ID inválido", detail: "El parámetro id debe ser un número entero positivo" });
+    }
+
+    const result = await pool.query("UPDATE sesiones SET activa = false WHERE id = $1 RETURNING id, user_id", [sessionId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "No encontrado", detail: `No existe una sesión con id ${sessionId}` });
+    }
+
+    res.json({ status: "success", message: "Sesión revocada exitosamente" });
+  } catch (err) {
+    console.error("Error al revocar sesión:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+  }
+});
+
 module.exports = router;

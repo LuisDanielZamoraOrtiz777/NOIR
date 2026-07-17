@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`
-      SELECT id, titulo, autor, fecha, categoria, resumen, contenido, imagen_url
+      SELECT id, titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado
       FROM editoriales
       WHERE publicado = true
       ORDER BY fecha DESC, created_at DESC

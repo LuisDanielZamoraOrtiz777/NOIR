@@ -58,8 +58,14 @@ console.log("GET  /api/editoriales/publicas");
 console.log("POST /api/admin/editoriales");
 console.log("PATCH /api/admin/editoriales/:id");
 console.log("DELETE /api/admin/editoriales/:id");
+console.log("GET  /api/admin/usuarios");
+console.log("PATCH /api/admin/usuarios/:id");
+console.log("DELETE /api/admin/usuarios/:id");
+console.log("GET  /api/admin/sesiones");
+console.log("DELETE /api/admin/sesiones/:id");
 console.log("POST /api/admin/login");
 console.log("GET  /api/admin/verify");
+console.log("POST /api/admin/logout");
 console.log("========================================\n");
 
 app.get("/api/health", (_req, res) => {

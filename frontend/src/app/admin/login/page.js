@@ -33,11 +33,15 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error("Demasiados intentos de inicio de sesión. Por favor, espera unos minutos antes de intentar nuevamente.");
+        }
         throw new Error(data.detail || data.error || "Error en el login");
       }
 
       localStorage.setItem("admin_token", data.token);
       localStorage.setItem("admin_user", JSON.stringify(data.user));
+      localStorage.setItem("admin_rol", data.user.rol || "");
 
       router.push("/admin");
       router.refresh();

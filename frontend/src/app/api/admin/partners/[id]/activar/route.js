@@ -12,21 +12,28 @@ export async function PATCH(request, { params }) {
     }
 
     const id = params.id;
-    const result = await query(
-      "UPDATE sitios_partners SET activo = true WHERE id = $1 RETURNING *",
-      [id]
-    );
+    const result = await query("UPDATE sitios_partners SET activo = true WHERE id = $1 RETURNING *", [id]);
 
     if (result.rows.length === 0) {
-      return Response.json({ error: "No encontrado", detail: `No existe un partner con id ${id}` }, { status: 404 });
+      return Response.json(
+        { error: "No encontrado", detail: `No existe un partner con id ${id}` },
+        { status: 404 }
+      );
     }
 
     revalidatePath("/");
     revalidatePath("/revistas");
 
-    return Response.json({ status: "success", message: "Partner activado", data: result.rows[0] });
+    return Response.json({
+      status: "success",
+      message: "Partner activado exitosamente",
+      data: result.rows[0],
+    });
   } catch (error) {
     console.error("Error en PATCH /api/admin/partners/[id]/activar:", error);
-    return Response.json({ error: "Error interno del servidor." }, { status: 500 });
+    return Response.json(
+      { error: "Error interno del servidor." },
+      { status: 500 }
+    );
   }
 }

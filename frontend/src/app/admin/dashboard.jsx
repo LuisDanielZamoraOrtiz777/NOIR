@@ -84,11 +84,15 @@ function TabPartners() {
   const toggle = async (partner) => {
     setActionId(partner.id); setErr(""); setOk("");
     const method = partner.activo ? "DELETE" : "PATCH";
-      const url = partner.activo
-        ? `${API}/api/admin/partners/${partner.id}`
-        : `${API}/api/admin/partners/${partner.id}/activar`;
-      try {
-        const r = await fetch(url, { method, headers: authHeaders() });
+    const url = partner.activo
+      ? `${API}/api/admin/partners/${partner.id}`
+      : `${API}/api/admin/partners/${partner.id}/activar`;
+    try {
+      const r = await fetch(url, { method, headers: authHeaders() });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar partner");
+      setOk(j.message || "Estado de partner actualizado exitosamente ✓");
+      cargar();
     } catch (e) { setErr(e.message); }
     finally { setActionId(null); }
   };
@@ -418,6 +422,229 @@ function TabEditoriales() {
 }
 
 // ════════════════════════════════════════
+//  TAB: USUARIOS
+// ════════════════════════════════════════
+function TabUsuarios() {
+  const [lista, setLista]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [actionId, setActionId] = useState(null);
+  const [ok, setOk]             = useState("");
+  const [err, setErr]           = useState("");
+  const [cambiandoId, setCambiandoId] = useState(null);
+  const [nuevoRol, setNuevoRol] = useState({});
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/api/admin/usuarios`, { headers: authHeaders() });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar usuarios");
+      setLista(j.data || []);
+    } catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const cambiarRol = async (usuario) => {
+    setCambiandoId(usuario.id); setErr(""); setOk("");
+    const rolSeleccionado = nuevoRol[usuario.id] || usuario.rol || "usuario";
+    try {
+      const r = await fetch(`${API}/api/admin/usuarios/${usuario.id}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ rol: rolSeleccionado }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar rol");
+      setOk(`Rol actualizado para ${usuario.email} ✓`);
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setCambiandoId(null); }
+  };
+
+  const eliminar = async (id, email) => {
+    if (!confirm(`¿Eliminar usuario ${email} permanentemente?`)) return;
+    setActionId(id); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/usuarios/${id}`, { method: "DELETE", headers: authHeaders() });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error");
+      setOk(j.message || "Usuario eliminado ✓"); cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setActionId(null); }
+  };
+
+  const getRolBadge = (rol) => {
+    const colors = {
+      administrador: "bg-danger",
+      editor: "bg-warning text-dark",
+      usuario: "bg-info text-dark",
+    };
+    const label = rol || "sin rol";
+    return <span className={`badge ${colors[rol] || "bg-secondary"}`}>{label}</span>;
+  };
+
+  return (
+    <>
+      <Alert msg={ok} type="success" onClose={() => setOk("")} />
+      <Alert msg={err} type="danger" onClose={() => setErr("")} />
+
+      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-white">Usuarios registrados ({lista.length})</h5>
+          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺ Actualizar"}</button>
+        </div>
+        <div className="card-body p-0">
+          {loading ? (
+            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+          ) : lista.length === 0 ? (
+            <p className="text-muted text-center py-4">Sin usuarios registrados.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-dark table-hover mb-0">
+                <thead><tr>
+                  <th className="text-muted fw-normal small">ID</th>
+                  <th className="text-muted fw-normal small">Email</th>
+                  <th className="text-muted fw-normal small">Rol</th>
+                  <th className="text-muted fw-normal small">Registrado</th>
+                  <th className="text-muted fw-normal small text-end">Acciones</th>
+                </tr></thead>
+                <tbody>
+                  {lista.map((u) => (
+                    <tr key={u.id}>
+                      <td className="text-muted small">{u.id}</td>
+                      <td className="fw-medium">{u.email}</td>
+                      <td>{getRolBadge(u.rol)}</td>
+                      <td className="text-muted small">{fmt(u.creado_en)}</td>
+                      <td className="text-end">
+                        <div className="d-flex gap-2 justify-content-end align-items-center">
+                          <select
+                            className="form-select form-select-sm bg-dark text-white border-secondary"
+                            style={{ width: "auto", minWidth: 140 }}
+                            value={nuevoRol[u.id] || u.rol || "usuario"}
+                            onChange={(e) => setNuevoRol({ ...nuevoRol, [u.id]: e.target.value })}
+                            disabled={cambiandoId === u.id}
+                          >
+                            <option value="administrador">administrador</option>
+                            <option value="editor">editor</option>
+                            <option value="usuario">usuario</option>
+                          </select>
+                          <button className="btn btn-sm btn-outline-primary" onClick={() => cambiarRol(u)} disabled={cambiandoId === u.id}>
+                            {cambiandoId === u.id ? "…" : "Cambiar"}
+                          </button>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => eliminar(u.id, u.email)} disabled={actionId === u.id}>
+                            {actionId === u.id ? "…" : "Eliminar"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════
+//  TAB: SESIONES
+// ════════════════════════════════════════
+function TabSesiones() {
+  const [lista, setLista]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [actionId, setActionId] = useState(null);
+  const [ok, setOk]             = useState("");
+  const [err, setErr]           = useState("");
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/api/admin/sesiones`, { headers: authHeaders() });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar sesiones");
+      setLista(j.data || []);
+    } catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const revocar = async (sessionId) => {
+    if (!confirm("¿Revocar esta sesión? El usuario deberá iniciar sesión nuevamente.")) return;
+    setActionId(sessionId); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/sesiones/${sessionId}`, { method: "DELETE", headers: authHeaders() });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al revocar sesión");
+      setOk("Sesión revocada exitosamente ✓"); cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setActionId(null); }
+  };
+
+  const getEstadoBadge = (activa) => {
+    return <span className={`badge ${activa ? "bg-success" : "bg-secondary"}`}>{activa ? "Activa" : "Revocada"}</span>;
+  };
+
+  return (
+    <>
+      <Alert msg={ok} type="success" onClose={() => setOk("")} />
+      <Alert msg={err} type="danger" onClose={() => setErr("")} />
+
+      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-white">Sesiones activas ({lista.filter(s => s.activa).length})</h5>
+          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺ Actualizar"}</button>
+        </div>
+        <div className="card-body p-0">
+          {loading ? (
+            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+          ) : lista.length === 0 ? (
+            <p className="text-muted text-center py-4">Sin sesiones registradas.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-dark table-hover mb-0">
+                <thead><tr>
+                  <th className="text-muted fw-normal small">ID</th>
+                  <th className="text-muted fw-normal small">Usuario</th>
+                  <th className="text-muted fw-normal small">Token (hash)</th>
+                  <th className="text-muted fw-normal small">Estado</th>
+                  <th className="text-muted fw-normal small">Expira</th>
+                  <th className="text-muted fw-normal small">Creada</th>
+                  <th className="text-muted fw-normal small text-end">Acción</th>
+                </tr></thead>
+                <tbody>
+                  {lista.map((s) => (
+                    <tr key={s.id}>
+                      <td className="text-muted small">{s.id}</td>
+                      <td className="fw-medium">{s.email || "—"}</td>
+                      <td className="text-muted small font-monospace" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }} title={s.token_hash}>
+                        {s.token_hash?.slice(0, 16) || "—"}…
+                      </td>
+                      <td>{getEstadoBadge(s.activa)}</td>
+                      <td className="text-muted small">{s.expires_at ? new Date(s.expires_at).toLocaleString("es-MX") : "—"}</td>
+                      <td className="text-muted small">{fmt(s.creado_en)}</td>
+                      <td className="text-end">
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => revocar(s.id)} disabled={actionId === s.id || !s.activa}>
+                          {actionId === s.id ? "…" : "Revocar"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ════════════════════════════════════════
 //  DASHBOARD PRINCIPAL
 // ════════════════════════════════════════
 export default function AdminDashboard() {
@@ -431,8 +658,11 @@ export default function AdminDashboard() {
     try { setUser(JSON.parse(localStorage.getItem("admin_user") || "{}")); } catch {}
   }, [router]);
 
-  const logout = () => {
+  const logout = async () => {
     if (!confirm("¿Cerrar sesión?")) return;
+    try {
+      await fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" } });
+    } catch {}
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
     router.push("/admin/login");
@@ -453,7 +683,12 @@ export default function AdminDashboard() {
         </div>
 
         <ul className="nav nav-tabs mb-4 border-secondary">
-          {[{ key: "editoriales", label: "📝 Editoriales" }, { key: "partners", label: "🔗 Páginas hermanas" }].map(({ key, label }) => (
+          {[
+            { key: "editoriales", label: "📝 Editoriales" },
+            { key: "partners", label: "🔗 Páginas hermanas" },
+            { key: "usuarios", label: "👥 Usuarios" },
+            { key: "sesiones", label: "🔑 Sesiones" },
+          ].map(({ key, label }) => (
             <li className="nav-item" key={key}>
               <button
                 className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
@@ -465,6 +700,8 @@ export default function AdminDashboard() {
 
         {tab === "editoriales" && <TabEditoriales />}
         {tab === "partners"    && <TabPartners />}
+        {tab === "usuarios"    && <TabUsuarios />}
+        {tab === "sesiones"    && <TabSesiones />}
       </div>
     </div>
   );

@@ -41,6 +41,18 @@ export async function GET(request) {
     `;
     log.push("✅ Tabla 'editoriales' creada o ya existía.");
 
+    // Crear tabla sitios_partners
+    await sql`
+      CREATE TABLE IF NOT EXISTS sitios_partners (
+        id          SERIAL PRIMARY KEY,
+        nombre      TEXT NOT NULL,
+        url_api     TEXT NOT NULL UNIQUE,
+        activo      BOOLEAN NOT NULL DEFAULT TRUE,
+        creado_en   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    log.push("✅ Tabla 'sitios_partners' creada o ya existía.");
+
     // 2. Índices
     await sql`CREATE INDEX IF NOT EXISTS idx_editoriales_publicado ON editoriales(publicado)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_editoriales_fecha ON editoriales(fecha DESC)`;

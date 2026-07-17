@@ -44,7 +44,13 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: "La imagen debe ser una URL pública válida." }, { status: 400 });
     }
 
-    const publishedValue = parseBoolean(publicado);
+    const publicadoValue = typeof publicado === "boolean"
+      ? publicado
+      : publicado === "true"
+      ? true
+      : publicado === "false"
+      ? false
+      : null;
 
     const sql = getSql();
     const rows = await sql`
@@ -56,7 +62,7 @@ export async function PATCH(request, { params }) {
         resumen     = COALESCE(${resumen?.trim()    || null}, resumen),
         contenido   = COALESCE(${contenido?.trim()  || null}, contenido),
         imagen_url  = COALESCE(${imagen_url?.trim() || null}, imagen_url),
-        publicado   = COALESCE(${publishedValue !== null ? publishedValue : null}, publicado),
+        publicado   = COALESCE(${publicadoValue}, publicado),
         updated_at  = NOW()
       WHERE id = ${id}
       RETURNING *

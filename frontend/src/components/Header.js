@@ -10,10 +10,38 @@ const navLinks = [
   { href: "/tendencias", label: "Tendencias" },
   { href: "/opinion", label: "Opinión" },
   { href: "/revistas", label: "Revistas" },
+  { href: "/registro", label: "Registro" },
+  { href: "/editor", label: "Editor" },
 ];
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const token = localStorage.getItem("admin_token");
+    if (token) {
+      setHasSession(true);
+      try {
+        const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
+        setUserEmail(user.email || "");
+      } catch {}
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    if (!confirm("¿Cerrar sesión?")) return;
+    try {
+      await fetch("/api/auth/logout", { method: "POST", headers: { "Content-Type": "application/json" } });
+    } catch {}
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_user");
+    setHasSession(false);
+    setUserEmail("");
+    window.location.href = "/";
+  };
 
   return (
     <header id="site-header" className="site-header" data-element="header">
@@ -55,9 +83,18 @@ export default function Header() {
           <div className="header-actions" data-element="header-acciones">
             <SearchBox />
             <DarkToggle />
-            <Link href="/admin/login" className="btn btn-sm btn-outline-dark ms-2">
-              Admin
-            </Link>
+            {hasSession ? (
+              <>
+                <span className="text-muted small me-2 d-none d-md-inline">{userEmail}</span>
+                <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <Link href="/admin/login" className="btn btn-sm btn-outline-dark ms-2">
+                Admin
+              </Link>
+            )}
           </div>
         </div>
       </div>

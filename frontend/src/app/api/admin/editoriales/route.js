@@ -73,8 +73,15 @@ export async function POST(request) {
       return NextResponse.json({ error: "La imagen debe ser una URL pública válida." }, { status: 400 });
     }
 
+    const publicadoValue = typeof publicado === "boolean"
+      ? publicado
+      : publicado === "true"
+      ? true
+      : publicado === "false"
+      ? false
+      : false;
+
     const sql = getSql();
-    const publishedValue = parseBoolean(publicado);
     const rows = await sql`
       INSERT INTO editoriales (titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado)
       VALUES (
@@ -85,7 +92,7 @@ export async function POST(request) {
         ${resumen.trim()},
         ${contenido?.trim() || ""},
         ${imagen_url?.trim() || null},
-        ${publishedValue !== null ? publishedValue : false}
+        ${publicadoValue}
       )
       RETURNING *
     `;

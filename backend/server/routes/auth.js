@@ -22,8 +22,13 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Datos incompletos", detail: "Email y password son obligatorios" });
     }
 
-    // Consultar usuario en PostgreSQL
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    // Consultar usuario en PostgreSQL con su rol
+    const result = await pool.query(`
+      SELECT u.*, r.nombre as rol_nombre, r.descripcion as rol_descripcion
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.rol_id
+      WHERE u.email = $1
+    `, [email]);
 
     if (result.rows.length === 0) {
       console.log("❌ Usuario no encontrado:", email);
@@ -31,7 +36,8 @@ router.post("/login", async (req, res) => {
     }
 
     const usuario = result.rows[0];
-    console.log("✅ Usuario encontrado:", usuario.email, "Rol:", usuario.rol);
+    const rolNombre = usuario.rol_nombre || usuario.rol;
+    console.log("✅ Usuario encontrado:", usuario.email, "Rol:", rolNombre);
 
     // Verificar password
     const passwordValido = await bcrypt.compare(password, usuario.password_hash);
@@ -41,8 +47,10 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Credenciales inválidas", detail: "Email o password incorrectos" });
     }
 
-    // Verificar que sea admin
-    if (usuario.rol !== "admin") {
+    // Verificar que sea admin (soporta tanto rol legacy como nuevo sistema)
+    const esAdmin = rolNombre === "administrador" || usuario.rol === "admin";
+    
+    if (!esAdmin) {
       console.log("❌ Usuario no es admin:", email);
       return res.status(403).json({ error: "Acceso denegado", detail: "Se requiere rol de administrador" });
     }
@@ -86,6 +94,14 @@ router.get("/verify", require("../middlewares/auth").authenticate, (req, res) =>
       rol: req.user.rol,
     },
   });
+});
+
+/**
+ * POST /api/admin/logout
+ * Cerrar sesión (en el futuro podría invalidar el token en la DB).
+ */
+router.post("/logout", (req, res) => {
+  res.status(200).json({ status: "success", message: "Sesión cerrada" });
 });
 
 module.exports = router;
