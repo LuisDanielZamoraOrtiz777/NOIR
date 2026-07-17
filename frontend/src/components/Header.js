@@ -116,6 +116,9 @@ export default function Header() {
               </>
             ) : hasUserSession ? (
               <>
+                <Link href="/perfil" className="btn btn-sm btn-outline-info me-2">
+                  Mi Perfil
+                </Link>
                 <span className="text-muted small me-2 d-none d-md-inline">{userEmail}</span>
                 <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleUserLogout}>
                   Cerrar sesión
