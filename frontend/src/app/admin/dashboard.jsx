@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import RouteProtector from "@/components/RouteProtector";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API = process.env.NEXT_PUBLIC_API_BASE?.trim() || "http://localhost:4000";
+const API = process.env.NEXT_PUBLIC_API_BASE?.trim() || "/api";
 
 function authHeaders() {
   const token = typeof window !== "undefined" ? localStorage.getItem("user_token") : "";
