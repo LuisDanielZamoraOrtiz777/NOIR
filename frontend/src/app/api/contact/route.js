@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
 export async function POST(request) {
@@ -9,22 +10,25 @@ export async function POST(request) {
     const safeMessage = message?.trim() || "";
 
     if (!safeMessage) {
-      return Response.json(
+      return NextResponse.json(
         { error: "El mensaje no puede estar vacío." },
         { status: 400 }
       );
     }
+
+    console.log("POST /api/contact body:", { name, email, message });
 
     const result = await query(
       "INSERT INTO contacts(name, email, message, created_at) VALUES($1, $2, $3, NOW()) RETURNING id",
       [safeName, safeEmail, safeMessage]
     );
 
-    return Response.json({ ok: true, id: result.rows[0].id }, { status: 201 });
+    console.log("POST /api/contact inserted id:", result.rows[0].id);
+    return NextResponse.json({ ok: true, id: result.rows[0].id }, { status: 201 });
   } catch (error) {
     console.error("Error en /api/contact:", error);
-    return Response.json(
-      { error: "No se pudo enviar el mensaje." },
+    return NextResponse.json(
+      { error: "No se pudo enviar el mensaje.", detail: error?.message || String(error) },
       { status: 500 }
     );
   }

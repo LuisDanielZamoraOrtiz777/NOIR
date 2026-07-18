@@ -74,10 +74,15 @@ function SendToAdmin() {
         body: JSON.stringify({ name, email, message: messageText }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.detail || data.error || "Error al enviar mensaje");
+      if (!res.ok) {
+        console.error("/api/contact response error", res.status, data);
+        throw new Error(data.detail || data.error || `Error al enviar mensaje (${res.status})`);
+      }
+      console.log("/api/contact success", data);
       setStatus({ type: "success", text: "Mensaje enviado. Gracias por tu sugerencia." });
       setMessageText("");
     } catch (err) {
+      console.error("/api/contact fetch failed", err);
       setStatus({ type: "danger", text: err.message || "No se pudo enviar el mensaje." });
     } finally { setLoadingMsg(false); }
   };
