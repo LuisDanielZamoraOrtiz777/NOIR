@@ -59,11 +59,28 @@ function SendToAdmin() {
     e && e.preventDefault();
     if (!messageText.trim()) return setStatus({ type: "danger", text: "El mensaje no puede estar vacío" });
     setLoadingMsg(true); setStatus({ type: "", text: "" });
+
+    let name = "Anónimo";
+    let email = "no-reply@noiratelier.com";
+
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("user_data");
+      if (savedUser) {
+        try {
+          const data = JSON.parse(savedUser);
+          name = data?.nombre || data?.email || name;
+          email = data?.email || email;
+        } catch (error) {
+          console.warn("No se pudo parsear user_data al enviar mensaje:", error);
+        }
+      }
+    }
+
     try {
       const res = await fetch(`${API_BASE}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: sender.name, email: sender.email, message: messageText }),
+        body: JSON.stringify({ name, email, message: messageText }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || data.error || "Error al enviar mensaje");
