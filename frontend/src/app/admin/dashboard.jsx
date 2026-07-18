@@ -25,21 +25,6 @@ function fmt(d) {
   catch { return d; }
 }
 
-function isValidPublicUrl(url) {
-  return typeof url === "string" && /^(https?:\/\/)/i.test(url.trim());
-}
-
-function notifyEditorialChange() {
-  if (typeof window === "undefined") return;
-  if (typeof BroadcastChannel !== "undefined") {
-    const channel = new BroadcastChannel("noir-editoriales");
-    channel.postMessage({ type: "editoriales-updated" });
-    channel.close();
-    return;
-  }
-  window.localStorage.setItem("noir-editoriales-refresh", Date.now().toString());
-}
-
 function Alert({ msg, type, onClose }) {
   if (!msg) return null;
   return (
@@ -333,7 +318,6 @@ function TabUsuarios() {
 function TabContactos() {
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionId, setActionId] = useState(null);
   const [ok, setOk] = useState("");
   const [err, setErr] = useState("");
 
@@ -429,12 +413,13 @@ export default function AdminDashboard() {
     }
   }, [API, authHeaders, router]);
 
+  // Fetch user info and message count when token changes
   useEffect(() => {
     const token = localStorage.getItem("user_token");
     if (!token) { router.push("/acceso"); return; }
     try { setUser(JSON.parse(localStorage.getItem("user_data") || "{}")); } catch {}
     fetchMessageCount();
-  }, [router, fetchMessageCount]);
+  }, [fetchMessageCount]); // re-run when fetchMessageCount changes (its deps include authHeaders which reads token)
 
   // Auto-switch to messages tab if there are new messages and user hasn't selected a tab yet
   useEffect(() => {

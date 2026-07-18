@@ -25,7 +25,7 @@ export default function OpinionPage() {
 }
 
 function SendToAdmin() {
-  const API_BASE = "/api";
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "/api";
   const [messageText, setMessageText] = useState("");
   const [loadingMsg, setLoadingMsg] = useState(false);
   const [status, setStatus] = useState({ type: "", text: "" });
@@ -68,7 +68,7 @@ function SendToAdmin() {
     }
 
     try {
-      const res = await fetch(`/api/contact`, {
+      const res = await fetch(`${API_BASE}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message: messageText }),
