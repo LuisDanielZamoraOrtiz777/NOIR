@@ -1,8 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function getApiBase() {
+  const base = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+  if (!base) return "";
+  const normalized = base.replace(/\/$/, "");
+  return normalized.endsWith("/api") ? normalized.slice(0, -4) : normalized;
+}
 
 export default function OpinionPage() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+  const API_BASE = getApiBase();
 
   return (
     <main className="section-block page-content">
@@ -27,7 +34,7 @@ export default function OpinionPage() {
 }
 
 function SendToAdmin() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+  const API_BASE = getApiBase();
   const [messageText, setMessageText] = useState("");
   const [loadingMsg, setLoadingMsg] = useState(false);
   const [status, setStatus] = useState({ type: "", text: "" });

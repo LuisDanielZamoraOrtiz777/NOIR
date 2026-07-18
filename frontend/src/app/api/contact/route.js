@@ -4,16 +4,20 @@ export async function POST(request) {
   try {
     const { name, email, message } = await request.json();
 
-    if (!name || !email || !message) {
+    const safeName = name?.trim() || "Anónimo";
+    const safeEmail = email?.trim() || "no-reply@noiratelier.com";
+    const safeMessage = message?.trim() || "";
+
+    if (!safeMessage) {
       return Response.json(
-        { error: "Todos los campos son obligatorios." },
+        { error: "El mensaje no puede estar vacío." },
         { status: 400 }
       );
     }
 
     const result = await query(
       "INSERT INTO contacts(name, email, message, created_at) VALUES($1, $2, $3, NOW()) RETURNING id",
-      [name, email, message]
+      [safeName, safeEmail, safeMessage]
     );
 
     return Response.json({ ok: true, id: result.rows[0].id }, { status: 201 });
