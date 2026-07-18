@@ -28,7 +28,7 @@ function isValidPublicUrl(value) {
 
 // ── GET /api/admin/editoriales ────────────────────────────────────────────────
 export async function GET(request) {
-  const auth = authenticateJWT(request, ["admin", "editor"]);
+  const auth = authenticateJWT(request);
   if (auth.status !== 200) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
@@ -54,7 +54,7 @@ export async function GET(request) {
 
 // ── POST /api/admin/editoriales ───────────────────────────────────────────────
 export async function POST(request) {
-  const auth = authenticateJWT(request, ["admin", "editor"]);
+  const auth = authenticateJWT(request);
   if (auth.status !== 200) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
