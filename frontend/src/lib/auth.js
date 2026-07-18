@@ -52,16 +52,3 @@ export function authenticateEditor(request) {
     return { error: "Token inválido o expirado.", status: 401 };
   }
 }
-</replace_in_file>
-<task_progress>
-- [x] Explore project structure
-- [x] Find admin and editor dashboard components
-- [x] Identify editorial-related code
-- [x] Create `isEditor` middleware in auth.js
-- [x] Create editor route file with editorial CRUD
-- [x] Update index.js to add editor routes
-- [x] Remove editorial routes from admin.js
-- [x] Create editor dashboard page with editorial management
-- [x] Update admin dashboard to remove editorial tab
-- [x] Update editor page to use new dashboard
-- [ ] Create Next.js API route handlers for editor editoriales
