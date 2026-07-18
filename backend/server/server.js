@@ -1,36 +1,34 @@
 // backend/server/server.js
-/**
- * Refactored Express server with:
- *   • Centralized async error handling (asyncHandler)
- *   • Global input sanitization (express-sanitizer)
- *   • Structured logging (pino + pino-http)
- *   • Secure Helmet CSP
- *   • Compression (compression)
- *   • Rate limiting on abusive endpoints
- *   • Clean route mounting (no duplicate mounts)
- *   • Environment-aware SSL for PG pool
- *   • Health check with DB ping
- */
+// Refactored Express server with:
+//   • Centralized async error handling (asyncHandler)
+//   • Global input sanitization (express-sanitizer)
+//   • Structured logging (pino + pino-http)
+//   • Secure Helmet CSP
+//   • Compression (compression)
+//   • Rate limiting on abusive endpoints
+//   • Clean route mounting (no duplicate mounts)
+//   • Environment-aware SSL for PG pool
+//   • Health check with DB ping
 
-import express from "express";
-import helmet from "helmet";
-import cors from "cors";
-import compression from "compression";
-import rateLimit from "express-rate-limit";
-import pino from "pino";
-import pinoHttp from "pino-http";
-import sanitize from "express-sanitizer";
-import { asyncHandler } from "./utils/asyncHandler.js";
-import { validate } from "./middleware/validate.js";
+const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
+const compression = require("compression");
+const rateLimit = require("express-rate-limit");
+const pino = require("pino");
+const pinoHttp = require("pino-http");
+const sanitize = require("express-sanitizer");
+const asyncHandler = require("./utils/asyncHandler");
+const { validate } = require("./middleware/validate");
 
 // Routes
-import authRoutes from "./routes/auth.js";
-import adminRoutes from "./routes/admin.js";
-import userAuthRoutes from "./routes/userAuth.js";
-import editorRoutes from "./routes/editor.js";
-import rssRoutes from "./routes/rss.js";
-import sisterStoreRoutes from "./routes/sisterStore.js";
-import { contactRouter, newsletterRouter } from "./routes/public.js";
+const authRoutes = require("./routes/auth");
+const adminRoutes = require("./routes/admin");
+const userAuthRoutes = require("./routes/userAuth");
+const editorRoutes = require("./routes/editor");
+const rssRoutes = require("./routes/rss");
+const sisterStoreRoutes = require("./routes/sisterStore");
+const { contactRouter, newsletterRouter } = require("./routes/public");
 
 const app = express();
 
@@ -44,7 +42,12 @@ const logger = pino({
 });
 
 // Request logger
-app.use(pinoHttp({ logger, customLogLevel: (req, err) => (res.statusCode >= 400 ? "warn" : "info") }));
+app.use(
+  pinoHttp({
+    logger,
+    customLogLevel: (req, err) => (res.statusCode >= 400 ? "warn" : "info"),
+  })
+);
 
 // Security
 app.use(
@@ -130,8 +133,7 @@ app.use("/api/newsletter", publicLimiter);
 app.get(
   "/api/health",
   asyncHandler(async (req, res) => {
-    // Assuming you have a pg pool attached to app.locals.db or similar.
-    // Adjust according to your setup.
+    // Adjust according to your DB setup; here we fetch the pool from app.locals.db
     const db = req.app.get("db") || require("./config/database").pool;
     await db.query("SELECT 1");
     res.json({ status: "ok", timestamp: new Date().toISOString(), db: "connected" });
@@ -142,7 +144,7 @@ app.get(
 app.use("/api/contact", contactRouter);
 app.use("/api/newsletter", newsletterRouter);
 
-// Auth (login/verify/logout) – works for both admin & user, differentiated by role after verification
+// Auth (login/verify/logout) – works for both admin & user, role checked after verification
 app.use("/api/auth", userAuthRoutes);
 
 // Admin routes (require admin role)
@@ -162,7 +164,7 @@ app.use((req, res) => {
 });
 
 // Centralized error handler (covers asyncHandler thrown errors and sync errors)
-app.use((err, req, res, next) => {
+app.use((err, _req, res, next) => {
   logger.error(err);
   if (err.status) {
     return res.status(err.status).json({ error: err.message });
@@ -171,4 +173,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-export default app;
+module.exports = app;

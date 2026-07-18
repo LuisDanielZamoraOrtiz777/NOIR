@@ -1,5 +1,5 @@
 // middleware/validate.js
-import { ZodError } from 'zod';
+const { ZodError } = require('zod');
 
 /**
  * Middleware factory that validates request data using a Zod schema.
@@ -14,7 +14,7 @@ import { ZodError } from 'zod';
  *   });
  *   router.post('/login', validate(loginSchema), handler);
  */
-export const validate = (schema) => (req, res, next) => {
+const validate = (schema) => (req, res, next) => {
   try {
     // Attempt to parse the relevant parts of the request.
     // We intentionally only validate body, query, and params.
@@ -43,4 +43,4 @@ export const validate = (schema) => (req, res, next) => {
   }
 };
 
-export default { validate };
+module.exports = { validate };
