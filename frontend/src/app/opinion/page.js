@@ -38,6 +38,22 @@ function SendToAdmin() {
   const [messageText, setMessageText] = useState("");
   const [loadingMsg, setLoadingMsg] = useState(false);
   const [status, setStatus] = useState({ type: "", text: "" });
+  const [sender, setSender] = useState({ name: "Anónimo", email: "no-reply@noiratelier.com" });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedUser = localStorage.getItem("user_data");
+    if (savedUser) {
+      try {
+        const data = JSON.parse(savedUser);
+        const name = data?.nombre || data?.email || "Anónimo";
+        const email = data?.email || "no-reply@noiratelier.com";
+        setSender({ name, email });
+      } catch (error) {
+        console.warn("No se pudo parsear user_data en Opinion:", error);
+      }
+    }
+  }, []);
 
   const send = async (e) => {
     e && e.preventDefault();
@@ -47,7 +63,7 @@ function SendToAdmin() {
       const res = await fetch(`${API_BASE}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Anon", email: "", message: messageText }),
+        body: JSON.stringify({ name: sender.name, email: sender.email, message: messageText }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || data.error || "Error al enviar mensaje");
