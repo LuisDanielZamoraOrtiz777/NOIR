@@ -40,4 +40,20 @@ function isAdmin(req, res, next) {
   next();
 }
 
-module.exports = { authenticate, isAdmin };
+/**
+ * Middleware que verifica que el usuario autenticado tenga rol de 'editor' o 'admin'.
+ * Debe usarse DESPUÉS de authenticate.
+ */
+function isEditor(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: "No autorizado", detail: "Usuario no autenticado" });
+  }
+
+  if (req.user.rol !== "editor" && req.user.rol !== "admin" && req.user.rol !== "administrador") {
+    return res.status(403).json({ error: "Acceso denegado", detail: "Se requiere rol de editor o administrador" });
+  }
+
+  next();
+}
+
+module.exports = { authenticate, isAdmin, isEditor };

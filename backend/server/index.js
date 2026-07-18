@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const sisterStoreRouter = require("./routes/sisterStore");
 const rssRouter         = require("./routes/rss");
 const adminRouter       = require("./routes/admin");
+const editorRouter      = require("./routes/editor");
 const authRouter        = require("./routes/auth");
 const userAuthRouter    = require("./routes/userAuth");
 const pool              = require("./config/database");
@@ -33,7 +34,8 @@ app.use(express.json());
 app.use("/api/sister-store", sisterStoreRouter);
 app.use("/api/rss",          rssRouter);
 app.use("/api/admin",        authRouter);   // POST /api/admin/login, GET /api/admin/verify
-app.use("/api/admin",        adminRouter);  // CRUD partners + editoriales (autenticado)
+app.use("/api/admin",        adminRouter);  // CRUD partners + usuarios (autenticado)
+app.use("/api/editor",       editorRouter); // CRUD editoriales (autenticado para editores)
 app.use("/api/auth",         userAuthRouter); // POST /api/auth/register, POST /api/auth/login
 // ── Editoriales PÚBLICAS (sin autenticación) ──────────────────────────────────
 // Separada del router de admin para que sea accesible sin token
@@ -111,5 +113,6 @@ app.listen(port, () => {
   console.log("📌  Rutas admin (requieren token):");
   console.log("      POST   /api/admin/login");
   console.log("      GET    /api/admin/partners");
-  console.log("      GET    /api/admin/editoriales\n");
+  console.log("📌  Rutas editor (requieren token):");
+  console.log("      GET    /api/editor/editoriales\n");
 });
