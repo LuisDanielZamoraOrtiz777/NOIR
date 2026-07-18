@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+function getApiBase() {
+  const base = process.env.NEXT_PUBLIC_API_BASE?.trim() || "/api";
+  const normalized = base.replace(/\/$/, "");
+  return normalized.endsWith("/api") ? normalized.slice(0, -4) : normalized;
+}
+
+const API_BASE = getApiBase();
 
 export default function AccesoPage() {
   const router = useRouter();
@@ -43,7 +49,7 @@ export default function AccesoPage() {
     setLoading(true);
 
     try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/register";
+      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const res = await fetch(`${API_BASE}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

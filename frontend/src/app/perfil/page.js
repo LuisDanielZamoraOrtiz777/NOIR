@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import RouteProtector from "@/components/RouteProtector";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+function getApiBase() {
+  const base = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
+  if (!base) return "";
+  const normalized = base.replace(/\/$/, "");
+  return normalized.endsWith("/api") ? normalized.slice(0, -4) : normalized;
+}
+
+const API_BASE = getApiBase();
 
 export default function PerfilPage() {
   const router = useRouter();
