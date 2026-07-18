@@ -1,0 +1,116 @@
+import { neon } from "@neondatabase/serverless";
+import { authenticateEditor } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+function getSql() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL no está definida");
+  }
+  return neon(process.env.DATABASE_URL);
+}
+
+function parseBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value === "true" || value === "on") return true;
+    if (value === "false") return false;
+  }
+  return null;
+}
+
+function isValidPublicUrl(value) {
+  return typeof value === "string" && /^(https?:\/\/)/i.test(value.trim());
+}
+
+// ── GET /api/editor/editoriales ────────────────────────────────────────────────
+export async function GET(request) {
+  const auth = authenticateEditor(request);
+  if (auth.status !== 200) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT * FROM editoriales ORDER BY fecha DESC, created_at DESC
+    `;
+    return NextResponse.json({ status: "success", total: rows.length, data: rows });
+  } catch (err) {
+    console.error("[GET /api/editor/editoriales]", err.message);
+    if (err.message?.includes("does not exist")) {
+      return NextResponse.json(
+        { error: "La tabla 'editoriales' no existe. Visita /api/admin/setup para crearla." },
+        { status: 503 }
+      );
+    }
+    return NextResponse.json({ error: "Error interno del servidor." }, { status: 500 });
+  }
+}
+
+// ── POST /api/editor/editoriales ───────────────────────────────────────────────
+export async function POST(request) {
+  const auth = authenticateEditor(request);
+  if (auth.status !== 200) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  try {
+    const body = await request.json();
+    const { titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado } = body;
+
+    if (!titulo?.trim()) {
+      return NextResponse.json({ error: "El título es obligatorio." }, { status: 400 });
+    }
+    if (!resumen?.trim()) {
+      return NextResponse.json({ error: "El resumen es obligatorio." }, { status: 400 });
+    }
+    if (imagen_url && !isValidPublicUrl(imagen_url)) {
+      return NextResponse.json({ error: "La imagen debe ser una URL pública válida." }, { status: 400 });
+    }
+
+    const publicadoValue = typeof publicado === "boolean"
+      ? publicado
+      : publicado === "true"
+      ? true
+      : publicado === "false"
+      ? false
+      : false;
+
+    const sql = getSql();
+    const rows = await sql`
+      INSERT INTO editoriales (titulo, autor, fecha, categoria, resumen, contenido, imagen_url, publicado)
+      VALUES (
+        ${titulo.trim()},
+        ${autor?.trim() || "Equipo Editorial Noir"},
+        ${fecha || null},
+        ${categoria?.trim() || "Editorial"},
+        ${resumen.trim()},
+        ${contenido?.trim() || ""},
+        ${imagen_url?.trim() || null},
+        ${publicadoValue}
+      )
+      RETURNING *
+    `;
+
+    revalidatePath("/editoriales");
+    revalidatePath("/");
+
+    return NextResponse.json(
+      { status: "success", message: "Editorial creada", data: rows[0] },
+      { status: 201 }
+    );
+  } catch (err) {
+    console.error("[POST /api/editor/editoriales]", err.message);
+    if (err.message?.includes("does not exist")) {
+      return NextResponse.json(
+        { error: "La tabla 'editoriales' no existe. Visita /api/admin/setup para crearla." },
+        { status: 503 }
+      );
+    }
+    return NextResponse.json({ error: "Error interno del servidor.", detail: err.message }, { status: 500 });
+  }
+}
