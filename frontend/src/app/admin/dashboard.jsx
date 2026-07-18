@@ -659,7 +659,7 @@ function TabContactos() {
 // ════════════════════════════════════════
 export default function AdminDashboard() {
   const router          = useRouter();
-  const [tab, setTab]   = useState("editoriales");
+  const [tab, setTab] = useState("usuarios");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -704,7 +704,6 @@ export default function AdminDashboard() {
             {[
               { key: "usuarios", label: "👥 Usuarios" },
               { key: "contactos", label: "💬 Contactos" },
-              { key: "editoriales", label: "📝 Editoriales" },
               { key: "partners", label: "🔗 Páginas hermanas" },
             ].map(({ key, label }) => (
               <li className="nav-item" key={key}>

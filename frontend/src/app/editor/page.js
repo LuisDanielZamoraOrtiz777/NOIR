@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import EditorialesManager from "@/components/EditorialesManager";
 
 export default function EditorPage() {
   const [user, setUser] = useState(null);
@@ -98,6 +99,7 @@ export default function EditorPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+
+      <div className="mt-5">
+        <EditorialesManager />
+      </div>

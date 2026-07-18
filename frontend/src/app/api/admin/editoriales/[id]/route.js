@@ -26,7 +26,7 @@ function isValidPublicUrl(value) {
 
 // ── PATCH /api/admin/editoriales/[id] ────────────────────────────────────────
 export async function PATCH(request, { params }) {
-  const auth = authenticateJWT(request);
+  const auth = authenticateJWT(request, ["admin", "editor"]);
   if (auth.status !== 200) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
@@ -84,7 +84,7 @@ export async function PATCH(request, { params }) {
 
 // ── DELETE /api/admin/editoriales/[id] ───────────────────────────────────────
 export async function DELETE(request, { params }) {
-  const auth = authenticateJWT(request);
+  const auth = authenticateJWT(request, ["admin", "editor"]);
   if (auth.status !== 200) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
