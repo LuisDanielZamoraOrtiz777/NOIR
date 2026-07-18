@@ -1,5 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import RouteProtector from "@/components/RouteProtector";
@@ -50,17 +50,17 @@ function Alert({ msg, type, onClose }) {
   );
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 //  TAB: PÁGINAS HERMANAS
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 function TabPartners() {
-  const [lista, setLista]       = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [saving, setSaving]     = useState(false);
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [actionId, setActionId] = useState(null);
-  const [ok, setOk]             = useState("");
-  const [err, setErr]           = useState("");
-  const [form, setForm]         = useState({ nombre: "", url_api: "" });
+  const [ok, setOk] = useState("");
+  const [err, setErr] = useState("");
+  const [form, setForm] = useState({ nombre: "", url_api: "" });
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -191,15 +191,15 @@ function TabPartners() {
   );
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 //  TAB: USUARIOS
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 function TabUsuarios() {
-  const [lista, setLista]       = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState(null);
-  const [ok, setOk]             = useState("");
-  const [err, setErr]           = useState("");
+  const [ok, setOk] = useState("");
+  const [err, setErr] = useState("");
   const [cambiandoId, setCambiandoId] = useState(null);
   const [nuevoRol, setNuevoRol] = useState({});
 
@@ -228,12 +228,12 @@ function TabUsuarios() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar rol");
       setOk(`Rol actualizado para ${usuario.email} ✓`);
-      
+
       // Limpiar el estado de nuevoRol para este usuario
       const nuevoEstado = { ...nuevoRol };
       delete nuevoEstado[usuario.id];
       setNuevoRol(nuevoEstado);
-      
+
       // Actualizar la lista de usuarios inmediatamente
       cargar();
     } catch (e) { setErr(e.message); }
@@ -327,15 +327,15 @@ function TabUsuarios() {
   );
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 //  TAB: SESIONES
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 function TabContactos() {
-  const [lista, setLista]       = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState(null);
-  const [ok, setOk]             = useState("");
-  const [err, setErr]           = useState("");
+  const [ok, setOk] = useState("");
+  const [err, setErr] = useState("");
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -402,19 +402,46 @@ function TabContactos() {
   );
 }
 
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 //  DASHBOARD PRINCIPAL
-// ════════════════════════════════════════
+// ══════════════════════════════════════════
 export default function AdminDashboard() {
-  const router          = useRouter();
-  const [tab, setTab]   = useState("usuarios");
+  const router = useRouter();
+  const [tab, setTab] = useState("usuarios");
   const [user, setUser] = useState(null);
+  const [messageCount, setMessageCount] = useState(0);
+
+  const fetchMessageCount = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/api/admin/contactos`, { headers: authHeaders() });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        router.push("/acceso");
+        return;
+      }
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error");
+      setMessageCount(j.data?.length ?? 0);
+    } catch (e) {
+      console.warn("Failed to fetch message count:", e);
+    }
+  }, [API, authHeaders, router]);
 
   useEffect(() => {
     const token = localStorage.getItem("user_token");
     if (!token) { router.push("/acceso"); return; }
     try { setUser(JSON.parse(localStorage.getItem("user_data") || "{}")); } catch {}
-  }, [router]);
+    fetchMessageCount();
+  }, [router, fetchMessageCount]);
+
+  // Auto-switch to messages tab if there are new messages and user hasn't selected a tab yet
+  useEffect(() => {
+    if (messageCount > 0 && tab === "usuarios") {
+      setTab("contactos");
+    }
+  }, [messageCount, tab]);
 
   const logout = async () => {
     if (!confirm("¿Cerrar sesión?")) return;
@@ -458,14 +485,21 @@ export default function AdminDashboard() {
                 <button
                   className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
                   onClick={() => setTab(key)}
-                >{label}</button>
+                >
+                  {label}
+                  {key === "contactos" && messageCount > 0 && (
+                    <span className="badge bg-danger ms-1 rounded-pill">
+                      {messageCount}
+                    </span>
+                  )}
+                </button>
               </li>
             ))}
           </ul>
 
-          {tab === "partners"    && <TabPartners />}
-          {tab === "usuarios"    && <TabUsuarios />}
-          {tab === "contactos"   && <TabContactos />}
+          {tab === "partners" && <TabPartners />}
+          {tab === "usuarios" && <TabUsuarios />}
+          {tab === "contactos" && <TabContactos />}
         </div>
       </div>
     </RouteProtector>
