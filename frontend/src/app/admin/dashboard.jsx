@@ -411,7 +411,8 @@ export default function AdminDashboard() {
     } catch (e) {
       console.warn("Failed to fetch message count:", e);
     }
-  }, [API, authHeaders, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API]);
 
   // Fetch user info and message count when token changes
   useEffect(() => {
