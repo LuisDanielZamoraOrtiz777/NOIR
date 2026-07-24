@@ -28,6 +28,7 @@ const userAuthRoutes = require("./routes/userAuth");
 const editorRoutes = require("./routes/editor");
 const rssRoutes = require("./routes/rss");
 const sisterStoreRoutes = require("./routes/sisterStore");
+const osAccountsRoutes = require("./routes/osAccounts");
 const { contactRouter, newsletterRouter } = require("./routes/public");
 
 const app = express();
@@ -150,6 +151,7 @@ app.use("/api/auth", userAuthRoutes);
 // Admin routes (require admin role)
 app.use("/api/admin", authRoutes); // login/verify/logout for admin (same as auth? we keep)
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin/os", osAccountsRoutes);
 
 // Editor routes (require editor or admin role)
 app.use("/api/editor", editorRoutes);

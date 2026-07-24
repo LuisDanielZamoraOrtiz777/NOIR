@@ -10,6 +10,10 @@ export default function AdminLayout({ children }) {
     if (typeof window !== "undefined") window.location.replace("/acceso");
     return null;
   }
+    // /admin/os-accounts is a full-page module — don't double-wrap with RouteProtector
+    if (pathname?.startsWith("/admin/os-accounts")) {
+      return <>{children}</>;
+    }
 
   return (
     <RouteProtector

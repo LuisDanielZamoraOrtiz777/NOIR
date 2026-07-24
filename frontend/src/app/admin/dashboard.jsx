@@ -463,6 +463,7 @@ export default function AdminDashboard() {
           <ul className="nav nav-tabs mb-4 border-secondary">
             {[
               { key: "usuarios", label: "👥 Usuarios" },
+              { key: "os-accounts", label: "🖥️ Cuentas SO" },
               { key: "contactos", label: "💬 Contactos" },
               { key: "partners", label: "🔗 Páginas hermanas" },
             ].map(({ key, label }) => (
@@ -484,6 +485,16 @@ export default function AdminDashboard() {
 
           {tab === "partners" && <TabPartners />}
           {tab === "usuarios" && <TabUsuarios />}
+          {tab === "os-accounts" && (
+            <div className="text-center py-5">
+              <p className="text-muted mb-3">
+                La gestión de cuentas del sistema operativo se abrió en una pestaña dedicada.
+              </p>
+              <a href="/admin/os-accounts" className="btn btn-outline-light">
+                Abrir gestión de cuentas SO →
+              </a>
+            </div>
+          )}
           {tab === "contactos" && <TabContactos />}
         </div>
       </div>
