@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const pool = require("../config/database");
 const { validateLogin, sanitizeInput } = require("../middlewares/validate");
+const { hashToken } = require("../middlewares/auth"); // Import the hash function from auth middleware
 
 const JWT_SECRET = process.env.JWT_SECRET || "noitatelier_secret_key_change_in_production";
 
@@ -46,7 +47,7 @@ router.post("/login", sanitizeInput, validateLogin, async (req, res) => {
 
     // Verificar que sea admin (soporta tanto rol legacy como nuevo sistema)
     const esAdmin = rolNombre === "administrador" || usuario.rol === "admin" || usuario.rol === "administrador";
-    
+
     if (!esAdmin) {
       // Logging de intento fallido
       await logLoginAttempt(email, req.ip, false);
@@ -68,7 +69,7 @@ router.post("/login", sanitizeInput, validateLogin, async (req, res) => {
     const expiresAt = new Date(decoded.payload.exp * 1000); // exp is in seconds
 
     // Hash del token para almacenamiento seguro
-    const tokenHash = await bcrypt.hash(token, 10);
+    const tokenHash = hashToken(token);
 
     // Obtener IP y User-Agent
     const ip = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
@@ -152,7 +153,7 @@ router.post("/logout", async (req, res) => {
     const userId = decoded.payload.id;
 
     // Hash del token para buscar en la base de datos
-    const tokenHash = await bcrypt.hash(token, 10);
+    const tokenHash = hashToken(token);
 
     // Invalidar la sesión
     await pool.query(

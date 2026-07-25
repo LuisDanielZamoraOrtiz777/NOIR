@@ -1,12 +1,17 @@
 const jwt = require("jsonwebtoken");
 const { Pool } = require('pg');
+const crypto = require('crypto');
 const bcrypt = require("bcrypt");
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || "postgres://postgres:12345678@localhost:5432/noir_atelier",
   ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || "noiratelier_secret_key_change_in_production";
+const JWT_SECRET = process.env.JWT_SECRET || "noitatelier_secret_key_change_in_production";
+
+function hashToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 /**
  * Middleware que verifica que el usuario esté autenticado mediante JWT y que la sesión esté activa.
@@ -24,7 +29,7 @@ async function authenticate(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     // Verificar que la sesión esté activa en la base de datos
-    const tokenHash = await bcrypt.hash(token, 10);
+    const tokenHash = hashToken(token);
     const sessionResult = await pool.query(
       "SELECT * FROM sessions WHERE user_id = $1 AND token_hash = $2 AND activa = true AND expires_at > NOW()",
       [decoded.id, tokenHash]

@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`
-      SELECT 
+      SELECT
         id,
         nombre AS name,
         categoria AS category,
@@ -41,7 +41,7 @@ export async function GET() {
     return new NextResponse(
       JSON.stringify({
         status: "success",
-        source: "sister-store",
+        source: "productos", // Changed to reflect the endpoint
         result_count: products.length,
         products: products,
       }),
