@@ -222,7 +222,7 @@ export default function CartPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}`);
+        throw new Error(data.error || data.message || `Error ${response.status}`);
       }
 
       // Order created successfully
@@ -409,7 +409,6 @@ export default function CartPage() {
                   value={formValues.client_phone}
                   onChange={handleChange}
                   required
-                  pattern="[\\+\\d\\s\\-]+"
                 />
                 {formErrors.client_phone && (
                   <span className="error">{formErrors.client_phone}</span>
