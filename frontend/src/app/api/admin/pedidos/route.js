@@ -14,7 +14,6 @@ function getSql() {
 }
 
 export async function GET(request) {
-  // Authenticate user and check for editor or admin role
   const auth = authenticateEditor(request);
   if (auth.status !== 200) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
@@ -35,19 +34,8 @@ export async function GET(request) {
         p.estado,
         p.canal,
         p.notas,
-        p.created_at AS creado_en,
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-            'id', pi.id,
-            'product_id', pi.product_id,
-            'product_name', pi.product_name,
-            'unit_price', pi.unit_price,
-            'quantity', pi.quantity,
-            'subtotal', pi.subtotal
-          )
-        ) AS items
+        p.creado_en
       FROM pedidos p
-      LEFT JOIN pedido_items pi ON pi.pedido_id = p.id
     `;
 
     const queryParams = [];
@@ -56,16 +44,22 @@ export async function GET(request) {
       queryParams.push(estado);
     }
 
-    query += `
-      GROUP BY p.id, p.client_name, p.client_phone, p.client_email, p.total, p.estado, p.canal, p.notas, p.created_at
-      ORDER BY p.created_at DESC
-    `;
+    query += " ORDER BY p.creado_en DESC";
 
-    const result = await sql(query, queryParams);
-    const orders = result.rows.map(row => ({
-      ...row,
-      items: row.items || [], // Ensure items is an array
-    }));
+    const result = await sql(query, ...queryParams);
+
+    // Fetch items for each order
+    const orders = await Promise.all(
+      (result || []).map(async (row) => {
+        const items = await sql`
+          SELECT id, product_id, product_name, unit_price, quantity, subtotal
+          FROM pedido_items
+          WHERE pedido_id = ${row.id}
+          ORDER BY id ASC
+        `;
+        return { ...row, items: items || [] };
+      })
+    );
 
     return NextResponse.json({ status: "success", total: orders.length, data: orders });
   } catch (err) {

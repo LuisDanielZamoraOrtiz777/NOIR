@@ -1,32 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import FavoriteButton from "@/components/FavoriteButton";
+import Link from "next/link";
 
-export default function SisterStoreCatalog() {
+export default function SisterStoreCatalog({ limite = 4 }) {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hoveredProduct, setHoveredProduct] = useState(null);
 
   useEffect(() => {
-    const url = "/api/sister-store/products";
-
     async function fetchProducts() {
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(url, {
+        const response = await fetch("/api/productos", {
           method: "GET",
-          headers: {
-            "Accept": "application/json",
-          },
+          headers: { "Accept": "application/json" },
         });
 
         if (!response.ok) {
           const payload = await response.json().catch(() => null);
-          throw new Error(payload?.error || "No se pudieron cargar los productos.");
+          throw new Error(payload?.message || "No se pudieron cargar los productos.");
         }
 
         const data = await response.json();
@@ -35,62 +30,68 @@ export default function SisterStoreCatalog() {
           throw new Error("Respuesta de API inválida.");
         }
 
-        setProducts(data.products);
+        setProducts(data.products.slice(0, limite));
       } catch (fetchError) {
         setError(fetchError.message);
+        console.error("SisterStoreCatalog error:", fetchError);
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchProducts();
-  }, []);
+  }, [limite]);
 
   return (
     <section id="sister-store-section" className="section-block sister-store-section">
       <div className="section-header">
-        <h2>Tienda hermana</h2>
-        <p>Descubre productos seleccionados con estética editorial y material premium.</p>
+        <div>
+          <h2>Tienda hermana</h2>
+          <p className="section-subtitle">Descubre productos seleccionados con estética editorial y material premium.</p>
+        </div>
+        <Link href="/tienda" className="button ver-mas-btn">
+          Ver catálogo completo →
+        </Link>
       </div>
 
       {isLoading ? (
         <p aria-live="polite">Cargando catálogo...</p>
       ) : error ? (
         <p role="status" className="error-message">
-          Error: {error}
+          Error al cargar productos: {error}
         </p>
       ) : products.length === 0 ? (
-        <p aria-live="polite">No hay productos disponibles en este momento.</p>
+        <p aria-live="polite">No hay productos disponibles en este momento. Vuelve pronto.</p>
       ) : (
         <div className="card-grid sister-store-grid">
           {products.map((product) => (
             <article
               key={product.id}
-              className={`product-card ${hoveredProduct === product.id ? "is-hovered" : ""}`}
-              onMouseEnter={() => setHoveredProduct(product.id)}
-              onMouseLeave={() => setHoveredProduct(null)}
-              onFocus={() => setHoveredProduct(product.id)}
-              onBlur={() => setHoveredProduct(null)}
-              tabIndex={0}
+              className="product-card"
             >
+              <div className="product-card-image">
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.name} loading="lazy" />
+                ) : (
+                  <div className="product-placeholder">{product.name.charAt(0).toUpperCase()}</div>
+                )}
+              </div>
               <div className="product-card-body">
                 <h3>{product.name}</h3>
                 <p className="product-category">{product.category}</p>
-                <p className="product-description">{product.description}</p>
+                {product.description && <p className="product-description">{product.description}</p>}
               </div>
               <div className="product-card-footer">
                 <span className="product-price">
-                  {product.currency} {product.price.toFixed(2)}
+                  {product.currency} {parseFloat(product.price).toFixed(2)}
                 </span>
-                <span className={`product-availability ${product.availability}`}>
-                  {product.availability === "in_stock" ? "En stock" : "Bajo stock"}
+                <span className={`product-availability ${parseInt(product.stock) > 0 ? "in_stock" : "out_of_stock"}`}>
+                  {parseInt(product.stock) > 0 ? "En stock" : "Agotado"}
                 </span>
               </div>
-              {hoveredProduct === product.id ? (
-                <div className="product-card-actions">
-                  <FavoriteButton postId={product.id} />
-                </div>
-              ) : null}
+              <Link href="/tienda" className="product-card-link">
+                Ver en tienda →
+              </Link>
             </article>
           ))}
         </div>

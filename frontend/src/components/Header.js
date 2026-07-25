@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SearchBox from "@/components/SearchBox";
 import DarkToggle from "@/components/DarkToggle";
+import { getCookie } from "@/utils/cookies";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -11,6 +12,7 @@ const navLinks = [
   { href: "/tendencias", label: "Tendencias" },
   { href: "/opinion", label: "Opinión" },
   { href: "/revistas", label: "Revistas" },
+  { href: "/tienda", label: "Tienda" },
 ];
 
 export default function Header() {
@@ -20,6 +22,28 @@ export default function Header() {
   const [hasUserSession, setHasUserSession] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [email, setEmail] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+
+  // Leer contador del carrito desde la cookie
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = getCookie("cart");
+      if (cart) {
+        try {
+          const items = JSON.parse(cart);
+          const total = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+          setCartCount(total);
+        } catch {
+          setCartCount(0);
+        }
+      } else {
+        setCartCount(0);
+      }
+    };
+    updateCartCount();
+    window.addEventListener("cart-updated", updateCartCount);
+    return () => window.removeEventListener("cart-updated", updateCartCount);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -126,6 +150,10 @@ export default function Header() {
           <div className="header-actions" data-element="header-acciones">
             <SearchBox />
             <DarkToggle />
+            <Link href="/carrito" className="cart-icon-link" aria-label={`Carrito (${cartCount} artículos)`}>
+              <span className="cart-icon">🛒</span>
+              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+            </Link>
             {hasAdminSession ? (
               <>
                 <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">Panel</Link>
