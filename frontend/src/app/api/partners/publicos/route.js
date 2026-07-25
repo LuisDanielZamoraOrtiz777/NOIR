@@ -25,6 +25,10 @@ export async function GET() {
       }
     );
   } catch (err) {
-    return NextResponse.json({ status: "success", total: 0, data: [] });
+    console.error("Error fetching partners:", err);
+    return NextResponse.json(
+      { status: "error", message: "Error al cargar las páginas hermanas", total: 0, data: [] },
+      { status: 500 }
+    );
   }
 }
