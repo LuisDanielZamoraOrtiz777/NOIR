@@ -8,6 +8,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/ChatWidget";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -119,13 +121,16 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          <ErrorBoundary>
-            <Header />
-            <main>{children}</main>
-            <ScrollReveal />
-            <Footer />
-            <ChatWidget />
-          </ErrorBoundary>
+          <CartProvider>
+            <ErrorBoundary>
+              <Header />
+              <main>{children}</main>
+              <ScrollReveal />
+              <Footer />
+              <ChatWidget />
+              <CartDrawer />
+            </ErrorBoundary>
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

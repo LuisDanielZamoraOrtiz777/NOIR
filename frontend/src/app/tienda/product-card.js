@@ -44,7 +44,7 @@ export default function ProductCard({ product }) {
         </div>
         {hovered && (
           <div className="product-card-actions">
-            <AddToCartButton productId={product.id} />
+            <AddToCartButton productId={product.id} product={product} />
           </div>
         )}
       </div>

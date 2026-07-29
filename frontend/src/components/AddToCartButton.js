@@ -1,62 +1,75 @@
 "use client";
-import { useState, useEffect } from "react";
-import { getCookie, setCookie } from "@/utils/cookies";
 
-export default function AddToCartButton({ productId }) {
-  const [quantityInCart, setQuantityInCart] = useState(0);
+import { useCart } from "@/context/CartContext";
 
-  useEffect(() => {
-    const cart = getCookie("cart");
-    if (cart) {
-      try {
-        const cartList = JSON.parse(cart);
-        const item = cartList.find(item => item.productId === productId);
-        setQuantityInCart(item ? item.quantity : 0);
-      } catch (e) {
-        setQuantityInCart(0);
-      }
-    } else {
-      setQuantityInCart(0);
-    }
-  }, [productId]);
+/**
+ * AddToCartButton — Botón para añadir producto al carrito.
+ *
+ * Props:
+ *   productId:   string o number — ID del producto
+ *   product:     objeto producto completo (para cache en CartContext)
+ *   openDrawerOnAdd: si debe abrir el drawer automáticamente tras añadir
+ *   label:       texto override del botón
+ */
+export default function AddToCartButton({
+  productId,
+  product = null,
+  openDrawerOnAdd = false,
+  label = null,
+}) {
+  const { items, addItem, openDrawer, count } = useCart();
 
-  const addToCart = (event) => {
-    event.preventDefault();
-    let cart = [];
-    const cartCookie = getCookie("cart");
-    if (cartCookie) {
-      try {
-        cart = JSON.parse(cartCookie);
-      } catch (e) {
-        cart = [];
-      }
-    }
+  const productIdStr = String(productId);
+  const item = items.find((i) => i.productId === productIdStr);
+  const quantityInCart = item ? item.quantity : 0;
 
-    // Find if product already in cart
-    const existingIndex = cart.findIndex(item => item.productId === productId);
-    if (existingIndex >= 0) {
-      // Increment quantity
-      cart[existingIndex].quantity += 1;
-    } else {
-      // Add new item
-      cart.push({ productId: productId, quantity: 1 });
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Si ya no hay stock, no añadir
+    if (product && product.stock !== undefined && parseInt(product.stock, 10) <= 0) {
+      return;
     }
 
-    setCookie("cart", JSON.stringify(cart), 30); // 30 days expiration
-    setQuantityInCart(cart[existingIndex >= 0 ? existingIndex : cart.length - 1].quantity);
+    addItem(productIdStr, 1, product);
 
-    // Dispatch custom event to notify other components (like Cart page)
-    window.dispatchEvent(new Event("cart-updated"));
+    if (openDrawerOnAdd) {
+      // Pequeño delay para que la animación del drawer sea visible después del add
+      setTimeout(() => openDrawer(), 100);
+    }
   };
+
+  // Texto del botón
+  let buttonText;
+  if (label) {
+    buttonText = label;
+  } else if (quantityInCart > 0) {
+    buttonText = `${quantityInCart} en carrito`;
+  } else {
+    buttonText = "+ Añadir al carrito";
+  }
+
+  // Estado deshabilitado si no hay stock
+  const isOutOfStock = product && product.stock !== undefined && parseInt(product.stock, 10) <= 0;
 
   return (
     <button
       type="button"
-      className={`add-to-cart-button ${quantityInCart > 0 ? "active" : ""}`}
-      onClick={addToCart}
-      aria-label={quantityInCart > 0 ? `Agregar otra unidad al carrito (total: ${quantityInCart})` : "Agregar al carrito"}
+      className={`add-to-cart-button ${quantityInCart > 0 ? "active" : ""} ${
+        isOutOfStock ? "is-disabled" : ""
+      }`}
+      onClick={handleClick}
+      disabled={isOutOfStock}
+      aria-label={
+        isOutOfStock
+          ? "Producto agotado"
+          : quantityInCart > 0
+          ? `Agregar otra unidad (total: ${quantityInCart})`
+          : "Agregar al carrito"
+      }
     >
-      {quantityInCart > 0 ? `${quantityInCart} en carrito` : "+ Añadir al carrito"}
+      {isOutOfStock ? "Agotado" : buttonText}
     </button>
   );
 }

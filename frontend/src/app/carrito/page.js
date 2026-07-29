@@ -1,12 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { getCookie, setCookie, deleteCookie } from "@/utils/cookies";
 import { validate } from "@/utils/validators";
+import OrderSuccess from "@/components/OrderSuccess";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([]); // Array of { productId, quantity, product: {} }
-  const [products, setProducts] = useState([]); // All products from API
+  const [cartItems, setCartItems] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formValues, setFormValues] = useState({
@@ -19,7 +20,9 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null); // null, 'success', 'error'
   const [orderMessage, setOrderMessage] = useState("");
-  const [whatsAppOrderData, setWhatsAppOrderData] = useState(null);
+  const [completedOrder, setCompletedOrder] = useState(null); // Full order data for success screen
+  const formRef = useRef(null);
+  const errorFieldRef = useRef(null);
 
   // Fetch all products from the API
   useEffect(() => {
@@ -68,6 +71,21 @@ export default function CartPage() {
     }
   }, []);
 
+  // Check sessionStorage for a completed order (persistence after refresh)
+  useEffect(() => {
+    try {
+      const lastOrder = sessionStorage.getItem("lastOrder");
+      if (lastOrder) {
+        const parsed = JSON.parse(lastOrder);
+        setCompletedOrder(parsed);
+        setOrderStatus("success");
+        setOrderMessage("Pedido creado exitosamente");
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+  }, []);
+
   // Listen for cart updates from other components (like AddToCartButton)
   useEffect(() => {
     const handleCartUpdate = () => {
@@ -90,20 +108,32 @@ export default function CartPage() {
     };
   }, []);
 
-  // Calculate total items and total price
+  // Focus first error field after validation fails
+  useEffect(() => {
+    if (formErrors && errorFieldRef.current) {
+      errorFieldRef.current.focus();
+    }
+  }, [formErrors]);
+
+  // Calculate total items and total price + currency
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cartItems.reduce((sum, item) => {
+  let totalPrice = 0;
+  let totalCurrency = "USD";
+  let hasCurrency = false;
+  cartItems.forEach((item) => {
     const product = products.find(p => p.id === item.productId);
     if (product) {
-      return sum + (parseFloat(product.price) * item.quantity);
+      totalPrice += parseFloat(product.price) * item.quantity;
+      if (!hasCurrency && product.currency) {
+        totalCurrency = product.currency;
+        hasCurrency = true;
+      }
     }
-    return sum;
-  }, 0);
+  });
 
   // Handle quantity change
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity < 1) {
-      // Remove item
       removeFromCart(productId);
       return;
     }
@@ -186,7 +216,7 @@ export default function CartPage() {
         return;
       }
 
-      // Check stock (we should also check on the backend, but do a quick check here)
+      // Check stock
       if (parseInt(product.stock) < cartItem.quantity) {
         setFormErrors({ general: `Stock insuficiente para ${product.name}. Disponible: ${product.stock}` });
         setIsSubmitting(false);
@@ -199,27 +229,71 @@ export default function CartPage() {
       });
     }
 
+    // Snapshot customer data BEFORE any state changes (for WhatsApp message)
+    const customerSnapshot = {
+      name: formValues.client_name.trim(),
+      phone: formValues.client_phone.trim(),
+      email: formValues.client_email.trim(),
+      notes: formValues.notes.trim(),
+    };
+
+    // Snapshot del carrito para rollback si falla el fetch
+    const cartSnapshot = JSON.parse(JSON.stringify(cartItems));
+
+    // Generar UUID v4 para idempotencia (cliente_telefono + tiempo como heurística server-side)
+    const requestId =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+            const r = (Math.random() * 16) | 0;
+            const v = c === "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+
+    // LIMPIAR carrito optimistamente ANTES del fetch
     try {
-      // Call API to create order - use Next.js API route (not external backend)
+      deleteCookie("cart");
+      setCartItems([]);
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (e) {
+      console.error("Error clearing cart optimistically:", e);
+    }
+
+    // Reset form (los datos ya están guardados en customerSnapshot)
+    setFormValues({
+      client_name: "",
+      client_phone: "",
+      client_email: "",
+      notes: "",
+    });
+
+    try {
       const response = await fetch("/api/pedidos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          "X-Client-Request-Id": requestId,
         },
         body: JSON.stringify({
-          cliente_nombre: formValues.client_name.trim(),
-          cliente_telefono: formValues.client_phone.trim(),
-          cliente_email: formValues.client_email.trim() || null,
+          cliente_nombre: customerSnapshot.name,
+          cliente_telefono: customerSnapshot.phone,
+          cliente_email: customerSnapshot.email || null,
           items: orderItems,
-          notas: formValues.notes.trim() || null,
+          notas: customerSnapshot.notes || null,
+          client_request_id: requestId,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        // Try to map error to form fields
+        // ROLLBACK: restaurar carrito desde snapshot
+        if (cartSnapshot.length > 0) {
+          setCookie("cart", JSON.stringify(cartSnapshot), 30);
+          setCartItems(cartSnapshot);
+          window.dispatchEvent(new Event("cart-updated"));
+        }
         const message = data.error || data.detail || data.message || `Error ${response.status}`;
         let fieldError = null;
         if (message.includes("nombre del cliente")) {
@@ -232,40 +306,64 @@ export default function CartPage() {
 
         if (fieldError) {
           setFormErrors(prev => ({ ...prev, [fieldError]: message }));
-          setOrderStatus(null);
-          setOrderMessage("");
         } else {
           setOrderStatus("error");
           setOrderMessage(message);
         }
+        setIsSubmitting(false);
         return;
       }
 
-      // Order created successfully
-      setOrderStatus("success");
-      setOrderMessage(data.message || "Pedido creado exitosamente");
+      // Defensive validation: ensure order_id exists
+      if (!data.order_id) {
+        // ROLLBACK
+        if (cartSnapshot.length > 0) {
+          setCookie("cart", JSON.stringify(cartSnapshot), 30);
+          setCartItems(cartSnapshot);
+          window.dispatchEvent(new Event("cart-updated"));
+        }
+        console.error("API returned success but no order_id", data);
+        setOrderStatus("error");
+        setOrderMessage("El pedido no pudo completarse: respuesta inválida del servidor.");
+        setIsSubmitting(false);
+        return;
+      }
 
-      // Clear cart
-      deleteCookie("cart");
-      setCartItems([]);
-      setWhatsAppOrderData({
+      // Build the complete order object for success screen
+      const orderData = {
         orderId: data.order_id,
         total: data.total,
         items: orderItems.map(item => ({
           product: products.find(p => p.id === item.product_id),
           quantity: item.quantity,
         })),
-      });
+        customer: customerSnapshot,
+        requestId,
+      };
 
-      // Reset form (optional)
-      setFormValues({
-        client_name: "",
-        client_phone: "",
-        client_email: "",
-        notes: "",
-      });
+      // Persist to sessionStorage for refresh resilience
+      try {
+        sessionStorage.setItem("lastOrder", JSON.stringify(orderData));
+      } catch (e) {
+        console.warn("Could not persist order to sessionStorage:", e);
+      }
+
+      // Show success screen
+      setCompletedOrder(orderData);
+      setOrderStatus("success");
+      setOrderMessage(data.message || "Pedido creado exitosamente");
+
+      // Scroll to top so user sees the confirmation
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     } catch (err) {
-      // Network or unexpected error
+      // ROLLBACK en error de red
+      if (cartSnapshot.length > 0) {
+        setCookie("cart", JSON.stringify(cartSnapshot), 30);
+        setCartItems(cartSnapshot);
+        window.dispatchEvent(new Event("cart-updated"));
+      }
       setOrderStatus("error");
       setOrderMessage(err.message || "Error al procesar el pedido");
       console.error("Order creation error:", err);
@@ -274,11 +372,11 @@ export default function CartPage() {
     }
   };
 
-  // Generate WhatsApp message
+  // Generate WhatsApp message using completedOrder (not formValues which may be reset)
   const generateWhatsAppMessage = () => {
-    if (!whatsAppOrderData) return "";
+    if (!completedOrder) return "";
 
-    const { orderId, total, items } = whatsAppOrderData;
+    const { orderId, total, items, customer } = completedOrder;
     const lines = [
       `*Nuevo pedido de Noir Atelier*`,
       `Pedido #: ${orderId}`,
@@ -288,20 +386,24 @@ export default function CartPage() {
     ];
 
     items.forEach(({ product, quantity }) => {
-      lines.push(`- ${product.name} x${quantity} = $${(product.price * quantity).toFixed(2)}`);
+      const name = product?.name || "Producto";
+      const price = parseFloat(product?.price || 0);
+      const currency = product?.currency || "USD";
+      lines.push(`- ${name} x${quantity} = ${currency} ${(price * quantity).toFixed(2)}`);
     });
 
+    const totalCurrency = items[0]?.product?.currency || "USD";
     lines.push("");
-    lines.push(`*Total: $${total.toFixed(2)}*`);
+    lines.push(`*Total: ${totalCurrency} ${parseFloat(total).toFixed(2)}*`);
     lines.push("");
     lines.push(`Datos del cliente:`);
-    lines.push(`Nombre: ${formValues.client_name}`);
-    lines.push(`Teléfono: ${formValues.client_phone}`);
-    if (formValues.client_email) {
-      lines.push(`Email: ${formValues.client_email}`);
+    lines.push(`Nombre: ${customer?.name || ""}`);
+    lines.push(`Teléfono: ${customer?.phone || ""}`);
+    if (customer?.email) {
+      lines.push(`Email: ${customer.email}`);
     }
-    if (formValues.notes) {
-      lines.push(`Notas: ${formValues.notes}`);
+    if (customer?.notes) {
+      lines.push(`Notas: ${customer.notes}`);
     }
 
     return lines.join("\n");
@@ -309,7 +411,7 @@ export default function CartPage() {
 
   // Handle sending via WhatsApp
   const handleSendWhatsApp = () => {
-    if (!whatsAppOrderData) {
+    if (!completedOrder) {
       alert("Primero debe crear el pedido.");
       return;
     }
@@ -324,16 +426,53 @@ export default function CartPage() {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-    // Open in new tab
     window.open(whatsappUrl, "_blank");
   };
 
+  // Handle "Seguir comprando" - clears the success state
+  const handleContinueShopping = () => {
+    setCompletedOrder(null);
+    setOrderStatus(null);
+    setOrderMessage("");
+    try {
+      sessionStorage.removeItem("lastOrder");
+    } catch (e) {
+      // ignore
+    }
+  };
+
   if (loading) {
-    return <main className="cart-page"><p className="state-message">Cargando productos...</p></main>;
+    return (
+      <main className="cart-page">
+        <div className="cart-loading-state">
+          <div className="cart-spinner" aria-hidden="true"></div>
+          <p className="state-message">Cargando productos...</p>
+        </div>
+      </main>
+    );
   }
 
   if (error) {
-    return <main className="cart-page"><p className="state-message is-error">Error: {error}</p></main>;
+    return (
+      <main className="cart-page">
+        <div className="cart-error-banner" role="alert">
+          <p className="state-message is-error">Error: {error}</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Success screen takes priority
+  if (orderStatus === "success" && completedOrder) {
+    return (
+      <main className="cart-page">
+        <OrderSuccess
+          order={completedOrder}
+          onWhatsApp={handleSendWhatsApp}
+          onContinue={handleContinueShopping}
+        />
+      </main>
+    );
   }
 
   return (
@@ -341,149 +480,204 @@ export default function CartPage() {
       <h1>Tu carrito</h1>
 
       {cartItems.length === 0 ? (
-        <p>Tu carrito está vacío. <Link href="/tienda">Continuar comprando</Link></p>
+        <div className="cart-empty-state">
+          <div className="cart-empty-icon" aria-hidden="true">🛒</div>
+          <p>Tu carrito está vacío.</p>
+          <Link href="/tienda" className="primary-button">
+            Continuar comprando →
+          </Link>
+        </div>
       ) : (
-        <>
-          <section className="cart-items">
-            <h2>Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})</h2>
-            <div className="cart-list">
-              {cartItems.map((item) => {
-                const product = products.find(p => p.id === item.productId);
-                if (!product) return null; // Should not happen if we filtered
+        <div className="cart-layout">
+          {/* Columna izquierda: Items + Formulario */}
+          <div className="cart-main-column">
+            <section className="cart-items" aria-label="Productos en el carrito">
+              <h2>Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})</h2>
+              <div className="cart-list">
+                {cartItems.map((item) => {
+                  const product = products.find(p => p.id === item.productId);
+                  if (!product) return null;
 
-                return (
-                  <div key={item.productId} className="cart-item">
-                    <div className="cart-item-info">
-                      <h3>{product.name}</h3>
-                      <p>{product.description}</p>
+                  return (
+                    <div key={item.productId} className="cart-item">
+                      <div className="cart-item-image">
+                        {product.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={product.image_url} alt={product.name} loading="lazy" />
+                        ) : (
+                          <div className="cart-item-placeholder">
+                            {product.name?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="cart-item-info">
+                        <h3>{product.name}</h3>
+                        <p className="cart-item-category">{product.category}</p>
+                        {product.description && <p className="cart-item-desc">{product.description}</p>}
+                      </div>
+                      <div className="cart-item-controls">
+                        <div className="quantity-control">
+                          <button
+                            type="button"
+                            className="qty-btn qty-decrease"
+                            onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
+                            aria-label={`Disminuir cantidad de ${product.name}`}
+                            disabled={item.quantity <= 1}
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value, 10);
+                              if (!isNaN(val) && val >= 1) {
+                                handleQuantityChange(item.productId, val);
+                              }
+                            }}
+                            aria-label={`Cantidad de ${product.name}`}
+                          />
+                          <button
+                            type="button"
+                            className="qty-btn qty-increase"
+                            onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
+                            aria-label={`Aumentar cantidad de ${product.name}`}
+                          >
+                            +
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.productId)}
+                          className="remove-item"
+                          aria-label={`Eliminar ${product.name} del carrito`}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="cart-item-price">
+                        {product.currency || "USD"} {(parseFloat(product.price) * item.quantity).toFixed(2)}
+                      </div>
                     </div>
-                    <div className="cart-item-controls">
-                      <label>
-                        Cantidad:
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            if (!isNaN(val) && val >= 1) {
-                              handleQuantityChange(item.productId, val);
-                            }
-                          }}
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => removeFromCart(item.productId)}
-                        className="remove-item"
-                        aria-label={`Eliminar ${product.name} del carrito`}
-                      >
-                        ×
-                      </button>
-                    </div>
-                    <div className="cart-item-price">
-                      ${(parseFloat(product.price) * item.quantity).toFixed(2)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                  );
+                })}
+              </div>
+            </section>
 
-          <section className="cart-summary">
-            <h2>Resumen</h2>
-            <p>Total de artículos: {totalItems}</p>
-            <p>Total: <strong>${totalPrice.toFixed(2)}</strong></p>
-          </section>
+            <section className="checkout-form" aria-label="Datos de envío">
+              <h2>Datos de envío</h2>
+              <form onSubmit={handleSubmit} ref={formRef}>
+                <div className="form-field">
+                  <label htmlFor="client_name">Nombre *</label>
+                  <input
+                    type="text"
+                    id="client_name"
+                    name="client_name"
+                    value={formValues.client_name}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    aria-invalid={!!formErrors.client_name}
+                    aria-describedby={formErrors.client_name ? "error-client_name" : undefined}
+                    ref={formErrors.client_name ? errorFieldRef : null}
+                  />
+                  {formErrors.client_name && (
+                    <span className="error" id="error-client_name" role="alert">{formErrors.client_name}</span>
+                  )}
+                </div>
 
-          <section className="checkout-form">
-            <h2>Datos de envío</h2>
-            <form onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="client_name">Nombre *</label>
-                <input
-                  type="text"
-                  id="client_name"
-                  name="client_name"
-                  value={formValues.client_name}
-                  onChange={handleChange}
-                  required
-                />
-                {formErrors.client_name && (
-                  <span className="error">{formErrors.client_name}</span>
+                <div className="form-field">
+                  <label htmlFor="client_phone">Teléfono *</label>
+                  <input
+                    type="tel"
+                    id="client_phone"
+                    name="client_phone"
+                    value={formValues.client_phone}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    aria-invalid={!!formErrors.client_phone}
+                    aria-describedby={formErrors.client_phone ? "error-client_phone" : undefined}
+                    ref={formErrors.client_phone ? errorFieldRef : null}
+                  />
+                  {formErrors.client_phone && (
+                    <span className="error" id="error-client_phone" role="alert">{formErrors.client_phone}</span>
+                  )}
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="client_email">Correo electrónico (opcional)</label>
+                  <input
+                    type="email"
+                    id="client_email"
+                    name="client_email"
+                    value={formValues.client_email}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    aria-invalid={!!formErrors.client_email}
+                    aria-describedby={formErrors.client_email ? "error-client_email" : undefined}
+                    ref={formErrors.client_email ? errorFieldRef : null}
+                  />
+                  {formErrors.client_email && (
+                    <span className="error" id="error-client_email" role="alert">{formErrors.client_email}</span>
+                  )}
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="notes">Notas (opcional)</label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    value={formValues.notes}
+                    onChange={handleChange}
+                    rows={3}
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {formErrors.general && (
+                  <div className="error general-error" role="alert">{formErrors.general}</div>
                 )}
-              </div>
 
-              <div>
-                <label htmlFor="client_phone">Teléfono *</label>
-                <input
-                  type="tel"
-                  id="client_phone"
-                  name="client_phone"
-                  value={formValues.client_phone}
-                  onChange={handleChange}
-                  required
-                />
-                {formErrors.client_phone && (
-                  <span className="error">{formErrors.client_phone}</span>
+                {orderStatus === "error" && orderMessage && (
+                  <div className="error general-error" role="alert">{orderMessage}</div>
                 )}
-              </div>
 
-              <div>
-                <label htmlFor="client_email">Correo electrónico (opcional)</label>
-                <input
-                  type="email"
-                  id="client_email"
-                  name="client_email"
-                  value={formValues.client_email}
-                  onChange={handleChange}
-                />
-                {formErrors.client_email && (
-                  <span className="error">{formErrors.client_email}</span>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="notes">Notas (opcional)</label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  value={formValues.notes}
-                  onChange={handleChange}
-                  rows={3}
-                />
-              </div>
-
-              {formErrors.general && (
-                <div className="error general-error">{formErrors.general}</div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="primary-button"
-              >
-                {isSubmitting ? "Procesando..." : "Crear pedido"}
-              </button>
-            </form>
-          </section>
-
-          {orderStatus && (
-            <div className={`order-status ${orderStatus}`}>
-              <p>{orderMessage}</p>
-              {orderStatus === "success" && (
                 <button
-                  type="button"
-                  onClick={handleSendWhatsApp}
-                  className="whatsapp-button"
-                  disabled={!process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="primary-button"
                 >
-                  Enviar pedido por WhatsApp
+                  {isSubmitting ? (
+                    <>
+                      <span className="btn-spinner" aria-hidden="true"></span>
+                      Procesando tu pedido...
+                    </>
+                  ) : (
+                    "Crear pedido"
+                  )}
                 </button>
-              )}
+              </form>
+            </section>
+          </div>
+
+          {/* Columna derecha: Resumen sticky */}
+          <aside className="cart-summary" aria-label="Resumen del pedido">
+            <h2>Resumen</h2>
+            <div className="summary-row">
+              <span>Total de artículos</span>
+              <span>{totalItems}</span>
             </div>
-          )}
-        </>
+            <div className="summary-row summary-total">
+              <span>Total</span>
+              <strong>{totalCurrency} {totalPrice.toFixed(2)}</strong>
+            </div>
+            <p className="summary-note">
+              El pago se realiza vía WhatsApp. Crea el pedido y te contactaremos.
+            </p>
+          </aside>
+        </div>
       )}
     </main>
   );

@@ -5,6 +5,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// UUID v4 regex (acepta también v1-v5 para flexibilidad)
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(request) {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -16,7 +19,59 @@ export async function POST(request) {
       cliente_telefono,
       cliente_email,
       items, // array of { producto_id, cantidad } or { product_id, quantity }
+      client_request_id, // UUID v4 para idempotencia
     } = body;
+
+    // Idempotencia: si recibimos X-Client-Request-Id o client_request_id,
+    // y ya existe un pedido reciente con ese id, devolvemos el existente.
+    const headerRequestId = request.headers.get("X-Client-Request-Id");
+    const requestId = (headerRequestId || client_request_id || "").trim();
+
+    if (requestId) {
+      if (!UUID_REGEX.test(requestId)) {
+        return NextResponse.json(
+          { error: "client_request_id debe ser un UUID válido" },
+          { status: 400 }
+        );
+      }
+
+      // Buscar pedido existente con este request_id en los últimos 30 minutos
+      // (la tabla pedidos no tiene la columna client_request_id todavía, así que
+      // usamos cliente_telefono + total + cliente_nombre como heurística de fallback.
+      // Cuando se migre la DB, cambiar a: WHERE client_request_id = ${requestId})
+      try {
+        const recent = await sql`
+          SELECT id, total, creado_en
+          FROM pedidos
+          WHERE cliente_telefono = ${cliente_telefono}
+            AND creado_en > NOW() - INTERVAL '30 minutes'
+          ORDER BY creado_en DESC
+          LIMIT 1
+        `;
+
+        // Si el pedido más reciente del mismo teléfono fue hace <2 minutos y tiene
+        // un total similar, probablemente es un retry del mismo submit
+        if (recent.length > 0) {
+          const diff = Date.now() - new Date(recent[0].creado_en).getTime();
+          if (diff < 120_000) {
+            // < 2 minutos → probable retry, devolvemos el existente
+            return NextResponse.json(
+              {
+                success: true,
+                order_id: recent[0].id,
+                total: parseFloat(recent[0].total),
+                message: "Pedido ya procesado (idempotente)",
+                idempotent: true,
+              },
+              { status: 200 }
+            );
+          }
+        }
+      } catch (idemErr) {
+        // Si la búsqueda falla, seguimos con la creación normal
+        console.warn("Idempotencia check failed (continuing):", idemErr.message);
+      }
+    }
 
     // Basic validation
     if (!cliente_nombre || typeof cliente_nombre !== "string" || cliente_nombre.trim() === "") {
@@ -161,6 +216,7 @@ export async function POST(request) {
           order_id: orderId,
           total: total,
           message: "Pedido creado exitosamente",
+          client_request_id: requestId || null,
         },
         { status: 201 }
       );
