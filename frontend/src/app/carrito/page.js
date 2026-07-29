@@ -17,8 +17,9 @@ export default function CartPage() {
     client_email: "",
     notes: "",
   });
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
+    const [stockWarnings, setStockWarnings] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null);
   const [orderMessage, setOrderMessage] = useState("");
   const [completedOrder, setCompletedOrder] = useState(null);
@@ -122,6 +123,7 @@ export default function CartPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setFormErrors({});
+    setStockWarnings([]);
     setOrderStatus(null);
     setOrderMessage("");
 
@@ -149,11 +151,10 @@ export default function CartPage() {
       }
       const stockNum = parseInt(product.stock, 10);
       if (Number.isFinite(stockNum) && stockNum < cartItem.quantity) {
-        setFormErrors({
-          general: `Stock insuficiente para ${product.name}. Disponible: ${stockNum}`,
-        });
-        setIsSubmitting(false);
-        return;
+        setStockWarnings((prev) => [
+          ...prev,
+          `Stock insuficiente para ${product.name}. Disponible: ${stockNum}, solicitado: ${cartItem.quantity}`,
+        ]);
       }
       orderItems.push({
         product_id: product.id,
@@ -254,6 +255,7 @@ export default function CartPage() {
         })),
         customer: customerSnapshot,
         requestId,
+        stockWarnings: data.stock_warnings || [],
       };
 
       try {
@@ -545,6 +547,17 @@ export default function CartPage() {
                     disabled={isSubmitting}
                   />
                 </div>
+
+                {stockWarnings.length > 0 && (
+                  <div className="stock-warnings" role="status" aria-live="polite">
+                    <ul>
+                      {stockWarnings.map((w, i) => (
+                        <li key={i}>{w}</li>
+                      ))}
+                    </ul>
+                    <small>Se creará el pedido como cotización. Nos pondremos en contacto para confirmar disponibilidad.</small>
+                  </div>
+                )}
 
                 {formErrors.general && (
                   <div className="error general-error" role="alert">

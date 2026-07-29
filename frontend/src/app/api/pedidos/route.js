@@ -97,6 +97,7 @@ export async function POST(request) {
 
     // Validate each item and fetch product details from DB
     const validatedItems = [];
+    const stockWarnings = [];
     let total = 0;
 
     for (const item of items) {
@@ -141,13 +142,6 @@ export async function POST(request) {
         );
       }
 
-      if (product.stock < cantidad) {
-        return NextResponse.json(
-          { error: `Stock insuficiente para ${product.nombre}. Disponible: ${product.stock}, solicitado: ${cantidad}` },
-          { status: 400 }
-        );
-      }
-
       // Calculate subtotal
       const unitPrice = parseFloat(product.precio);
       const subtotal = unitPrice * cantidad;
@@ -160,6 +154,13 @@ export async function POST(request) {
         quantity: cantidad,
         subtotal: parseFloat(subtotal.toFixed(2)), // Ensure two decimal places
       });
+
+      // Aviso de stock insuficiente (no bloquea — funciona como cotización)
+      if (product.stock < cantidad) {
+        stockWarnings.push(
+          `Stock insuficiente para ${product.nombre}. Disponible: ${product.stock}, solicitado: ${cantidad}`
+        );
+      }
     }
 
     // Ensure total is rounded to two decimal places
@@ -210,16 +211,6 @@ export async function POST(request) {
         insertedItemIds.push(itemResult[0].id);
       }
 
-      // CRÍTICO: Descontar el stock de cada producto después de crear el pedido
-      for (const item of validatedItems) {
-        await sql`
-          UPDATE productos
-          SET stock = stock - ${item.quantity}
-          WHERE id = ${item.product_id}
-            AND stock >= ${item.quantity}
-        `;
-      }
-
       return NextResponse.json(
         {
           success: true,
@@ -227,6 +218,7 @@ export async function POST(request) {
           total: total,
           message: "Pedido creado exitosamente",
           client_request_id: requestId || null,
+          stock_warnings: stockWarnings,
         },
         { status: 201 }
       );
