@@ -11,6 +11,7 @@ export default function CartPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [formValues, setFormValues] = useState({
     client_name: "",
     client_phone: "",
@@ -25,6 +26,12 @@ export default function CartPage() {
   const [completedOrder, setCompletedOrder] = useState(null);
   const formRef = useRef(null);
   const errorFieldRef = useRef(null);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("user_token") : null;
+    setIsAuthenticated(!!token);
+  }, []);
 
   // Fetch products from API
   useEffect(() => {
@@ -359,6 +366,21 @@ export default function CartPage() {
       <main className="cart-page">
         <div className="cart-error-banner" role="alert">
           <p className="state-message is-error">Error: {error}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="cart-page">
+        <div className="acceso-requerido-card" style={{ maxWidth: 480, margin: "0 auto" }}>
+          <div className="cart-page-empty-icon" aria-hidden="true">🔒</div>
+          <h1>Acceso requerido</h1>
+          <p>Debes iniciar sesión para poder crear pedidos y comprar productos de Noir Atelier.</p>
+          <Link href="/acceso" className="primary-button" style={{ display: "inline-block" }}>
+            Iniciar sesión
+          </Link>
         </div>
       </main>
     );
