@@ -22,7 +22,7 @@ export default function Header() {
   const [hasUserSession, setHasUserSession] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [email, setEmail] = useState("");
-  const { count: cartCount, openDrawer } = useCart();
+  const { count: cartCount } = useCart();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -129,15 +129,14 @@ export default function Header() {
           <div className="header-actions" data-element="header-acciones">
             <SearchBox />
             <DarkToggle />
-            <button
-              type="button"
-              onClick={openDrawer}
+            <Link
+              href="/carrito"
               className="cart-icon-link"
               aria-label={`Carrito (${cartCount} artículos)`}
             >
               <span className="cart-icon">🛒</span>
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </button>
+            </Link>
             {hasAdminSession ? (
               <>
                 <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">Panel</Link>

@@ -1,7 +1,6 @@
 // /admin/os-accounts — Administración de cuentas de Sistema Operativo
-// Página para practicar: crear, modificar, deshabilitar, habilitar,
-// eliminar y simular inicio de sesión de cuentas locales (alumno1,
-// alumno2, invitado). Cumple los requisitos de la práctica.
+// Página para practicar: crear, modificar, deshabilitar, habilitar y
+// eliminar cuentas locales. Cumple los requisitos de la práctica.
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -173,40 +172,40 @@ function TabCuentas({ grupos, onChanged }) {
       <Alert msg={ok} type="success" onClose={() => setOk("")} />
       <Alert msg={err} type="danger" onClose={() => setErr("")} />
 
-      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
-        <div className="card-header border-secondary">
-          <h5 className="mb-0 text-white">Crear cuenta de SO</h5>
+      <div className="card border-0 mb-4" style={{ background: "#ffffff" }}>
+        <div className="card-header border-bottom">
+          <h5 className="mb-0 text-dark">Crear cuenta de SO</h5>
         </div>
         <div className="card-body">
           <form onSubmit={crear}>
             <div className="row g-3">
               <div className="col-md-3">
-                <label className="form-label text-light small">Username *</label>
-                <input className="form-control bg-dark text-white border-secondary"
+                <label className="form-label text-muted small">Username *</label>
+                <input className="form-control admin-form-control"
                   placeholder="ej. alumno3" value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required disabled={saving} />
               </div>
               <div className="col-md-4">
-                <label className="form-label text-light small">Nombre completo *</label>
-                <input className="form-control bg-dark text-white border-secondary"
+                <label className="form-label text-muted small">Nombre completo *</label>
+                <input className="form-control admin-form-control"
                   placeholder="ej. Alumno Tres" value={form.full_name}
                   onChange={(e) => setForm({ ...form, full_name: e.target.value })}
                   required disabled={saving} />
               </div>
               <div className="col-md-5">
-                <label className="form-label text-light small">Descripción</label>
-                <input className="form-control bg-dark text-white border-secondary"
+                <label className="form-label text-muted small">Descripción</label>
+                <input className="form-control admin-form-control"
                   placeholder="Comentario o área" value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   disabled={saving} />
               </div>
 
               <div className="col-md-8">
-                <label className="form-label text-light small">Grupos</label>
+                <label className="form-label text-muted small">Grupos</label>
                 <div className="d-flex flex-wrap gap-3">
                   {grupos.map((g) => (
-                    <label key={g.id} className="form-check-label text-light small">
+                    <label key={g.id} className="form-check-label text-muted small">
                       <input type="checkbox" className="form-check-input me-2"
                         checked={form.groups.includes(g.nombre)}
                         onChange={() => toggleGroupInForm(g.nombre)} />
@@ -220,7 +219,7 @@ function TabCuentas({ grupos, onChanged }) {
                   <input id="mcp" type="checkbox" className="form-check-input"
                     checked={form.must_change_password}
                     onChange={(e) => setForm({ ...form, must_change_password: e.target.checked })} />
-                  <label htmlFor="mcp" className="form-check-label text-light small">
+                  <label htmlFor="mcp" className="form-check-label text-muted small">
                     Requiere cambio de contraseña
                   </label>
                 </div>
@@ -236,21 +235,21 @@ function TabCuentas({ grupos, onChanged }) {
         </div>
       </div>
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
-        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 text-white">Cuentas registradas ({lista.length})</h5>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
+        <div className="card-header border-bottom d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-dark">Cuentas registradas ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>
             {loading ? "…" : "↺ Actualizar"}
           </button>
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">Sin cuentas registradas.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0 align-middle">
+              <table className="table admin-table mb-0 align-middle">
                 <thead>
                   <tr>
                     <th className="text-muted fw-normal small">Username</th>
@@ -269,7 +268,7 @@ function TabCuentas({ grupos, onChanged }) {
                       <td className="fw-medium">{u.username}</td>
                       <td>
                         {editId === u.id ? (
-                          <input className="form-control form-control-sm bg-dark text-white border-secondary"
+                          <input className="form-control form-control-sm admin-form-control"
                             value={editForm.full_name}
                             onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} />
                         ) : (u.full_name || "—")}
@@ -283,7 +282,7 @@ function TabCuentas({ grupos, onChanged }) {
                         {editId === u.id ? (
                           <div className="d-flex flex-column gap-1">
                             {grupos.map((g) => (
-                              <label key={g.id} className="form-check-label text-light small">
+                              <label key={g.id} className="form-check-label text-muted small">
                                 <input type="checkbox" className="form-check-input me-2"
                                   checked={editForm.groups.includes(g.nombre)}
                                   onChange={() => toggleGroupInEdit(g.nombre)} />
@@ -355,86 +354,6 @@ function TabCuentas({ grupos, onChanged }) {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  TAB: SIMULAR INICIO DE SESIÓN
-// ════════════════════════════════════════════════════════════════
-function TabSimularLogin() {
-  const [username, setUsername] = useState("alumno1");
-  const [password, setPassword] = useState("P@ssw0rd2026");
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const simular = async (e) => {
-    e.preventDefault();
-    setLoading(true); setResult(null);
-    try {
-      const r = await fetch(`${API}/api/admin/os/login`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const j = await r.json();
-      setResult({ status: r.status, body: j });
-    } catch (err) {
-      setResult({ status: 0, body: { error: err.message } });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="row g-3">
-      <div className="col-md-6">
-        <div className="card border-0" style={{ background: "#1a1a1a" }}>
-          <div className="card-header border-secondary">
-            <h5 className="mb-0 text-white">Simular inicio de sesión en el SO</h5>
-          </div>
-          <div className="card-body">
-            <form onSubmit={simular}>
-              <div className="mb-3">
-                <label className="form-label text-light small">Usuario</label>
-                <input className="form-control bg-dark text-white border-secondary"
-                  value={username} onChange={(e) => setUsername(e.target.value)} required />
-              </div>
-              <div className="mb-3">
-                <label className="form-label text-light small">Contraseña</label>
-                <input type="password" className="form-control bg-dark text-white border-secondary"
-                  value={password} onChange={(e) => setPassword(e.target.value)} required />
-              </div>
-              <button className="btn btn-light" disabled={loading}>
-                {loading ? "Verificando…" : "Iniciar sesión"}
-              </button>
-              <small className="text-muted d-block mt-2">
-                La contraseña por defecto de las cuentas de práctica es <code>P@ssw0rd2026</code>.
-              </small>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div className="col-md-6">
-        <div className="card border-0" style={{ background: "#1a1a1a" }}>
-          <div className="card-header border-secondary">
-            <h5 className="mb-0 text-white">Respuesta del sistema</h5>
-          </div>
-          <div className="card-body">
-            {!result ? (
-              <p className="text-muted small mb-0">Aún no se ha intentado iniciar sesión.</p>
-            ) : (
-              <>
-                <div className={`alert ${result.status >= 200 && result.status < 300 ? "alert-success" : "alert-danger"} mb-2`}>
-                  <strong>HTTP {result.status}</strong> — {result.body?.detail || result.body?.message || "—"}
-                </div>
-                <pre className="bg-black text-light p-3 rounded small mb-0" style={{ maxHeight: 320, overflow: "auto" }}>
-{JSON.stringify(result.body, null, 2)}
-                </pre>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════
 //  TAB: BITÁCORA
 // ════════════════════════════════════════════════════════════════
 function TabBitacora() {
@@ -459,9 +378,9 @@ function TabBitacora() {
 
   return (
     <>
-      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
-        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 text-white">Cambios sobre cuentas (auditoría)</h5>
+      <div className="card border-0 mb-4" style={{ background: "#ffffff" }}>
+        <div className="card-header border-bottom d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-dark">Cambios sobre cuentas (auditoría)</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>↺</button>
         </div>
         <div className="card-body p-0">
@@ -469,7 +388,7 @@ function TabBitacora() {
             <p className="text-muted text-center py-3 small mb-0">Sin cambios registrados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-sm mb-0 align-middle">
+              <table className="table admin-table admin-table-sm mb-0 align-middle">
                 <thead><tr>
                   <th className="text-muted fw-normal small">Fecha</th>
                   <th className="text-muted fw-normal small">Actor</th>
@@ -496,9 +415,9 @@ function TabBitacora() {
         </div>
       </div>
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
-        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 text-white">Intentos de inicio de sesión</h5>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
+        <div className="card-header border-bottom d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-dark">Intentos de inicio de sesión</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>↺</button>
         </div>
         <div className="card-body p-0">
@@ -506,7 +425,7 @@ function TabBitacora() {
             <p className="text-muted text-center py-3 small mb-0">Sin intentos registrados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-sm mb-0 align-middle">
+              <table className="table admin-table admin-table-sm mb-0 align-middle">
                 <thead><tr>
                   <th className="text-muted fw-normal small">Fecha</th>
                   <th className="text-muted fw-normal small">Usuario</th>
@@ -554,11 +473,11 @@ export default function OSAccountsAdmin() {
   useEffect(() => { cargarGrupos(); }, [cargarGrupos]);
 
   return (
-    <div className="min-vh-100 bg-dark text-light py-4">
+    <div className="admin-shell">
       <div className="container-fluid" style={{ maxWidth: 1280 }}>
-        <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+        <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-opacity-25">
           <div>
-            <h1 className="h3 fw-bold text-white mb-0">Cuentas de Sistema Operativo</h1>
+            <h1 className="h3 fw-bold mb-0">Cuentas de Sistema Operativo</h1>
             <p className="text-muted small mb-0">
               Práctica: crear, modificar, habilitar, deshabilitar y verificar cuentas (estilo Windows).
             </p>
@@ -566,15 +485,14 @@ export default function OSAccountsAdmin() {
           <a href="/admin" className="btn btn-sm btn-outline-secondary">← Volver al panel</a>
         </div>
 
-        <ul className="nav nav-tabs mb-4 border-secondary">
+        <ul className="nav nav-tabs mb-4 admin-tabs">
           {[
             { key: "cuentas", label: "👥 Cuentas" },
-            { key: "login",   label: "🔐 Simular login" },
             { key: "audit",   label: "📋 Bitácora" },
           ].map(({ key, label }) => (
             <li className="nav-item" key={key}>
               <button
-                className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
+                className={`nav-link admin-tab ${tab === key ? "active" : ""}`}
                 onClick={() => setTab(key)}>
                 {label}
               </button>
@@ -583,7 +501,6 @@ export default function OSAccountsAdmin() {
         </ul>
 
         {tab === "cuentas" && <TabCuentas grupos={grupos} onChanged={cargarGrupos} />}
-        {tab === "login"   && <TabSimularLogin />}
         {tab === "audit"   && <TabBitacora />}
       </div>
     </div>

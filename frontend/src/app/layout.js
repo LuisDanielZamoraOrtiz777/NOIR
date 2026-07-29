@@ -9,7 +9,6 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { CartProvider } from "@/context/CartContext";
-import CartDrawer from "@/components/cart/CartDrawer";
 import ChatWidget from "@/components/ChatWidget";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -128,7 +127,6 @@ export default function RootLayout({ children }) {
               <ScrollReveal />
               <Footer />
               <ChatWidget />
-              <CartDrawer />
             </ErrorBoundary>
           </CartProvider>
         </ThemeProvider>

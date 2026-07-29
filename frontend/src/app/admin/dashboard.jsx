@@ -102,7 +102,7 @@ function TabPartners() {
       <Alert msg={ok} type="success" onClose={() => setOk("")} />
       <Alert msg={err} type="danger" onClose={() => setErr("")} />
 
-      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0 mb-4" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary">
           <h5 className="mb-0 text-white">Registrar nueva página hermana</h5>
         </div>
@@ -111,12 +111,12 @@ function TabPartners() {
             <div className="row g-3">
               <div className="col-md-5">
                 <label className="form-label text-light small">Nombre *</label>
-                <input className="form-control bg-dark text-white border-secondary" placeholder="Ej: Vogue España"
+                <input className="form-control admin-form-control" placeholder="Ej: Vogue España"
                   value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-5">
                 <label className="form-label text-light small">URL *</label>
-                <input type="url" className="form-control bg-dark text-white border-secondary" placeholder="https://..."
+                <input type="url" className="form-control admin-form-control" placeholder="https://..."
                   value={form.url_api} onChange={(e) => setForm({ ...form, url_api: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-2 d-flex align-items-end">
@@ -127,19 +127,19 @@ function TabPartners() {
         </div>
       </div>
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Páginas hermanas ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">Sin partners registrados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0">
+              <table className="table admin-table mb-0">
                 <thead><tr>
                   <th className="text-muted fw-normal small">ID</th>
                   <th className="text-muted fw-normal small">Nombre</th>
@@ -252,19 +252,19 @@ function TabUsuarios() {
       <Alert msg={ok} type="success" onClose={() => setOk("")} />
       <Alert msg={err} type="danger" onClose={() => setErr("")} />
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Usuarios registrados ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺ Actualizar"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">Sin usuarios registrados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0">
+              <table className="table admin-table mb-0">
                 <thead><tr>
                   <th className="text-muted fw-normal small">ID</th>
                   <th className="text-muted fw-normal small">Email</th>
@@ -282,7 +282,7 @@ function TabUsuarios() {
                       <td className="text-end">
                         <div className="d-flex gap-2 justify-content-end align-items-center">
                           <select
-                            className="form-select form-select-sm bg-dark text-white border-secondary"
+                            className="form-select form-select-sm admin-form-control"
                             style={{ width: "auto", minWidth: 140 }}
                             value={nuevoRol[u.id] || u.rol || "usuario"}
                             onChange={(e) => setNuevoRol({ ...nuevoRol, [u.id]: e.target.value })}
@@ -396,7 +396,7 @@ function TabPedidos() {
         <div className="col-md-6">
           <div className="d-flex gap-2 justify-content-end align-items-center h-100">
             <label className="text-muted small me-2">Filtrar:</label>
-            <select className="form-select form-select-sm bg-dark text-white border-secondary" style={{ width: "auto" }}
+            <select className="form-select form-select-sm admin-form-control" style={{ width: "auto" }}
               value={filtroEstado} onChange={(e) => { setFiltroEstado(e.target.value); cargar(e.target.value); }}>
               <option value="">Todos</option>
               <option value="pendiente">Pendiente</option>
@@ -411,18 +411,18 @@ function TabPedidos() {
         </div>
       </div>
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary">
           <h5 className="mb-0 text-white">Pedidos ({lista.length})</h5>
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">No hay pedidos registrados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0">
+              <table className="table admin-table mb-0">
                 <thead><tr>
                   <th className="text-muted fw-normal small">#</th>
                   <th className="text-muted fw-normal small">Cliente</th>
@@ -450,7 +450,7 @@ function TabPedidos() {
                         <td className="text-muted small">{p.creado_en ? new Date(p.creado_en).toLocaleDateString("es-MX") : "—"}</td>
                         <td className="text-end">
                           <div className="d-flex gap-1 justify-content-end">
-                            <select className="form-select form-select-sm bg-dark text-white border-secondary" style={{ width: "auto", minWidth: 120 }}
+                            <select className="form-select form-select-sm admin-form-control" style={{ width: "auto", minWidth: 120 }}
                               defaultValue={p.estado}
                               onChange={(e) => cambiarEstado(p.id, e.target.value)}
                               disabled={updatingId === p.id}>
@@ -480,7 +480,7 @@ function TabPedidos() {
             const items = p.items || [];
             if (items.length === 0) return null;
             return (
-              <div key={`detalle-${p.id}`} className="card border-0 mb-2" style={{ background: "#1a1a1a" }}>
+              <div key={`detalle-${p.id}`} className="card border-0 mb-2" style={{ background: "#ffffff" }}>
                 <div className="card-header border-secondary py-2">
                   <small className="text-muted">Pedido #{p.id} — {p.cliente_nombre || "—"}</small>
                 </div>
@@ -549,19 +549,19 @@ function TabContactos() {
       <Alert msg={ok} type="success" onClose={() => setOk("")} />
       <Alert msg={err} type="danger" onClose={() => setErr("")} />
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Mensajes de usuarios ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺ Actualizar"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">No hay mensajes de usuarios.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0">
+              <table className="table admin-table mb-0">
                 <thead><tr>
                   <th className="text-muted fw-normal small">ID</th>
                   <th className="text-muted fw-normal small">Nombre</th>
@@ -680,39 +680,39 @@ function TabProductos() {
       <Alert msg={ok} type="success" onClose={() => setOk("")} />
       <Alert msg={err} type="danger" onClose={() => setErr("")} />
 
-      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0 mb-4" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary"><h5 className="mb-0 text-white">Agregar nuevo producto</h5></div>
         <div className="card-body">
           <form onSubmit={agregar}>
             <div className="row g-3">
               <div className="col-md-3">
                 <label className="form-label text-light small">Nombre *</label>
-                <input className="form-control bg-dark text-white border-secondary" value={form.nombre}
+                <input className="form-control admin-form-control" value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-3">
                 <label className="form-label text-light small">Categoría *</label>
-                <input className="form-control bg-dark text-white border-secondary" value={form.categoria}
+                <input className="form-control admin-form-control" value={form.categoria}
                   onChange={(e) => setForm({ ...form, categoria: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-2">
                 <label className="form-label text-light small">Precio *</label>
-                <input type="number" step="0.01" min="0" className="form-control bg-dark text-white border-secondary" value={form.precio}
+                <input type="number" step="0.01" min="0" className="form-control admin-form-control" value={form.precio}
                   onChange={(e) => setForm({ ...form, precio: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-2">
                 <label className="form-label text-light small">Stock *</label>
-                <input type="number" min="0" className="form-control bg-dark text-white border-secondary" value={form.stock}
+                <input type="number" min="0" className="form-control admin-form-control" value={form.stock}
                   onChange={(e) => setForm({ ...form, stock: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-6">
                 <label className="form-label text-light small">URL de imagen</label>
-                <input type="url" className="form-control bg-dark text-white border-secondary" placeholder="https://..." value={form.imagen_url}
+                <input type="url" className="form-control admin-form-control" placeholder="https://..." value={form.imagen_url}
                   onChange={(e) => setForm({ ...form, imagen_url: e.target.value })} disabled={saving} />
               </div>
               <div className="col-md-6">
                 <label className="form-label text-light small">Descripción</label>
-                <input className="form-control bg-dark text-white border-secondary" value={form.descripcion}
+                <input className="form-control admin-form-control" value={form.descripcion}
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })} disabled={saving} />
               </div>
               <div className="col-12">
@@ -723,19 +723,19 @@ function TabProductos() {
         </div>
       </div>
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Productos ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺"}</button>
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">Sin productos registrados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0 align-middle">
+              <table className="table admin-table mb-0 align-middle">
                 <thead><tr>
                   <th className="text-muted fw-normal small">Nombre</th>
                   <th className="text-muted fw-normal small">Categoría</th>
@@ -752,12 +752,12 @@ function TabProductos() {
                         <td className="fw-medium">{p.nombre}</td>
                         <td className="text-muted small">{p.categoria}</td>
                         <td style={{ width: 110 }}>
-                          <input type="number" step="0.01" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                          <input type="number" step="0.01" min="0" className="form-control form-control-sm admin-form-control"
                             value={edit.precio ?? p.precio}
                             onChange={(e) => setEdiciones((prev) => ({ ...prev, [p.id]: { ...prev[p.id], precio: e.target.value } }))} />
                         </td>
                         <td style={{ width: 90 }}>
-                          <input type="number" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                          <input type="number" min="0" className="form-control form-control-sm admin-form-control"
                             value={edit.stock ?? p.stock}
                             onChange={(e) => setEdiciones((prev) => ({ ...prev, [p.id]: { ...prev[p.id], stock: e.target.value } }))} />
                         </td>
@@ -838,14 +838,14 @@ function TabPublicados() {
       <Alert msg={ok} type="success" onClose={() => setOk("")} />
       <Alert msg={err} type="danger" onClose={() => setErr("")} />
 
-      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0 mb-4" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary"><h5 className="mb-0 text-white">Productos publicados</h5></div>
         <div className="card-body">
           {/* No form for adding products since this is just for viewing published products */}
         </div>
       </div>
 
-      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+      <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary d-flex justify-content-between align-items-center">
           <h5 className="mb-0 text-white">Productos publicados ({lista.length})</h5>
           <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>
@@ -854,12 +854,12 @@ function TabPublicados() {
         </div>
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+            <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
             <p className="text-muted text-center py-4">No hay productos publicados.</p>
           ) : (
             <div className="table-responsive">
-              <table className="table table-dark table-hover mb-0 align-middle">
+              <table className="table admin-table mb-0 align-middle">
                 <thead>
                   <tr>
                     <th className="text-muted fw-normal small">Nombre</th>
@@ -876,13 +876,13 @@ function TabPublicados() {
                       <td className="fw-medium">{p.name}</td>
                       <td className="text-muted small">{p.category}</td>
                       <td style={{ width: 110 }}>
-                        <input type="number" step="0.01" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                        <input type="number" step="0.01" min="0" className="form-control form-control-sm admin-form-control"
                           value={p.price}
                           readOnly
                         />
                       </td>
                       <td style={{ width: 90 }}>
-                        <input type="number" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                        <input type="number" min="0" className="form-control form-control-sm admin-form-control"
                           value={p.stock}
                           readOnly
                         />
@@ -919,41 +919,13 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [tab, setTab] = useState("usuarios");
   const [user, setUser] = useState(null);
-  const [messageCount, setMessageCount] = useState(0);
 
-  const fetchMessageCount = useCallback(async () => {
-    try {
-      const r = await fetch(`${API}/api/admin/contactos`, { headers: authHeaders() });
-      if (r.status === 401 || r.status === 403) {
-        localStorage.removeItem("user_token");
-        localStorage.removeItem("user_data");
-        localStorage.removeItem("user_rol");
-        router.push("/acceso");
-        return;
-      }
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.detail || j.error || "Error");
-      setMessageCount(j.data?.length ?? 0);
-    } catch (e) {
-      console.warn("Failed to fetch message count:", e);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [API]);
-
-  // Fetch user info and message count when token changes
+  // Fetch user info when token changes
   useEffect(() => {
     const token = localStorage.getItem("user_token");
     if (!token) { router.push("/acceso"); return; }
     try { setUser(JSON.parse(localStorage.getItem("user_data") || "{}")); } catch {}
-    fetchMessageCount();
-  }, [fetchMessageCount]); // re-run when fetchMessageCount changes (its deps include authHeaders which reads token)
-
-  // Auto-switch to messages tab if there are new messages and user hasn't selected a tab yet
-  useEffect(() => {
-    if (messageCount > 0 && tab === "usuarios") {
-      setTab("contactos");
-    }
-  }, [messageCount, tab]);
+  }, []);
 
   const logout = async () => {
     if (!confirm("¿Cerrar sesión?")) return;
@@ -974,11 +946,11 @@ export default function AdminDashboard() {
 
   return (
     <RouteProtector tokenKey="user_token" requiredRole={["administrador", "admin"]} redirectTo="/acceso">
-      <div className="min-vh-100 bg-dark text-light py-4">
+      <div className="admin-shell">
         <div className="container-fluid" style={{ maxWidth: 1200 }}>
-          <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+          <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-opacity-25">
             <div>
-              <h1 className="h3 fw-bold text-white mb-0">Panel de Administración</h1>
+              <h1 className="h3 fw-bold mb-0">Panel de Administración</h1>
               <p className="text-muted small mb-0">Noir Atelier · Gestión de contenido</p>
             </div>
             <div className="d-flex align-items-center gap-3">
@@ -987,7 +959,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <ul className="nav nav-tabs mb-4 border-secondary">
+          <ul className="nav nav-tabs mb-4 admin-tabs">
             {[
               { key: "usuarios", label: "👥 Usuarios" },
               { key: "pedidos", label: "📦 Pedidos" },
@@ -999,15 +971,10 @@ export default function AdminDashboard() {
             ].map(({ key, label }) => (
               <li className="nav-item" key={key}>
                 <button
-                  className={`nav-link ${tab === key ? "active bg-dark text-white border-secondary border-bottom-0" : "text-muted border-0 bg-transparent"}`}
+                  className={`nav-link admin-tab ${tab === key ? "active" : ""}`}
                   onClick={() => setTab(key)}
                 >
                   {label}
-                  {key === "contactos" && messageCount > 0 && (
-                    <span className="badge bg-danger ms-1 rounded-pill">
-                      {messageCount}
-                    </span>
-                  )}
                 </button>
               </li>
             ))}

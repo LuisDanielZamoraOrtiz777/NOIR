@@ -1,12 +1,13 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { getCookie, setCookie, deleteCookie } from "@/utils/cookies";
+import { useCart } from "@/context/CartContext";
 import { validate } from "@/utils/validators";
 import OrderSuccess from "@/components/OrderSuccess";
+import QuantityStepper from "@/components/cart/QuantityStepper";
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([]);
+  const { items, updateQuantity, removeItem, clear } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,13 +19,13 @@ export default function CartPage() {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderStatus, setOrderStatus] = useState(null); // null, 'success', 'error'
+  const [orderStatus, setOrderStatus] = useState(null);
   const [orderMessage, setOrderMessage] = useState("");
-  const [completedOrder, setCompletedOrder] = useState(null); // Full order data for success screen
+  const [completedOrder, setCompletedOrder] = useState(null);
   const formRef = useRef(null);
   const errorFieldRef = useRef(null);
 
-  // Fetch all products from the API
+  // Fetch products from API
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
@@ -32,18 +33,13 @@ export default function CartPage() {
       try {
         const response = await fetch("/api/productos", {
           method: "GET",
-          headers: { "Accept": "application/json" },
+          headers: { Accept: "application/json" },
         });
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
         const data = await response.json();
         if (data.status !== "success" || !Array.isArray(data.products)) {
           throw new Error("Respuesta de API inválida");
         }
-
         setProducts(data.products);
       } catch (err) {
         setError(err.message || "Error desconocido");
@@ -52,26 +48,10 @@ export default function CartPage() {
         setLoading(false);
       }
     }
-
     fetchProducts();
   }, []);
 
-  // Load cart from cookie
-  useEffect(() => {
-    const cartCookie = getCookie("cart");
-    if (cartCookie) {
-      try {
-        const cartList = JSON.parse(cartCookie);
-        setCartItems(cartList);
-      } catch (e) {
-        setCartItems([]);
-      }
-    } else {
-      setCartItems([]);
-    }
-  }, []);
-
-  // Check sessionStorage for a completed order (persistence after refresh)
+  // Persist last completed order across refresh
   useEffect(() => {
     try {
       const lastOrder = sessionStorage.getItem("lastOrder");
@@ -81,47 +61,32 @@ export default function CartPage() {
         setOrderStatus("success");
         setOrderMessage("Pedido creado exitosamente");
       }
-    } catch (e) {
-      // Ignore parse errors
-    }
+    } catch {}
   }, []);
 
-  // Listen for cart updates from other components (like AddToCartButton)
-  useEffect(() => {
-    const handleCartUpdate = () => {
-      const cartCookie = getCookie("cart");
-      if (cartCookie) {
-        try {
-          const cartList = JSON.parse(cartCookie);
-          setCartItems(cartList);
-        } catch (e) {
-          setCartItems([]);
-        }
-      } else {
-        setCartItems([]);
-      }
-    };
-
-    window.addEventListener("cart-updated", handleCartUpdate);
-    return () => {
-      window.removeEventListener("cart-updated", handleCartUpdate);
-    };
-  }, []);
-
-  // Focus first error field after validation fails
+  // Focus first error field
   useEffect(() => {
     if (formErrors && errorFieldRef.current) {
       errorFieldRef.current.focus();
     }
   }, [formErrors]);
 
-  // Calculate total items and total price + currency
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // Build a map for O(1) lookups
+  const productMap = useMemo(() => {
+    const m = {};
+    products.forEach((p) => {
+      m[p.id] = p;
+    });
+    return m;
+  }, [products]);
+
+  // Calculate totals
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   let totalPrice = 0;
   let totalCurrency = "USD";
   let hasCurrency = false;
-  cartItems.forEach((item) => {
-    const product = products.find(p => p.id === item.productId);
+  items.forEach((item) => {
+    const product = productMap[item.productId];
     if (product) {
       totalPrice += parseFloat(product.price) * item.quantity;
       if (!hasCurrency && product.currency) {
@@ -131,33 +96,25 @@ export default function CartPage() {
     }
   });
 
-  // Handle remove from cart
-  const removeFromCart = (productId) => {
-    const cartCookie = getCookie("cart");
-    if (!cartCookie) return;
-
-    try {
-      let cartList = JSON.parse(cartCookie);
-      cartList = cartList.filter(item => item.productId !== productId);
-      if (cartList.length === 0) {
-        deleteCookie("cart");
-        setCartItems([]);
-      } else {
-        setCookie("cart", JSON.stringify(cartList), 30);
-        setCartItems(cartList);
-      }
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (e) {
-      console.error("Error removing from cart:", e);
+  // Handle quantity change via QuantityStepper
+  const handleQtyChange = (productId, qty) => {
+    if (qty <= 0) {
+      removeItem(productId);
+      return;
     }
+    updateQuantity(productId, qty);
+  };
+
+  // Handle remove
+  const removeFromCart = (productId) => {
+    removeItem(productId);
   };
 
   // Handle form input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: value }));
-    // Clear error for this field on input
-    setFormErrors(prev => ({ ...prev, [name]: undefined }));
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   // Handle form submission
@@ -168,7 +125,6 @@ export default function CartPage() {
     setOrderStatus(null);
     setOrderMessage("");
 
-    // Validate form
     const errors = validate(formValues);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -176,36 +132,36 @@ export default function CartPage() {
       return;
     }
 
-    if (totalItems === 0) {
+    if (items.length === 0) {
       setFormErrors({ general: "El carrito está vacío" });
       setIsSubmitting(false);
       return;
     }
 
-    // Prepare order items for API
+    // Build order items + stock check
     const orderItems = [];
-    for (const cartItem of cartItems) {
-      const product = products.find(p => p.id === cartItem.productId);
+    for (const cartItem of items) {
+      const product = productMap[cartItem.productId];
       if (!product) {
         setFormErrors({ general: `Producto no disponible: ${cartItem.productId}` });
         setIsSubmitting(false);
         return;
       }
-
-      // Check stock
-      if (parseInt(product.stock) < cartItem.quantity) {
-        setFormErrors({ general: `Stock insuficiente para ${product.name}. Disponible: ${product.stock}` });
+      const stockNum = parseInt(product.stock, 10);
+      if (Number.isFinite(stockNum) && stockNum < cartItem.quantity) {
+        setFormErrors({
+          general: `Stock insuficiente para ${product.name}. Disponible: ${stockNum}`,
+        });
         setIsSubmitting(false);
         return;
       }
-
       orderItems.push({
         product_id: product.id,
         quantity: cartItem.quantity,
       });
     }
 
-    // Snapshot customer data BEFORE any state changes (for WhatsApp message)
+    // Snapshot customer data BEFORE any state reset
     const customerSnapshot = {
       name: formValues.client_name.trim(),
       phone: formValues.client_phone.trim(),
@@ -213,10 +169,10 @@ export default function CartPage() {
       notes: formValues.notes.trim(),
     };
 
-    // Snapshot del carrito para rollback si falla el fetch
-    const cartSnapshot = JSON.parse(JSON.stringify(cartItems));
+    // Snapshot cart for rollback
+    const cartSnapshot = JSON.parse(JSON.stringify(items));
 
-    // Generar UUID v4 para idempotencia (cliente_telefono + tiempo como heurística server-side)
+    // UUID v4 for idempotency
     const requestId =
       typeof crypto !== "undefined" && crypto.randomUUID
         ? crypto.randomUUID()
@@ -226,29 +182,18 @@ export default function CartPage() {
             return v.toString(16);
           });
 
-    // LIMPIAR carrito optimistamente ANTES del fetch
-    try {
-      deleteCookie("cart");
-      setCartItems([]);
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (e) {
-      console.error("Error clearing cart optimistically:", e);
-    }
+    // OPTIMISTIC CLEAR: vaciar carrito antes del fetch
+    clear();
 
-    // Reset form (los datos ya están guardados en customerSnapshot)
-    setFormValues({
-      client_name: "",
-      client_phone: "",
-      client_email: "",
-      notes: "",
-    });
+    // Reset form (snapshot ya tiene los datos)
+    setFormValues({ client_name: "", client_phone: "", client_email: "", notes: "" });
 
     try {
       const response = await fetch("/api/pedidos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
           "X-Client-Request-Id": requestId,
         },
         body: JSON.stringify({
@@ -264,24 +209,20 @@ export default function CartPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // ROLLBACK: restaurar carrito desde snapshot
+        // ROLLBACK: restaurar carrito via context
         if (cartSnapshot.length > 0) {
-          setCookie("cart", JSON.stringify(cartSnapshot), 30);
-          setCartItems(cartSnapshot);
-          window.dispatchEvent(new Event("cart-updated"));
+          cartSnapshot.forEach((it) => {
+            updateQuantity(it.productId, it.quantity);
+          });
         }
         const message = data.error || data.detail || data.message || `Error ${response.status}`;
         let fieldError = null;
-        if (message.includes("nombre del cliente")) {
-          fieldError = "client_name";
-        } else if (message.includes("teléfono del cliente")) {
-          fieldError = "client_phone";
-        } else if (message.includes("correo electrónico")) {
-          fieldError = "client_email";
-        }
+        if (message.includes("nombre del cliente")) fieldError = "client_name";
+        else if (message.includes("teléfono del cliente")) fieldError = "client_phone";
+        else if (message.includes("correo electrónico")) fieldError = "client_email";
 
         if (fieldError) {
-          setFormErrors(prev => ({ ...prev, [fieldError]: message }));
+          setFormErrors((prev) => ({ ...prev, [fieldError]: message }));
         } else {
           setOrderStatus("error");
           setOrderMessage(message);
@@ -290,13 +231,12 @@ export default function CartPage() {
         return;
       }
 
-      // Defensive validation: ensure order_id exists
       if (!data.order_id) {
         // ROLLBACK
         if (cartSnapshot.length > 0) {
-          setCookie("cart", JSON.stringify(cartSnapshot), 30);
-          setCartItems(cartSnapshot);
-          window.dispatchEvent(new Event("cart-updated"));
+          cartSnapshot.forEach((it) => {
+            updateQuantity(it.productId, it.quantity);
+          });
         }
         console.error("API returned success but no order_id", data);
         setOrderStatus("error");
@@ -305,40 +245,36 @@ export default function CartPage() {
         return;
       }
 
-      // Build the complete order object for success screen
       const orderData = {
         orderId: data.order_id,
         total: data.total,
-        items: orderItems.map(item => ({
-          product: products.find(p => p.id === item.product_id),
+        items: orderItems.map((item) => ({
+          product: productMap[item.product_id],
           quantity: item.quantity,
         })),
         customer: customerSnapshot,
         requestId,
       };
 
-      // Persist to sessionStorage for refresh resilience
       try {
         sessionStorage.setItem("lastOrder", JSON.stringify(orderData));
       } catch (e) {
-        console.warn("Could not persist order to sessionStorage:", e);
+        console.warn("Could not persist order:", e);
       }
 
-      // Show success screen
       setCompletedOrder(orderData);
       setOrderStatus("success");
       setOrderMessage(data.message || "Pedido creado exitosamente");
 
-      // Scroll to top so user sees the confirmation
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err) {
-      // ROLLBACK en error de red
+      // ROLLBACK on network error
       if (cartSnapshot.length > 0) {
-        setCookie("cart", JSON.stringify(cartSnapshot), 30);
-        setCartItems(cartSnapshot);
-        window.dispatchEvent(new Event("cart-updated"));
+        cartSnapshot.forEach((it) => {
+          updateQuantity(it.productId, it.quantity);
+        });
       }
       setOrderStatus("error");
       setOrderMessage(err.message || "Error al procesar el pedido");
@@ -348,11 +284,10 @@ export default function CartPage() {
     }
   };
 
-  // Generate WhatsApp message using completedOrder (not formValues which may be reset)
+  // WhatsApp message uses completedOrder (NOT formValues which was reset)
   const generateWhatsAppMessage = () => {
     if (!completedOrder) return "";
-
-    const { orderId, total, items, customer } = completedOrder;
+    const { orderId, total, items: orderItems, customer } = completedOrder;
     const lines = [
       `*Nuevo pedido de Noir Atelier*`,
       `Pedido #: ${orderId}`,
@@ -361,60 +296,49 @@ export default function CartPage() {
       "*Productos:*",
     ];
 
-    items.forEach(({ product, quantity }) => {
+    orderItems.forEach(({ product, quantity }) => {
       const name = product?.name || "Producto";
       const price = parseFloat(product?.price || 0);
       const currency = product?.currency || "USD";
       lines.push(`- ${name} x${quantity} = ${currency} ${(price * quantity).toFixed(2)}`);
     });
 
-    const totalCurrency = items[0]?.product?.currency || "USD";
+    const totalCurrency = orderItems[0]?.product?.currency || "USD";
     lines.push("");
     lines.push(`*Total: ${totalCurrency} ${parseFloat(total).toFixed(2)}*`);
     lines.push("");
     lines.push(`Datos del cliente:`);
     lines.push(`Nombre: ${customer?.name || ""}`);
     lines.push(`Teléfono: ${customer?.phone || ""}`);
-    if (customer?.email) {
-      lines.push(`Email: ${customer.email}`);
-    }
-    if (customer?.notes) {
-      lines.push(`Notas: ${customer.notes}`);
-    }
+    if (customer?.email) lines.push(`Email: ${customer.email}`);
+    if (customer?.notes) lines.push(`Notas: ${customer.notes}`);
 
     return lines.join("\n");
   };
 
-  // Handle sending via WhatsApp
   const handleSendWhatsApp = () => {
     if (!completedOrder) {
       alert("Primero debe crear el pedido.");
       return;
     }
-
     const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
     if (!phoneNumber) {
       alert("El número de WhatsApp del negocio no está configurado.");
       return;
     }
-
     const message = generateWhatsAppMessage();
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-
     window.open(whatsappUrl, "_blank");
   };
 
-  // Handle "Seguir comprando" - clears the success state
   const handleContinueShopping = () => {
     setCompletedOrder(null);
     setOrderStatus(null);
     setOrderMessage("");
     try {
       sessionStorage.removeItem("lastOrder");
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
   };
 
   if (loading) {
@@ -438,7 +362,6 @@ export default function CartPage() {
     );
   }
 
-  // Success screen takes priority
   if (orderStatus === "success" && completedOrder) {
     return (
       <main className="cart-page">
@@ -453,7 +376,7 @@ export default function CartPage() {
 
   return (
     <main className="cart-page checkout-layout">
-      {cartItems.length === 0 ? (
+      {items.length === 0 ? (
         <div className="cart-page-empty" style={{ gridColumn: "1 / -1" }}>
           <div className="cart-page-empty-icon" aria-hidden="true">🛒</div>
           <h1>Tu carrito está vacío</h1>
@@ -468,39 +391,65 @@ export default function CartPage() {
             <h1 className="checkout-title">Tu carrito</h1>
 
             <section className="checkout-items-section" aria-label="Productos en el carrito">
-              <h2 className="checkout-section-title">Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})</h2>
+              <h2 className="checkout-section-title">
+                Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})
+              </h2>
               <ul className="checkout-items-list">
-                {cartItems.map((item) => {
-                  const product = products.find(p => p.id === item.productId);
+                {items.map((item) => {
+                  const product = productMap[item.productId];
                   if (!product) return null;
 
                   const stockNum = parseInt(product.stock, 10);
-                  const maxStock = Number.isNaN(stockNum) ? undefined : stockNum;
+                  const maxStock = Number.isFinite(stockNum) ? stockNum : undefined;
+                  const isOutOfStock = maxStock !== undefined && maxStock <= 0;
 
                   return (
                     <li key={item.productId} className="checkout-item-row">
                       <div className="checkout-item-image-wrapper">
                         {product.image_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={product.image_url} alt={product.name} className="checkout-item-image" loading="lazy" />
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="checkout-item-image"
+                            loading="lazy"
+                          />
                         ) : (
                           <div className="checkout-item-image-placeholder">
                             {product.name?.charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
+
                       <div className="checkout-item-info">
                         <h3>{product.name}</h3>
                         <p className="checkout-item-price">
                           {product.currency || "USD"} {parseFloat(product.price).toFixed(2)} c/u
-                          {maxStock !== undefined && maxStock > 0 && maxStock <= 5 && (
-                            <span style={{ marginLeft: 8, color: "#c62828", fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase" }}>
-                              ¡Solo quedan {maxStock}!
-                            </span>
-                          )}
                         </p>
+                        {maxStock !== undefined && maxStock > 0 && maxStock <= 5 && (
+                          <span className="checkout-item-stock-warning">
+                            ¡Solo quedan {maxStock}!
+                          </span>
+                        )}
+                        {isOutOfStock && (
+                          <span className="checkout-item-stock-warning">Agotado</span>
+                        )}
                       </div>
-                      <span className="checkout-item-qty">× {item.quantity}</span>
+
+                      <div className="checkout-item-stepper">
+                        {isOutOfStock ? (
+                          <span className="checkout-item-out-of-stock">Sin stock</span>
+                        ) : (
+                          <QuantityStepper
+                            value={item.quantity}
+                            onChange={(qty) => handleQtyChange(item.productId, qty)}
+                            min={1}
+                            max={maxStock}
+                            ariaLabel={`Cantidad de ${product.name}`}
+                          />
+                        )}
+                      </div>
+
                       <button
                         type="button"
                         onClick={() => removeFromCart(item.productId)}
@@ -509,8 +458,10 @@ export default function CartPage() {
                       >
                         Eliminar
                       </button>
+
                       <div className="checkout-item-subtotal">
-                        {product.currency || "USD"} {(parseFloat(product.price) * item.quantity).toFixed(2)}
+                        {product.currency || "USD"}{" "}
+                        {(parseFloat(product.price) * item.quantity).toFixed(2)}
                       </div>
                     </li>
                   );
@@ -536,7 +487,9 @@ export default function CartPage() {
                     ref={formErrors.client_name ? errorFieldRef : null}
                   />
                   {formErrors.client_name && (
-                    <span className="error" id="error-client_name" role="alert">{formErrors.client_name}</span>
+                    <span className="error" id="error-client_name" role="alert">
+                      {formErrors.client_name}
+                    </span>
                   )}
                 </div>
 
@@ -555,7 +508,9 @@ export default function CartPage() {
                     ref={formErrors.client_phone ? errorFieldRef : null}
                   />
                   {formErrors.client_phone && (
-                    <span className="error" id="error-client_phone" role="alert">{formErrors.client_phone}</span>
+                    <span className="error" id="error-client_phone" role="alert">
+                      {formErrors.client_phone}
+                    </span>
                   )}
                 </div>
 
@@ -573,7 +528,9 @@ export default function CartPage() {
                     ref={formErrors.client_email ? errorFieldRef : null}
                   />
                   {formErrors.client_email && (
-                    <span className="error" id="error-client_email" role="alert">{formErrors.client_email}</span>
+                    <span className="error" id="error-client_email" role="alert">
+                      {formErrors.client_email}
+                    </span>
                   )}
                 </div>
 
@@ -590,17 +547,21 @@ export default function CartPage() {
                 </div>
 
                 {formErrors.general && (
-                  <div className="error general-error" role="alert">{formErrors.general}</div>
+                  <div className="error general-error" role="alert">
+                    {formErrors.general}
+                  </div>
                 )}
 
                 {orderStatus === "error" && orderMessage && (
-                  <div className="error general-error" role="alert">{orderMessage}</div>
+                  <div className="error general-error" role="alert">
+                    {orderMessage}
+                  </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="primary-button"
+                  className="primary-button checkout-submit"
                 >
                   {isSubmitting ? (
                     <>
@@ -615,13 +576,12 @@ export default function CartPage() {
             </section>
           </div>
 
-          {/* Columna derecha: Resumen sticky */}
           <aside className="checkout-summary-sticky" aria-label="Resumen del pedido">
             <div className="checkout-summary">
               <h2 className="checkout-summary-title">Resumen</h2>
               <ul className="checkout-summary-list">
-                {cartItems.map((item) => {
-                  const product = products.find(p => p.id === item.productId);
+                {items.map((item) => {
+                  const product = productMap[item.productId];
                   if (!product) return null;
                   return (
                     <li key={item.productId} className="checkout-summary-list-item">
@@ -630,7 +590,8 @@ export default function CartPage() {
                         <span className="checkout-summary-list-qty"> × {item.quantity}</span>
                       </span>
                       <span className="checkout-summary-list-price">
-                        {product.currency || "USD"} {(parseFloat(product.price) * item.quantity).toFixed(2)}
+                        {product.currency || "USD"}{" "}
+                        {(parseFloat(product.price) * item.quantity).toFixed(2)}
                       </span>
                     </li>
                   );
@@ -643,10 +604,13 @@ export default function CartPage() {
               </div>
               <div className="checkout-summary-total">
                 <span>Total</span>
-                <strong>{totalCurrency} {totalPrice.toFixed(2)}</strong>
+                <strong>
+                  {totalCurrency} {totalPrice.toFixed(2)}
+                </strong>
               </div>
               <p className="checkout-summary-footer">
-                El pago se realiza vía WhatsApp. Crea el pedido y te contactaremos para coordinar el envío.
+                El pago se realiza vía WhatsApp. Crea el pedido y te contactaremos para
+                coordinar el envío.
               </p>
             </div>
           </aside>
