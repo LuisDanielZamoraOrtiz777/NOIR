@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getCookie, setCookie, deleteCookie } from "@/utils/cookies";
-import { useRouter } from "next/navigation";
-import AddToCartButton from "@/components/AddToCartButton";
 import { validate } from "@/utils/validators";
 
 export default function CartPage() {
@@ -21,8 +19,6 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null); // null, 'success', 'error'
   const [orderMessage, setOrderMessage] = useState("");
-
-  const router = useRouter();
 
   // Fetch all products from the API
   useEffect(() => {
@@ -204,7 +200,7 @@ export default function CartPage() {
 
     try {
       // Call API to create order
-      const response = await fetch("/api/pedidos", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/pedidos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -222,7 +218,7 @@ export default function CartPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || `Error ${response.status}`);
+        throw new Error(data.error || data.detail || data.message || `Error ${response.status}`);
       }
 
       // Order created successfully

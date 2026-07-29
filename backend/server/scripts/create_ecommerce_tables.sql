@@ -96,3 +96,4 @@ ON CONFLICT DO NOTHING;
 -- ============================================
 SELECT 'Productos creados:' as info, count(*) as total FROM productos WHERE activo = TRUE;
 SELECT 'Tablas e-commerce creadas exitosamente.' as info;
+

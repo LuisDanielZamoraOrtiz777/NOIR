@@ -18,9 +18,11 @@ function getDomain(url) {
 export default function PartnersGrid({ limite }) {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const r = await fetch("/api/partners/publicos", {
         cache: "no-store",
@@ -28,8 +30,10 @@ export default function PartnersGrid({ limite }) {
       });
       const j = await r.json();
       setPartners(j.data || []);
-    } catch {} 
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err.message || "Error al cargar las páginas hermanas");
+      console.error("Error fetching partners:", err);
+    } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
@@ -37,6 +41,7 @@ export default function PartnersGrid({ limite }) {
   const lista = limite ? partners.slice(0, limite) : partners;
 
   if (loading) return <p className="tendencias-estado">Cargando publicaciones…</p>;
+  if (error) return <p className="error">{error}</p>;
   if (lista.length === 0) return null;
 
   return (

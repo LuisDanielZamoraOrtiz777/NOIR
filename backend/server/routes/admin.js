@@ -289,5 +289,103 @@ router.delete("/sesiones/:id", authenticate, isAdmin, async (req, res) => {
   }
 });
 
+
+// ══════════════════════════════════════════
+//  PEDIDOS — gestión de pedidos
+// ══════════════════════════════════════════
+
+/**
+ * GET /api/admin/pedidos
+ * Listar pedidos con filtro opcional por estado.
+ */
+router.get("/pedidos", authenticate, isAdmin, async (req, res) => {
+  try {
+    const { estado } = req.query;
+    let query = `SELECT p.id, p.user_id, p.cliente_nombre, p.cliente_telefono, p.cliente_email, p.total, p.estado, p.canal, p.notas, p.creado_en,
+                 u.email AS user_email
+                 FROM pedidos p
+                 LEFT JOIN users u ON p.user_id = u.id`;
+    const values = [];
+    if (estado) {
+      query += ` WHERE p.estado = $1`;
+      values.push(estado);
+    }
+    query += ` ORDER BY p.creado_en DESC`;
+
+    const result = await pool.query(query, values);
+
+    // For each order, fetch the items
+    const ordersWithItems = [];
+    for (const order of result.rows) {
+      const itemsResult = await pool.query(
+        `SELECT pi.id, pi.producto_id, pi.nombre_producto, pi.precio_unitario, pi.cantidad, pi.subtotal
+         FROM pedido_items pi
+         WHERE pi.pedido_id = $1
+         ORDER BY pi.id`,
+        [order.id]
+      );
+      order.items = itemsResult.rows;
+      ordersWithItems.push(order);
+    }
+
+    res.json({ status: 'success', count: ordersWithItems.length, data: ordersWithItems });
+  } catch (err) {
+    console.error('Error al obtener pedidos:', err);
+    res.status(500).json({ error: 'Error interno del servidor', detail: err.message });
+  }
+});
+
+/**
+ * PATCH /api/admin/pedidos/:id
+ * Actualizar el estado de un pedido.
+ * Body: { estado: 'pendiente' | 'contactado' | 'completado' | 'cancelado' */
+router.patch('/pedidos/:id', authenticate, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!estado || !['pendiente', 'contactado', 'completado', 'cancelado'].includes(estado)) {
+      return res.status(400).json({ error: 'Estado inválido', detail: 'El estado debe ser uno de: pendiente, contactado, completado, cancelado' });
+    }
+
+    const result = await pool.query(
+      'UPDATE pedidos SET estado = $1 WHERE id = $2 RETURNING *',
+      [estado, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Pedido no encontrado', detail: `No existe un pedido con id ${id}` });
+    }
+
+    // Fetch the updated order with items and user info
+    const orderResult = await pool.query(
+      `SELECT p.id, p.user_id, p.cliente_nombre, p.cliente_telefono, p.cliente_email, p.total, p.estado, p.canal, p.notas, p.creado_en,
+              u.email AS user_email
+       FROM pedidos p
+       LEFT JOIN users u ON p.user_id = u.id
+       WHERE p.id = $1`,
+      [id]
+    );
+
+    const order = orderResult.rows[0];
+
+    // Fetch items
+    const itemsResult = await pool.query(
+      `SELECT pi.id, pi.producto_id, pi.nombre_producto, pi.precio_unitario, pi.cantidad, pi.subtotal
+       FROM pedido_items pi
+       WHERE pi.pedido_id = $1
+       ORDER BY pi.id`,
+      [id]
+    );
+    order.items = itemsResult.rows;
+
+    res.json({ status: 'success', message: 'Estado del pedido actualizado exitosamente', data: order });
+  } catch (err) {
+    console.error('Error al actualizar el pedido:', err);
+    res.status(500).json({ error: 'Error interno del servidor', detail: err.message });
+  }
+});
+
+
 module.exports = router;
 

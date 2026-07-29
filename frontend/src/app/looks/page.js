@@ -31,15 +31,15 @@ export default function LooksPage({ searchParams }) {
         <div className="looks-stats">
           <div className="stat-item">
             <strong>24</strong>
-            <span>Looks esta temporada</span>
+            <span>Looks destacados (ejemplo)</span>
           </div>
           <div className="stat-item">
             <strong>8</strong>
-            <span>Estilistas</span>
+            <span>Estilistas de referencia (ejemplo)</span>
           </div>
           <div className="stat-item">
             <strong>15</strong>
-            <span>Marcas colaboradoras</span>
+            <span>Marcas de referencia (ejemplo)</span>
           </div>
         </div>
       </section>

@@ -19,7 +19,7 @@ export function validate(values) {
 
   if (!values.client_phone || !isNotEmpty(values.client_phone)) {
     errors.client_phone = "El teléfono es obligatorio";
-  } else if (!/^\+?[\d\s\-]+$/.test(values.client_phone.trim())) {
+  } else if (!/^[+\d\s-]{7,15}$/.test(values.client_phone.trim())) {
     errors.client_phone = "Formato de teléfono inválido";
   }
 

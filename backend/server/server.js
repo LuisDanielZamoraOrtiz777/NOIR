@@ -8,12 +8,14 @@
 // Instead, we rely on the Next.js API routes for authentication.
 // The backend protects its endpoints by validating the JWT and session.
 // The frontend will obtain tokens from the Next.js auth endpoints.
+const orderRoutes = require('./routes/orders');
 
 // Keep other routes
 app.use("/api/contact", contactRouter);
 app.use("/api/newsletter", newsletterRouter);
+app.use("/api/pedidos", orderRoutes);
 
-// Auth (login/verify/logout) – handled by Next.js API routes
+// Auth (login/verify/logot) – handled by Next.js API routes
 // Admin and editor routes are protected by middleware
 app.use("/api/admin", adminRoutes);
 app.use("/api/editor", editorRoutes);
