@@ -24,19 +24,24 @@ export async function GET() {
       ORDER BY creado_en ASC
     `;
 
-    // Format the data to match the expected structure by the frontend component
-    const products = rows.map(row => ({
-      id: row.id.toString(), // Ensure string ID for consistency with previous mock
-      name: row.name,
-      category: row.category,
-      description: row.description,
-      price: parseFloat(row.price), // Ensure number
-      currency: row.currency,
-      availability: row.stock > 0 ? "in_stock" : "out_of_stock", // Map stock to availability string
-      image_url: row.image_url,
-      // The previous mock had a buy_url; we can omit it or set to null
-      buy_url: null,
-    }));
+    // Format the data to match the expected structure by the frontend component.
+    // CRÍTICO: stock se devuelve como número (no solo como availability string)
+    // para que el carrito pueda limitar cantidades y mostrar "¡Solo quedan X!".
+    const products = rows.map(row => {
+      const stockNum = parseInt(row.stock, 10) || 0;
+      return {
+        id: row.id.toString(),
+        name: row.name,
+        category: row.category,
+        description: row.description,
+        price: parseFloat(row.price),
+        currency: row.currency,
+        stock: stockNum,
+        availability: stockNum > 0 ? "in_stock" : "out_of_stock",
+        image_url: row.image_url,
+        buy_url: null,
+      };
+    });
 
     return new NextResponse(
       JSON.stringify({

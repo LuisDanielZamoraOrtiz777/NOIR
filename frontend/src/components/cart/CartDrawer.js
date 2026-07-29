@@ -10,10 +10,16 @@ import CartItemRow from "./CartItemRow";
  *
  * No muestra el formulario de checkout completo; solo lista items con imagen,
  * stepper, eliminar, "guardar para después" y botón para ir al checkout.
+ *
+ * Estrategia de productos:
+ *   1) Usa el cache interno del CartContext (productos añadidos en esta sesión)
+ *   2) Solo hace fetch de /api/productos si falta info de algún item
+ *   3) Sincroniza los productos traídos al CartContext para persistencia entre renders
  */
 export default function CartDrawer() {
   const {
     items,
+    products: cachedProducts,
     isOpen,
     closeDrawer,
     removeItem,
@@ -22,22 +28,25 @@ export default function CartDrawer() {
     setProductsInfo,
   } = useCart();
 
-  const [products, setProducts] = useState({});
+  const [fetchedProducts, setFetchedProducts] = useState({});
   const [loading, setLoading] = useState(false);
   const [savedForLater, setSavedForLater] = useState([]);
 
-  // Cargar info de productos cuando cambian los items
+  // Combinar productos cacheados + fetched
+  const products = useMemo(() => {
+    return { ...fetchedProducts, ...cachedProducts };
+  }, [cachedProducts, fetchedProducts]);
+
+  // Fetch solo los productos que faltan en cache
   useEffect(() => {
-    async function fetchProducts() {
-      if (items.length === 0) {
-        setProducts({});
-        return;
-      }
+    async function fetchMissing() {
+      if (items.length === 0) return;
 
-      const productIds = items.map((i) => i.productId);
-      const missing = productIds.filter((id) => !products[id]);
+      const missingIds = items
+        .map((i) => i.productId)
+        .filter((id) => !products[id]);
 
-      if (missing.length === 0) return;
+      if (missingIds.length === 0) return;
 
       setLoading(true);
       try {
@@ -51,6 +60,7 @@ export default function CartDrawer() {
           const map = {};
           data.products.forEach((p) => {
             const id = String(p.id);
+            const stockNum = parseInt(p.stock, 10) || 0;
             map[id] = {
               id,
               name: p.nombre || p.name,
@@ -58,10 +68,10 @@ export default function CartDrawer() {
               price: parseFloat(p.precio ?? p.price ?? 0),
               currency: p.currency || "USD",
               image_url: p.imagen_url || p.image_url,
-              stock: p.stock,
+              stock: stockNum,
             };
           });
-          setProducts(map);
+          setFetchedProducts(map);
           setProductsInfo(Object.values(map));
         }
       } catch (err) {
@@ -71,9 +81,8 @@ export default function CartDrawer() {
       }
     }
 
-    fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+    fetchMissing();
+  }, [items, products, setProductsInfo]);
 
   // Lock body scroll cuando drawer está abierto
   useEffect(() => {

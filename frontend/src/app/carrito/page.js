@@ -131,30 +131,6 @@ export default function CartPage() {
     }
   });
 
-  // Handle quantity change
-  const handleQuantityChange = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-      removeFromCart(productId);
-      return;
-    }
-
-    const cartCookie = getCookie("cart");
-    if (!cartCookie) return;
-
-    try {
-      let cartList = JSON.parse(cartCookie);
-      const index = cartList.findIndex(item => item.productId === productId);
-      if (index >= 0) {
-        cartList[index].quantity = newQuantity;
-        setCookie("cart", JSON.stringify(cartList), 30);
-        setCartItems(cartList);
-        window.dispatchEvent(new Event("cart-updated"));
-      }
-    } catch (e) {
-      console.error("Error updating cart quantity:", e);
-    }
-  };
-
   // Handle remove from cart
   const removeFromCart = (productId) => {
     const cartCookie = getCookie("cart");
@@ -476,98 +452,75 @@ export default function CartPage() {
   }
 
   return (
-    <main className="cart-page">
-      <h1>Tu carrito</h1>
-
+    <main className="cart-page checkout-layout">
       {cartItems.length === 0 ? (
-        <div className="cart-empty-state">
-          <div className="cart-empty-icon" aria-hidden="true">🛒</div>
-          <p>Tu carrito está vacío.</p>
+        <div className="cart-page-empty" style={{ gridColumn: "1 / -1" }}>
+          <div className="cart-page-empty-icon" aria-hidden="true">🛒</div>
+          <h1>Tu carrito está vacío</h1>
+          <p>Descubre nuestra selección editorial de productos.</p>
           <Link href="/tienda" className="primary-button">
-            Continuar comprando →
+            Explorar tienda
           </Link>
         </div>
       ) : (
-        <div className="cart-layout">
-          {/* Columna izquierda: Items + Formulario */}
-          <div className="cart-main-column">
-            <section className="cart-items" aria-label="Productos en el carrito">
-              <h2>Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})</h2>
-              <div className="cart-list">
+        <>
+          <div className="checkout-main">
+            <h1 className="checkout-title">Tu carrito</h1>
+
+            <section className="checkout-items-section" aria-label="Productos en el carrito">
+              <h2 className="checkout-section-title">Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})</h2>
+              <ul className="checkout-items-list">
                 {cartItems.map((item) => {
                   const product = products.find(p => p.id === item.productId);
                   if (!product) return null;
 
+                  const stockNum = parseInt(product.stock, 10);
+                  const maxStock = Number.isNaN(stockNum) ? undefined : stockNum;
+
                   return (
-                    <div key={item.productId} className="cart-item">
-                      <div className="cart-item-image">
+                    <li key={item.productId} className="checkout-item-row">
+                      <div className="checkout-item-image-wrapper">
                         {product.image_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={product.image_url} alt={product.name} loading="lazy" />
+                          <img src={product.image_url} alt={product.name} className="checkout-item-image" loading="lazy" />
                         ) : (
-                          <div className="cart-item-placeholder">
+                          <div className="checkout-item-image-placeholder">
                             {product.name?.charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
-                      <div className="cart-item-info">
+                      <div className="checkout-item-info">
                         <h3>{product.name}</h3>
-                        <p className="cart-item-category">{product.category}</p>
-                        {product.description && <p className="cart-item-desc">{product.description}</p>}
+                        <p className="checkout-item-price">
+                          {product.currency || "USD"} {parseFloat(product.price).toFixed(2)} c/u
+                          {maxStock !== undefined && maxStock > 0 && maxStock <= 5 && (
+                            <span style={{ marginLeft: 8, color: "#c62828", fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase" }}>
+                              ¡Solo quedan {maxStock}!
+                            </span>
+                          )}
+                        </p>
                       </div>
-                      <div className="cart-item-controls">
-                        <div className="quantity-control">
-                          <button
-                            type="button"
-                            className="qty-btn qty-decrease"
-                            onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
-                            aria-label={`Disminuir cantidad de ${product.name}`}
-                            disabled={item.quantity <= 1}
-                          >
-                            −
-                          </button>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const val = parseInt(e.target.value, 10);
-                              if (!isNaN(val) && val >= 1) {
-                                handleQuantityChange(item.productId, val);
-                              }
-                            }}
-                            aria-label={`Cantidad de ${product.name}`}
-                          />
-                          <button
-                            type="button"
-                            className="qty-btn qty-increase"
-                            onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
-                            aria-label={`Aumentar cantidad de ${product.name}`}
-                          >
-                            +
-                          </button>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeFromCart(item.productId)}
-                          className="remove-item"
-                          aria-label={`Eliminar ${product.name} del carrito`}
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <div className="cart-item-price">
+                      <span className="checkout-item-qty">× {item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFromCart(item.productId)}
+                        className="cart-item-remove"
+                        aria-label={`Eliminar ${product.name} del carrito`}
+                      >
+                        Eliminar
+                      </button>
+                      <div className="checkout-item-subtotal">
                         {product.currency || "USD"} {(parseFloat(product.price) * item.quantity).toFixed(2)}
                       </div>
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </section>
 
-            <section className="checkout-form" aria-label="Datos de envío">
-              <h2>Datos de envío</h2>
-              <form onSubmit={handleSubmit} ref={formRef}>
+            <section className="checkout-form-section" aria-label="Datos de envío">
+              <h2 className="checkout-section-title">Datos de envío</h2>
+              <form onSubmit={handleSubmit} ref={formRef} className="checkout-form">
                 <div className="form-field">
                   <label htmlFor="client_name">Nombre *</label>
                   <input
@@ -663,21 +616,41 @@ export default function CartPage() {
           </div>
 
           {/* Columna derecha: Resumen sticky */}
-          <aside className="cart-summary" aria-label="Resumen del pedido">
-            <h2>Resumen</h2>
-            <div className="summary-row">
-              <span>Total de artículos</span>
-              <span>{totalItems}</span>
+          <aside className="checkout-summary-sticky" aria-label="Resumen del pedido">
+            <div className="checkout-summary">
+              <h2 className="checkout-summary-title">Resumen</h2>
+              <ul className="checkout-summary-list">
+                {cartItems.map((item) => {
+                  const product = products.find(p => p.id === item.productId);
+                  if (!product) return null;
+                  return (
+                    <li key={item.productId} className="checkout-summary-list-item">
+                      <span className="checkout-summary-list-name">
+                        {product.name}
+                        <span className="checkout-summary-list-qty"> × {item.quantity}</span>
+                      </span>
+                      <span className="checkout-summary-list-price">
+                        {product.currency || "USD"} {(parseFloat(product.price) * item.quantity).toFixed(2)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="checkout-summary-divider" />
+              <div className="checkout-summary-row">
+                <span>Envío</span>
+                <span className="checkout-summary-shipping-note">A coordinar</span>
+              </div>
+              <div className="checkout-summary-total">
+                <span>Total</span>
+                <strong>{totalCurrency} {totalPrice.toFixed(2)}</strong>
+              </div>
+              <p className="checkout-summary-footer">
+                El pago se realiza vía WhatsApp. Crea el pedido y te contactaremos para coordinar el envío.
+              </p>
             </div>
-            <div className="summary-row summary-total">
-              <span>Total</span>
-              <strong>{totalCurrency} {totalPrice.toFixed(2)}</strong>
-            </div>
-            <p className="summary-note">
-              El pago se realiza vía WhatsApp. Crea el pedido y te contactaremos.
-            </p>
           </aside>
-        </div>
+        </>
       )}
     </main>
   );

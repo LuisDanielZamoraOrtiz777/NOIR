@@ -9,6 +9,7 @@ const sisterStoreProducts = [
     price: 12.5,
     currency: "USD",
     description: "Cuaderno de tapa dura con detalles dorados y papel crema premium.",
+    stock: 25,
     availability: "in_stock",
   },
   {
@@ -18,6 +19,7 @@ const sisterStoreProducts = [
     price: 18.0,
     currency: "USD",
     description: "Pack de tres plumas estilográficas finas para notas elegantes.",
+    stock: 12,
     availability: "in_stock",
   },
   {
@@ -27,6 +29,7 @@ const sisterStoreProducts = [
     price: 9.75,
     currency: "USD",
     description: "Colección de pegatinas para personalizar agendas, cartas y diarios.",
+    stock: 4, // low_stock → activa advertencia "¡Solo quedan X!" en el carrito
     availability: "low_stock",
   },
 ];

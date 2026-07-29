@@ -1673,6 +1673,25 @@ textarea {
   color: #fff;
 }
 
+.add-to-cart-button.is-disabled,
+.add-to-cart-button:disabled {
+  background: #f5f4f0;
+  color: #999;
+  border-color: #e0dfdb;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 1;
+}
+
+.add-to-cart-button.is-disabled:hover,
+.add-to-cart-button:disabled:hover {
+  background: #f5f4f0;
+  color: #999;
+  transform: none;
+  box-shadow: none;
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    CARRITO — UX NIVEL AMAZON
    ════════════════════════════════════════════════════════════════════════════ */

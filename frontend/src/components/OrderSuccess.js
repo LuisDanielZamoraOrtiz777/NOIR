@@ -34,20 +34,25 @@ export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
       <div className="success-summary">
         <h3>Resumen del pedido</h3>
         <ul className="success-items-list">
-          {items.map(({ product, quantity }, idx) => (
-            <li key={`${product?.id || idx}`} className="success-item">
-              <span className="success-item-name">
-                {product?.name || "Producto"} ×{quantity}
-              </span>
-              <span className="success-item-price">
-                ${((parseFloat(product?.price || 0)) * quantity).toFixed(2)}
-              </span>
-            </li>
-          ))}
+          {items.map(({ product, quantity }, idx) => {
+            const currency = product?.currency || "USD";
+            return (
+              <li key={`${product?.id || idx}`} className="success-item">
+                <span className="success-item-name">
+                  {product?.name || "Producto"} ×{quantity}
+                </span>
+                <span className="success-item-price">
+                  {currency} {((parseFloat(product?.price || 0)) * quantity).toFixed(2)}
+                </span>
+              </li>
+            );
+          })}
         </ul>
         <div className="success-total-row">
           <span>Total</span>
-          <strong>${parseFloat(total).toFixed(2)}</strong>
+          <strong>
+            {items[0]?.product?.currency || "USD"} {parseFloat(total).toFixed(2)}
+          </strong>
         </div>
       </div>
 
