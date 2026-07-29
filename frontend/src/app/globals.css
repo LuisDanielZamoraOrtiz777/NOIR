@@ -3345,8 +3345,8 @@ textarea {
    ════════════════════════════════════════════════════════════ */
 .admin-shell {
   min-height: 100vh;
-  background-color: #faf9f6;
-  color: #0b0b0b;
+  background: #0b0b0b;
+  color: #e0e0e0;
   padding: 24px 0;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
