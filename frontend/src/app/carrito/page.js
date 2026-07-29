@@ -19,6 +19,7 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null); // null, 'success', 'error'
   const [orderMessage, setOrderMessage] = useState("");
+  const [whatsAppOrderData, setWhatsAppOrderData] = useState(null);
 
   // Fetch all products from the API
   useEffect(() => {
@@ -199,8 +200,8 @@ export default function CartPage() {
     }
 
     try {
-      // Call API to create order
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/pedidos`, {
+      // Call API to create order - use Next.js API route (not external backend)
+      const response = await fetch("/api/pedidos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -218,7 +219,26 @@ export default function CartPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.detail || data.message || `Error ${response.status}`);
+        // Try to map error to form fields
+        const message = data.error || data.detail || data.message || `Error ${response.status}`;
+        let fieldError = null;
+        if (message.includes("nombre del cliente")) {
+          fieldError = "client_name";
+        } else if (message.includes("teléfono del cliente")) {
+          fieldError = "client_phone";
+        } else if (message.includes("correo electrónico")) {
+          fieldError = "client_email";
+        }
+
+        if (fieldError) {
+          setFormErrors(prev => ({ ...prev, [fieldError]: message }));
+          setOrderStatus(null);
+          setOrderMessage("");
+        } else {
+          setOrderStatus("error");
+          setOrderMessage(message);
+        }
+        return;
       }
 
       // Order created successfully
@@ -245,6 +265,7 @@ export default function CartPage() {
         notes: "",
       });
     } catch (err) {
+      // Network or unexpected error
       setOrderStatus("error");
       setOrderMessage(err.message || "Error al procesar el pedido");
       console.error("Order creation error:", err);
@@ -252,9 +273,6 @@ export default function CartPage() {
       setIsSubmitting(false);
     }
   };
-
-  // Prepare data for WhatsApp message
-  const [whatsAppOrderData, setWhatsAppOrderData] = useState(null);
 
   // Generate WhatsApp message
   const generateWhatsAppMessage = () => {
@@ -311,11 +329,11 @@ export default function CartPage() {
   };
 
   if (loading) {
-    return <p>Cargando productos...</p>;
+    return <main className="cart-page"><p className="state-message">Cargando productos...</p></main>;
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return <main className="cart-page"><p className="state-message is-error">Error: {error}</p></main>;
   }
 
   return (
@@ -435,6 +453,10 @@ export default function CartPage() {
                   rows={3}
                 />
               </div>
+
+              {formErrors.general && (
+                <div className="error general-error">{formErrors.general}</div>
+              )}
 
               <button
                 type="submit"

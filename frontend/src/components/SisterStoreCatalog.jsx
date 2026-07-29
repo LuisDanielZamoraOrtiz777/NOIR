@@ -14,7 +14,7 @@ export default function SisterStoreCatalog({ limite = 4 }) {
       setError(null);
 
       try {
-        const response = await fetch("/api/productos", {
+        const response = await fetch("/api/sister-store/products", {
           method: "GET",
           headers: { "Accept": "application/json" },
         });

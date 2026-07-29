@@ -36,7 +36,11 @@ export default function PostCard({ post }) {
     <article className="post-card" id={`post-${post.id}`} data-element="tarjeta-articulo">
       {/* Imagen / Placeholder */}
       <div className="post-card-image-container">
-        <PostCardPlaceholder post={post} />
+        {post.imagen_url ? (
+          <img src={post.imagen_url} alt={post.titulo || post.title} loading="lazy" />
+        ) : (
+          <PostCardPlaceholder post={post} />
+        )}
       </div>
 
       {/* Cuerpo */}

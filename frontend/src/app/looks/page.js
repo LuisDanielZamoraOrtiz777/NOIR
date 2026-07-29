@@ -9,9 +9,9 @@ export const metadata = {
 
 export default function LooksPage({ searchParams }) {
   const query = searchParams?.q || "";
-  
+
   const allLooks = posts.filter((post) => post.category === "Look");
-  
+
   const filteredLooks = query
     ? allLooks.filter(
         (look) =>
@@ -25,21 +25,21 @@ export default function LooksPage({ searchParams }) {
       <section className="looks-hero" data-element="looks-hero">
         <h1>Looks</h1>
         <p className="looks-intro">
-          Una selección de looks destacados con inspiración contemporánea. 
+          Una selección de looks destacados con inspiración contemporánea.
           Cada propuesta es una declaración de estilo personal.
         </p>
         <div className="looks-stats">
           <div className="stat-item">
-            <strong>24</strong>
-            <span>Looks destacados (ejemplo)</span>
+            <strong>{allLooks.length}</strong>
+            <span>Looks destacados</span>
           </div>
           <div className="stat-item">
-            <strong>8</strong>
-            <span>Estilistas de referencia (ejemplo)</span>
+            <strong>{new Set(allLooks.map(l => l.autor)).size}</strong>
+            <span>Estilistas de referencia</span>
           </div>
           <div className="stat-item">
-            <strong>15</strong>
-            <span>Marcas de referencia (ejemplo)</span>
+            <strong>{new Set(allLooks.flatMap(l => l.tags || [])).size}</strong>
+            <span>Marcas de referencia</span>
           </div>
         </div>
       </section>
@@ -49,7 +49,7 @@ export default function LooksPage({ searchParams }) {
           <p>
             Resultados de búsqueda para: <strong>"{query}"</strong> ({filteredLooks.length} {filteredLooks.length === 1 ? "resultado encontrado" : "resultados encontrados"})
           </p>
-          <a href="/looks" className="clear-search-link">
+          <a href="/loits" className="clear-search-link">
             Limpiar búsqueda
           </a>
         </div>
@@ -84,7 +84,7 @@ export default function LooksPage({ searchParams }) {
         ) : (
           <div className="no-results-box">
             <p>No se encontraron looks que coincidan con tu búsqueda.</p>
-            <a href="/looks" className="button">
+            <a href="/loits" className="button">
               Ver todos los looks
             </a>
           </div>

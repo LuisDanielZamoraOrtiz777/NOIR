@@ -98,6 +98,67 @@ const posts = [
     summary: "Una composición monocromática que explora fuerza y sutileza. Referencias: Yohji Yamamoto.",
     tags: ["Yohji Yamamoto", "monocromático", "negro", "minimalismo"],
   },
+
+  // ── COMENTARIOS ────────────────────────────────────────────────────────────
+  {
+    id: "comment-1",
+    category: "Comentario",
+    autor: "Juan Pérez",
+    fecha: "15 de marzo, 2026",
+    texto: "Este editorial es simplemente impresionante. La combinación de texturas y colores es armoniosa y sofisticada.",
+    respuestas: [
+      {
+        id: "reply-1",
+        autor: "Ana García",
+        fecha: "16 de marzo, 2026",
+        texto: "¡Gracias por tu comentario! Me alegra que te haya gustado.",
+      },
+    ],
+    reactions: {
+      likes: 12,
+      loves: 8,
+      wow: 3,
+      sad: 0,
+      angry: 0,
+    },
+  },
+
+  // ── TENDENCIAS ─────────────────────────────────────────────────────────────
+  {
+    id: "trend-1",
+    category: "Tendencia",
+    titulo: "Minimalismo Radical",
+    title: "Minimalismo Radical",
+    autor: "Luis Fernández",
+    fecha: "10 de febrero, 2026",
+    desc: "Una estética basada en la simplicidad, la funcionalidad y la elegancia sin esfuerzo.",
+    tags: ["Minimalismo", "Funcionalidad", "Elegancia"],
+  },
+
+  // ── COLABORACIONES ─────────────────────────────────────────────────────────
+  {
+    id: "collab-1",
+    category: "Colaboración",
+    titulo: "Nike x Off-White",
+    title: "Nike x Off-White",
+    autor: "Pedro López",
+    fecha: "5 de marzo, 2026",
+    desc: "La colaboración entre Nike y Off-White ha sido una de las más esperadas del año.",
+    tags: ["Nike", "Off-White", "Colaboración"],
+  },
+
+  // ── EVENTOS ─────────────────────────────────────────────────────────────
+  {
+    id: "event-1",
+    category: "Evento",
+    titulo: "París Fashion Week",
+    title: "París Fashion Week",
+    autor: "Carlos Ruiz",
+    fecha: "15 de septiembre, 2026",
+    desc: "La París Fashion Week es uno de los eventos más importantes de la moda global.",
+    tags: ["Paris", "Fashion Week", "Moda"],
+  },
+
 ];
 
 export default posts;

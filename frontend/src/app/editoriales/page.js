@@ -147,7 +147,7 @@ export default function EditorialesPage() {
         </p>
         <div className="editoriales-stats">
           <div className="stat-item"><strong>{editoriales.length}</strong><span>Publicaciones</span></div>
-          <div className="stat-item"><strong>5</strong><span>Autores</span></div>
+          <div className="stat-item"><strong>{new Set(editoriales.map(e => e.autor).filter(Boolean)).size}</strong><span>Autores</span></div>
           <div className="stat-item"><strong>SS26</strong><span>Temporada</span></div>
         </div>
       </section>

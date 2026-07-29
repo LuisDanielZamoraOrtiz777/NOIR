@@ -91,6 +91,18 @@ VALUES
   )
 ON CONFLICT DO NOTHING;
 
+-- ── 4. TABLA FAVORITOS ────────────────────────────────
+CREATE TABLE IF NOT EXISTS favoritos (
+  id          SERIAL PRIMARY KEY,
+  user_id     INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  post_id     TEXT NOT NULL,
+  creado_en   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, post_id)
+);
+
+-- Índice para favoritos por usuario
+CREATE INDEX IF NOT EXISTS idx_favoritos_user ON favoritos(user_id);
+
 -- ============================================
 -- VERIFICACIÓN
 -- ============================================

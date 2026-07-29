@@ -15,7 +15,7 @@ export async function POST(request) {
       cliente_nombre,
       cliente_telefono,
       cliente_email,
-      items, // array of { producto_id, cantidad }
+      items, // array of { producto_id, cantidad } or { product_id, quantity }
     } = body;
 
     // Basic validation
@@ -45,9 +45,11 @@ export async function POST(request) {
     let total = 0;
 
     for (const item of items) {
-      const { producto_id, cantidad } = item;
+      // Support both Spanish (producto_id/cantidad) and English (product_id/quantity) field names
+      const producto_id = item.producto_id ?? item.product_id;
+      const cantidad = item.cantidad ?? item.quantity;
 
-      if (!producto_id || typeof producto_id !== "string") {
+      if (!producto_id) {
         return NextResponse.json(
           { error: "Cada artículo debe tener un ID de producto válido" },
           { status: 400 }
@@ -108,16 +110,16 @@ export async function POST(request) {
     // Ensure total is rounded to two decimal places
     total = parseFloat(total.toFixed(2));
 
-    // Insert order and order items in a transaction
-    // We'll attempt to use the neon transaction pattern if available, otherwise do our best effort with cleanup
+    // Insert order and order items
+    // Note: Schema uses Spanish column names (cliente_nombre, cliente_telefono, etc.)
     let orderId;
     let insertedItemIds = [];
 
     try {
-      // Insert order
+      // Insert order using Spanish column names matching the schema
       const orderResult = await sql`
         INSERT INTO pedidos (
-          client_name, client_phone, client_email, total, estado, canal, notas, creado_en
+          cliente_nombre, cliente_telefono, cliente_email, total, estado, canal, notas, creado_en
         )
         VALUES (
           ${cliente_nombre.trim()},
@@ -134,11 +136,11 @@ export async function POST(request) {
 
       orderId = orderResult[0].id;
 
-      // Insert order items
+      // Insert order items using Spanish column names matching the schema
       for (const item of validatedItems) {
         const itemResult = await sql`
           INSERT INTO pedido_items (
-            pedido_id, product_id, product_name, unit_price, quantity, subtotal
+            pedido_id, producto_id, nombre_producto, precio_unitario, cantidad, subtotal
           )
           VALUES (
             ${orderId},
@@ -152,12 +154,6 @@ export async function POST(request) {
         `;
         insertedItemIds.push(itemResult[0].id);
       }
-
-      // If we get here, everything succeeded.
-      // Note: Each statement is executed in its own transaction by the neon serverless driver.
-      // To achieve atomicity, we would need to use a single transaction, but the driver may not support it.
-      // For the purpose of this task, we assume low risk of failure mid-operation.
-      // In a production environment, you would use a proper transaction.
 
       return NextResponse.json(
         {

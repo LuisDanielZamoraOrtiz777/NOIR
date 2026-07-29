@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getCookie } from "@/utils/cookies";
 import posts from "@/data/posts";
 import PostCard from "@/components/PostCard";
@@ -7,20 +7,47 @@ import PostCard from "@/components/PostCard";
 export default function SavedFavorites() {
   const [favorites, setFavorites] = useState([]);
 
-  const loadFavorites = () => {
-    const favsCookie = getCookie("favorites");
-    if (favsCookie) {
+  const loadFavorites = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("user_token") : null;
+    let favIds = [];
+
+    if (token) {
+      // Authenticated user - fetch from DB
       try {
-        const favIds = JSON.parse(favsCookie);
-        const filtered = posts.filter((post) => favIds.includes(post.id));
-        setFavorites(filtered);
+        const response = await fetch("/api/favoritos", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          favIds = data.favorites || [];
+        }
       } catch (e) {
-        setFavorites([]);
+        console.error("Error loading favorites from DB:", e);
+        // Fallback to cookie
+        const favsCookie = getCookie("favorites");
+        if (favsCookie) {
+          try {
+            favIds = JSON.parse(favsCookie);
+          } catch {
+            favIds = [];
+          }
+        }
       }
     } else {
-      setFavorites([]);
+      // Non-authenticated user - use cookie
+      const favsCookie = getCookie("favorites");
+      if (favsCookie) {
+        try {
+          favIds = JSON.parse(favsCookie);
+        } catch {
+          favIds = [];
+        }
+      }
     }
-  };
+
+    const filtered = posts.filter((post) => favIds.includes(post.id));
+    setFavorites(filtered);
+  }, []);
 
   useEffect(() => {
     loadFavorites();
@@ -28,7 +55,7 @@ export default function SavedFavorites() {
     return () => {
       window.removeEventListener("favorites-updated", loadFavorites);
     };
-  }, []);
+  }, [loadFavorites]);
 
   if (favorites.length === 0) {
     return (

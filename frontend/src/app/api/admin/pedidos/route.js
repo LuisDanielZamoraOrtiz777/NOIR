@@ -24,35 +24,46 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const estado = searchParams.get("estado");
 
-    let query = `
-      SELECT 
-        p.id,
-        p.client_name AS cliente_nombre,
-        p.client_phone AS cliente_telefono,
-        p.client_email AS cliente_email,
-        p.total,
-        p.estado,
-        p.canal,
-        p.notas,
-        p.creado_en
-      FROM pedidos p
-    `;
-
-    const queryParams = [];
+    // Use Spanish column names matching the schema (cliente_nombre, cliente_telefono, etc.)
+    let result;
     if (estado) {
-      query += " WHERE p.estado = $1";
-      queryParams.push(estado);
+      result = await sql`
+        SELECT 
+          p.id,
+          p.cliente_nombre,
+          p.cliente_telefono,
+          p.cliente_email,
+          p.total,
+          p.estado,
+          p.canal,
+          p.notas,
+          p.creado_en
+        FROM pedidos p
+        WHERE p.estado = ${estado}
+        ORDER BY p.creado_en DESC
+      `;
+    } else {
+      result = await sql`
+        SELECT 
+          p.id,
+          p.cliente_nombre,
+          p.cliente_telefono,
+          p.cliente_email,
+          p.total,
+          p.estado,
+          p.canal,
+          p.notas,
+          p.creado_en
+        FROM pedidos p
+        ORDER BY p.creado_en DESC
+      `;
     }
 
-    query += " ORDER BY p.creado_en DESC";
-
-    const result = await sql(query, ...queryParams);
-
-    // Fetch items for each order
+    // Fetch items for each order using Spanish column names
     const orders = await Promise.all(
       (result || []).map(async (row) => {
         const items = await sql`
-          SELECT id, product_id, product_name, unit_price, quantity, subtotal
+          SELECT id, producto_id, nombre_producto, precio_unitario, cantidad, subtotal
           FROM pedido_items
           WHERE pedido_id = ${row.id}
           ORDER BY id ASC

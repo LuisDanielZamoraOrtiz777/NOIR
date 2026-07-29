@@ -28,6 +28,10 @@ export default function PartnersGrid({ limite }) {
         cache: "no-store",
         headers: { "Cache-Control": "no-cache" },
       });
+      if (!r.ok) {
+        const errData = await r.json().catch(() => ({}));
+        throw new Error(errData.message || errData.error || "Error al cargar las páginas hermanas");
+      }
       const j = await r.json();
       setPartners(j.data || []);
     } catch (err) {

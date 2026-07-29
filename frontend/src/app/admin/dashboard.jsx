@@ -437,7 +437,7 @@ function TabPedidos() {
                 <tbody>
                   {lista.map((p) => {
                     const items = p.items || [];
-                    const totalItems = items.reduce((s, i) => s + parseInt(i.quantity || 0), 0);
+                    const totalItems = items.reduce((s, i) => s + parseInt(i.cantidad || i.quantity || 0), 0);
                     return (
                       <tr key={p.id}>
                         <td className="text-muted small">{p.id}</td>
@@ -497,9 +497,9 @@ function TabPedidos() {
                     <tbody>
                       {items.map((item) => (
                         <tr key={item.id}>
-                          <td className="small">{item.product_name}</td>
-                          <td className="small text-end">${parseFloat(item.unit_price).toFixed(2)}</td>
-                          <td className="small text-end">{item.quantity}</td>
+                          <td className="small">{item.nombre_producto || item.product_name}</td>
+                          <td className="small text-end">${parseFloat(item.precio_unitario || item.unit_price).toFixed(2)}</td>
+                          <td className="small text-end">{item.cantidad || item.quantity}</td>
                           <td className="small text-end">${parseFloat(item.subtotal).toFixed(2)}</td>
                         </tr>
                       ))}
@@ -577,6 +577,329 @@ function TabContactos() {
                       <td className="text-info small" title={m.email}>{m.email || "—"}</td>
                       <td className="text-break small" style={{ maxWidth: 380 }}>{m.message || "—"}</td>
                       <td className="text-muted small">{m.created_at ? new Date(m.created_at).toLocaleString("es-MX") : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ══════════════════════════════════════════
+//  TAB: PRODUCTOS (TIENDA)
+// ══════════════════════════════════════════
+function TabProductos() {
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [actionId, setActionId] = useState(null);
+  const [ok, setOk] = useState("");
+  const [err, setErr] = useState("");
+  const [form, setForm] = useState({ nombre: "", categoria: "", descripcion: "", precio: "", moneda: "USD", stock: "", imagen_url: "" });
+  const [ediciones, setEdiciones] = useState({}); // { [id]: { precio?, stock? } }
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/api/admin/productos`, { headers: authHeaders() });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        window.location.href = "/acceso";
+        return;
+      }
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar productos");
+      setLista(j.data || []);
+    } catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const agregar = async (e) => {
+    e.preventDefault();
+    setSaving(true); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/productos`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(form),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error");
+      setOk("Producto agregado exitosamente");
+      setForm({ nombre: "", categoria: "", descripcion: "", precio: "", moneda: "USD", stock: "", imagen_url: "" });
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setSaving(false); }
+  };
+
+  const toggle = async (producto) => {
+    setActionId(producto.id); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/productos/${producto.id}`, {
+        method: producto.activo ? "DELETE" : "PATCH",
+        headers: authHeaders(),
+        body: producto.activo ? undefined : JSON.stringify({ activo: true }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar producto");
+      setOk(j.message || "Estado del producto actualizado ✓");
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setActionId(null); }
+  };
+
+  const guardarEdicion = async (id) => {
+    const cambios = ediciones[id];
+    if (!cambios) return;
+    setActionId(id); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/productos/${id}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify(cambios),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al guardar cambios");
+      setOk("Precio/stock actualizado ✓");
+      setEdiciones((prev) => { const next = { ...prev }; delete next[id]; return next; });
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setActionId(null); }
+  };
+
+  return (
+    <>
+      <Alert msg={ok} type="success" onClose={() => setOk("")} />
+      <Alert msg={err} type="danger" onClose={() => setErr("")} />
+
+      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary"><h5 className="mb-0 text-white">Agregar nuevo producto</h5></div>
+        <div className="card-body">
+          <form onSubmit={agregar}>
+            <div className="row g-3">
+              <div className="col-md-3">
+                <label className="form-label text-light small">Nombre *</label>
+                <input className="form-control bg-dark text-white border-secondary" value={form.nombre}
+                  onChange={(e) => setForm({ ...form, nombre: e.target.value })} required disabled={saving} />
+              </div>
+              <div className="col-md-3">
+                <label className="form-label text-light small">Categoría *</label>
+                <input className="form-control bg-dark text-white border-secondary" value={form.categoria}
+                  onChange={(e) => setForm({ ...form, categoria: e.target.value })} required disabled={saving} />
+              </div>
+              <div className="col-md-2">
+                <label className="form-label text-light small">Precio *</label>
+                <input type="number" step="0.01" min="0" className="form-control bg-dark text-white border-secondary" value={form.precio}
+                  onChange={(e) => setForm({ ...form, precio: e.target.value })} required disabled={saving} />
+              </div>
+              <div className="col-md-2">
+                <label className="form-label text-light small">Stock *</label>
+                <input type="number" min="0" className="form-control bg-dark text-white border-secondary" value={form.stock}
+                  onChange={(e) => setForm({ ...form, stock: e.target.value })} required disabled={saving} />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label text-light small">URL de imagen</label>
+                <input type="url" className="form-control bg-dark text-white border-secondary" placeholder="https://..." value={form.imagen_url}
+                  onChange={(e) => setForm({ ...form, imagen_url: e.target.value })} disabled={saving} />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label text-light small">Descripción</label>
+                <input className="form-control bg-dark text-white border-secondary" value={form.descripcion}
+                  onChange={(e) => setForm({ ...form, descripcion: e.target.value })} disabled={saving} />
+              </div>
+              <div className="col-12">
+                <button className="btn btn-light" disabled={saving}>{saving ? "Guardando…" : "Agregar producto"}</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-white">Productos ({lista.length})</h5>
+          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>{loading ? "…" : "↺"}</button>
+        </div>
+        <div className="card-body p-0">
+          {loading ? (
+            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+          ) : lista.length === 0 ? (
+            <p className="text-muted text-center py-4">Sin productos registrados.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-dark table-hover mb-0 align-middle">
+                <thead><tr>
+                  <th className="text-muted fw-normal small">Nombre</th>
+                  <th className="text-muted fw-normal small">Categoría</th>
+                  <th className="text-muted fw-normal small">Precio</th>
+                  <th className="text-muted fw-normal small">Stock</th>
+                  <th className="text-muted fw-normal small">Estado</th>
+                  <th className="text-muted fw-normal small text-end">Acción</th>
+                </tr></thead>
+                <tbody>
+                  {lista.map((p) => {
+                    const edit = ediciones[p.id] || {};
+                    return (
+                      <tr key={p.id}>
+                        <td className="fw-medium">{p.nombre}</td>
+                        <td className="text-muted small">{p.categoria}</td>
+                        <td style={{ width: 110 }}>
+                          <input type="number" step="0.01" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                            value={edit.precio ?? p.precio}
+                            onChange={(e) => setEdiciones((prev) => ({ ...prev, [p.id]: { ...prev[p.id], precio: e.target.value } }))} />
+                        </td>
+                        <td style={{ width: 90 }}>
+                          <input type="number" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                            value={edit.stock ?? p.stock}
+                            onChange={(e) => setEdiciones((prev) => ({ ...prev, [p.id]: { ...prev[p.id], stock: e.target.value } }))} />
+                        </td>
+                        <td><span className={`badge ${p.activo ? "bg-success" : "bg-secondary"}`}>{p.activo ? "Activo" : "Inactivo"}</span></td>
+                        <td className="text-end">
+                          <div className="d-flex gap-2 justify-content-end">
+                            {ediciones[p.id] && (
+                              <button className="btn btn-sm btn-outline-info" onClick={() => guardarEdicion(p.id)} disabled={actionId === p.id}>
+                                {actionId === p.id ? "…" : "Guardar"}
+                              </button>
+                            )}
+                            <button className={`btn btn-sm ${p.activo ? "btn-outline-danger" : "btn-outline-success"}`}
+                              onClick={() => toggle(p)} disabled={actionId === p.id}>
+                              {actionId === p.id ? "…" : p.activo ? "Desactivar" : "Reactivar"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ══════════════════════════════════════════
+//  TAB: PUBLICADOS (TIENDA PÚBLICA)
+// ══════════════════════════════════════════
+function TabPublicados() {
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [actionId, setActionId] = useState(null);
+  const [ok, setOk] = useState("");
+  const [err, setErr] = useState("");
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/api/sister-store/products`, { headers: authHeaders() });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        window.location.href = "/acceso";
+        return;
+      }
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar productos publicados");
+      setLista(j.products || j.data || []);
+    } catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const toggle = async (producto) => {
+    setActionId(producto.id); setErr(""); setOk("");
+    try {
+      const r = await fetch(`${API}/api/admin/productos/${producto.id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar producto");
+      setOk(j.message || "Estado del producto actualizado ✓");
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setActionId(null); }
+  };
+
+  return (
+    <>
+      <Alert msg={ok} type="success" onClose={() => setOk("")} />
+      <Alert msg={err} type="danger" onClose={() => setErr("")} />
+
+      <div className="card border-0 mb-4" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary"><h5 className="mb-0 text-white">Productos publicados</h5></div>
+        <div className="card-body">
+          {/* No form for adding products since this is just for viewing published products */}
+        </div>
+      </div>
+
+      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary d-flex justify-content-between align-items-center">
+          <h5 className="mb-0 text-white">Productos publicados ({lista.length})</h5>
+          <button className="btn btn-sm btn-outline-light" onClick={cargar} disabled={loading}>
+            {loading ? "…" : "↺"}
+          </button>
+        </div>
+        <div className="card-body p-0">
+          {loading ? (
+            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+          ) : lista.length === 0 ? (
+            <p className="text-muted text-center py-4">No hay productos publicados.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                  <tr>
+                    <th className="text-muted fw-normal small">Nombre</th>
+                    <th className="text-muted fw-normal small">Categoría</th>
+                    <th className="text-muted fw-normal small">Precio</th>
+                    <th className="text-muted fw-normal small">Stock</th>
+                    <th className="text-muted fw-normal small">Estado</th>
+                    <th className="text-muted fw-normal small text-end">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lista.map((p) => (
+                    <tr key={p.id}>
+                      <td className="fw-medium">{p.name}</td>
+                      <td className="text-muted small">{p.category}</td>
+                      <td style={{ width: 110 }}>
+                        <input type="number" step="0.01" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                          value={p.price}
+                          readOnly
+                        />
+                      </td>
+                      <td style={{ width: 90 }}>
+                        <input type="number" min="0" className="form-control form-control-sm bg-dark text-white border-secondary"
+                          value={p.stock}
+                          readOnly
+                        />
+                      </td>
+                      <td>
+                        <span className={`badge ${p.availability === 'in_stock' ? 'bg-success' : 'bg-secondary'}`}>
+                          {p.availability === 'in_stock' ? 'En stock' : 'Agotado'}
+                        </span>
+                      </td>
+                      <td className="text-end">
+                        <div className="d-flex gap-2 justify-content-end">
+                          <button className="btn btn-sm btn-outline-danger"
+                            onClick={() => toggle(p)} disabled={actionId === p.id}>
+                            {actionId === p.id ? "…" : "Ocultar"}
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -671,6 +994,8 @@ export default function AdminDashboard() {
               { key: "os-accounts", label: "🖥️ Cuentas SO" },
               { key: "contactos", label: "💬 Contactos" },
               { key: "partners", label: "🔗 Páginas hermanas" },
+              { key: "productos", label: "🛍️ Productos" },
+              { key: "publicados", label: "📦 Publicados" },
             ].map(({ key, label }) => (
               <li className="nav-item" key={key}>
                 <button
@@ -691,6 +1016,8 @@ export default function AdminDashboard() {
           {tab === "partners" && <TabPartners />}
           {tab === "usuarios" && <TabUsuarios />}
           {tab === "pedidos" && <TabPedidos />}
+          {tab === "productos" && <TabProductos />}
+          {tab === "publicados" && <TabPublicados />}
           {tab === "os-accounts" && (
             <div className="text-center py-5">
               <p className="text-muted mb-3">

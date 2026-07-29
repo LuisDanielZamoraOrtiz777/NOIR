@@ -37,7 +37,7 @@ export async function PATCH(request, { params }) {
       UPDATE pedidos
       SET estado = ${estado}
       WHERE id = ${id}
-      RETURNING id, client_name, estado
+      RETURNING id, cliente_nombre, estado
     `;
 
     if (result.length === 0) {
