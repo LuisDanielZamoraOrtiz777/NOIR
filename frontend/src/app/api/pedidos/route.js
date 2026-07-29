@@ -210,6 +210,16 @@ export async function POST(request) {
         insertedItemIds.push(itemResult[0].id);
       }
 
+      // CRÍTICO: Descontar el stock de cada producto después de crear el pedido
+      for (const item of validatedItems) {
+        await sql`
+          UPDATE productos
+          SET stock = stock - ${item.quantity}
+          WHERE id = ${item.product_id}
+            AND stock >= ${item.quantity}
+        `;
+      }
+
       return NextResponse.json(
         {
           success: true,
