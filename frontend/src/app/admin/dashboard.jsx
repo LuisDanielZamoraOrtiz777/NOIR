@@ -110,12 +110,12 @@ function TabPartners() {
           <form onSubmit={agregar}>
             <div className="row g-3">
               <div className="col-md-5">
-                <label className="form-label text-light small">Nombre *</label>
+                <label className="form-label small">Nombre *</label>
                 <input className="form-control admin-form-control" placeholder="Ej: Vogue España"
                   value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-5">
-                <label className="form-label text-light small">URL *</label>
+                <label className="form-label small">URL *</label>
                 <input type="url" className="form-control admin-form-control" placeholder="https://..."
                   value={form.url_api} onChange={(e) => setForm({ ...form, url_api: e.target.value })} required disabled={saving} />
               </div>
@@ -686,32 +686,32 @@ function TabProductos() {
           <form onSubmit={agregar}>
             <div className="row g-3">
               <div className="col-md-3">
-                <label className="form-label text-light small">Nombre *</label>
+                <label className="form-label small">Nombre *</label>
                 <input className="form-control admin-form-control" value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-3">
-                <label className="form-label text-light small">Categoría *</label>
+                <label className="form-label small">Categoría *</label>
                 <input className="form-control admin-form-control" value={form.categoria}
                   onChange={(e) => setForm({ ...form, categoria: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-2">
-                <label className="form-label text-light small">Precio *</label>
+                <label className="form-label small">Precio *</label>
                 <input type="number" step="0.01" min="0" className="form-control admin-form-control" value={form.precio}
                   onChange={(e) => setForm({ ...form, precio: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-2">
-                <label className="form-label text-light small">Stock *</label>
+                <label className="form-label small">Stock *</label>
                 <input type="number" min="0" className="form-control admin-form-control" value={form.stock}
                   onChange={(e) => setForm({ ...form, stock: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-6">
-                <label className="form-label text-light small">URL de imagen</label>
+                <label className="form-label small">URL de imagen</label>
                 <input type="url" className="form-control admin-form-control" placeholder="https://..." value={form.imagen_url}
                   onChange={(e) => setForm({ ...form, imagen_url: e.target.value })} disabled={saving} />
               </div>
               <div className="col-md-6">
-                <label className="form-label text-light small">Descripción</label>
+                <label className="form-label small">Descripción</label>
                 <input className="form-control admin-form-control" value={form.descripcion}
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })} disabled={saving} />
               </div>

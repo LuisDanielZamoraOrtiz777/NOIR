@@ -3765,6 +3765,189 @@ html.dark .admin-shell .alert .btn-close {
   filter: invert(1);
 }
 
+/* ──────────────────────────────────────────────────────────────────
+   Neutralización de Bootstrap dentro del admin
+   Bootstrap carga antes que globals.css, así que necesitamos !important
+   para sobrescribir .text-white, .text-light, .btn-light, .btn-outline-light
+   que estaban pensados para fondo oscuro y ahora se ven mal sobre fondo claro.
+   ────────────────────────────────────────────────────────────────── */
+
+/* text-white: en modo claro lo dejamos como está (blanco sobre header oscuro),
+   pero DENTRO de cards de fondo claro debe ser negro para verse. */
+.admin-shell .card-body .text-white,
+.admin-shell .form-label.text-white,
+.admin-shell td.text-white,
+.admin-shell p.text-white,
+.admin-shell small.text-white {
+  color: #0b0b0b !important;
+}
+
+html.dark .admin-shell .card-body .text-white,
+html.dark .admin-shell .form-label.text-white,
+html.dark .admin-shell td.text-white,
+html.dark .admin-shell p.text-white,
+html.dark .admin-shell small.text-white {
+  color: #ffffff !important;
+}
+
+/* text-light (color claro de Bootstrap) — siempre oscuro sobre fondo claro */
+.admin-shell .form-label.text-light,
+.admin-shell small.text-light,
+.admin-shell p.text-light,
+.admin-shell td.text-light,
+.admin-shell th.text-light {
+  color: #6b6b6b !important;
+}
+
+html.dark .admin-shell .form-label.text-light,
+html.dark .admin-shell small.text-light,
+html.dark .admin-shell p.text-light,
+html.dark .admin-shell td.text-light,
+html.dark .admin-shell th.text-light {
+  color: #a0a0a0 !important;
+}
+
+/* text-dark: en modo claro se ve OK; en oscuro hay que invertirlo */
+.admin-shell .text-dark {
+  color: #0b0b0b !important;
+}
+html.dark .admin-shell .text-dark {
+  color: #ffffff !important;
+}
+
+/* btn-light (botón claro de Bootstrap) — fondo blanco, texto negro */
+.admin-shell .btn-light {
+  background-color: #0b0b0b !important;
+  border-color: #0b0b0b !important;
+  color: #ffffff !important;
+}
+
+.admin-shell .btn-light:hover {
+  background-color: #2a2a2a !important;
+  border-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+html.dark .admin-shell .btn-light {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #0b0b0b !important;
+}
+
+html.dark .admin-shell .btn-light:hover {
+  background-color: #e0e0e0 !important;
+  border-color: #e0e0e0 !important;
+  color: #0b0b0b !important;
+}
+
+/* btn-outline-light — borde oscuro, fondo transparente en modo claro */
+.admin-shell .btn-outline-light {
+  color: #0b0b0b !important;
+  border-color: #0b0b0b !important;
+  background-color: transparent !important;
+}
+
+.admin-shell .btn-outline-light:hover {
+  background-color: #0b0b0b !important;
+  color: #ffffff !important;
+  border-color: #0b0b0b !important;
+}
+
+html.dark .admin-shell .btn-outline-light {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+html.dark .admin-shell .btn-outline-light:hover {
+  background-color: #ffffff !important;
+  color: #0b0b0b !important;
+  border-color: #ffffff !important;
+}
+
+/* btn-light explícito en card-body (botón agregar blanco sobre blanco) */
+.admin-shell .card-body .btn-light {
+  background-color: #0b0b0b !important;
+  border-color: #0b0b0b !important;
+  color: #ffffff !important;
+}
+
+.admin-shell .card-body .btn-light:hover {
+  background-color: #2a2a2a !important;
+  border-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+html.dark .admin-shell .card-body .btn-light {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #0b0b0b !important;
+}
+
+/* spinner-border text-dark/text-light — visible en ambos modos */
+.admin-shell .spinner-border.text-dark {
+  color: #0b0b0b !important;
+}
+html.dark .admin-shell .spinner-border.text-dark {
+  color: #ffffff !important;
+}
+
+/* ── Toggle del header — asegúrate que se vea en ambos modos ── */
+.dark-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 220ms ease, border-color 220ms ease;
+  color: var(--text);
+}
+
+.dark-toggle:hover {
+  background: var(--bg-section);
+  border-color: var(--accent);
+}
+
+/* ── text-muted DENTRO de bg-dark — más claro para que se lea ── */
+.admin-shell .bg-dark .text-muted,
+.admin-shell .bg-dark small {
+  color: #c0c0c0 !important;
+}
+
+html.dark .admin-shell .bg-dark .text-muted,
+html.dark .admin-shell .bg-dark small {
+  color: #555 !important;
+}
+
+/* ── Pequeña tip blanca explícita que sobreviva a invertir card-body ── */
+.admin-shell .card-body {
+  color: inherit;
+  transition: color 220ms ease;
+}
+
+.admin-shell .card-body h1,
+.admin-shell .card-body h2,
+.admin-shell .card-body h3,
+.admin-shell .card-body h4,
+.admin-shell .card-body h5,
+.admin-shell .card-body h6 {
+  color: #0b0b0b;
+}
+
+html.dark .admin-shell .card-body h1,
+html.dark .admin-shell .card-body h2,
+html.dark .admin-shell .card-body h3,
+html.dark .admin-shell .card-body h4,
+html.dark .admin-shell .card-body h5,
+html.dark .admin-shell .card-body h6 {
+  color: #ffffff;
+}
+
 /* Login page cream/black */
 .login-shell {
   min-height: 100vh;
