@@ -3351,10 +3351,16 @@ html.dark .general-error {
    ════════════════════════════════════════════════════════════ */
 .admin-shell {
   min-height: 100vh;
-  background: #0b0b0b;
-  color: #e0e0e0;
+  background: #ffffff;
+  color: #0b0b0b;
   padding: 24px 0;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+html.dark .admin-shell {
+  background: #0b0b0b;
+  color: #e8e8e8;
 }
 
 .admin-shell .card {
@@ -3362,14 +3368,30 @@ html.dark .general-error {
   border: 1px solid #e6e4df;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(11, 11, 11, 0.04);
+  color: #0b0b0b;
+  transition: background-color 220ms ease, border-color 220ms ease, color 220ms ease;
+}
+
+html.dark .admin-shell .card {
+  background-color: #141414;
+  border-color: #2a2a2a;
+  color: #e8e8e8;
 }
 
 .admin-shell .text-muted {
   color: #6b6b6b !important;
 }
 
+html.dark .admin-shell .text-muted {
+  color: #a0a0a0 !important;
+}
+
 .admin-shell .border-bottom {
   border-color: #e6e4df !important;
+}
+
+html.dark .admin-shell .border-bottom {
+  border-color: #2a2a2a !important;
 }
 
 .admin-shell .form-control,
@@ -3381,6 +3403,17 @@ html.dark .general-error {
   color: #0b0b0b;
   border: 1px solid #e6e4df;
   border-radius: 6px;
+  transition: background-color 220ms ease, border-color 220ms ease, color 220ms ease;
+}
+
+html.dark .admin-shell .form-control,
+html.dark .admin-shell .form-select,
+html.dark .admin-shell textarea.admin-form-control,
+html.dark .admin-shell input.admin-form-control,
+html.dark .admin-shell select.admin-form-control {
+  background-color: #1a1a1a;
+  color: #e8e8e8;
+  border-color: #2a2a2a;
 }
 
 .admin-shell .form-control:focus,
@@ -3393,8 +3426,21 @@ html.dark .general-error {
   outline: none;
 }
 
+html.dark .admin-shell .form-control:focus,
+html.dark .admin-shell .form-select:focus,
+html.dark .admin-shell .admin-form-control:focus {
+  background-color: #1a1a1a;
+  color: #e8e8e8;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
 .admin-shell .form-control::placeholder {
   color: #9a9a9a;
+}
+
+html.dark .admin-shell .form-control::placeholder {
+  color: #777;
 }
 
 .admin-shell .form-label,
@@ -3403,10 +3449,20 @@ html.dark .general-error {
   font-weight: 500;
 }
 
+html.dark .admin-shell .form-label,
+html.dark .admin-shell label {
+  color: #e8e8e8;
+}
+
 /* Tabs */
 .admin-tabs {
   border-bottom: 1px solid #e6e4df;
   gap: 4px;
+  transition: border-color 220ms ease;
+}
+
+html.dark .admin-tabs {
+  border-bottom-color: #2a2a2a;
 }
 
 .admin-tab {
@@ -3427,6 +3483,15 @@ html.dark .general-error {
   border-color: transparent;
 }
 
+html.dark .admin-tab {
+  color: #a0a0a0;
+}
+
+html.dark .admin-tab:hover {
+  color: #ffffff;
+  background-color: #1f1f1f;
+}
+
 .admin-tab.active {
   background-color: #ffffff;
   color: #0b0b0b;
@@ -3436,12 +3501,25 @@ html.dark .general-error {
   font-weight: 600;
 }
 
+html.dark .admin-tab.active {
+  background-color: #0b0b0b;
+  color: #ffffff;
+  border-color: #2a2a2a;
+  border-bottom-color: #0b0b0b;
+}
+
 /* Tabla admin */
 .admin-table {
   background-color: #ffffff;
   color: #0b0b0b;
   border-collapse: collapse;
   width: 100%;
+  transition: background-color 220ms ease, color 220ms ease;
+}
+
+html.dark .admin-table {
+  background-color: #141414;
+  color: #e8e8e8;
 }
 
 .admin-table thead th {
@@ -3455,6 +3533,12 @@ html.dark .general-error {
   padding: 12px;
 }
 
+html.dark .admin-table thead th {
+  background-color: #1f1f1f;
+  color: #e8e8e8;
+  border-bottom-color: #2a2a2a;
+}
+
 .admin-table tbody td {
   border-bottom: 1px solid #f0efea;
   color: #0b0b0b;
@@ -3462,8 +3546,17 @@ html.dark .general-error {
   vertical-align: middle;
 }
 
+html.dark .admin-table tbody td {
+  border-bottom-color: #232323;
+  color: #e8e8e8;
+}
+
 .admin-table tbody tr:hover {
   background-color: #faf9f6;
+}
+
+html.dark .admin-table tbody tr:hover {
+  background-color: #1c1c1c;
 }
 
 .admin-table tbody tr:last-child td {
@@ -3491,6 +3584,17 @@ html.dark .general-error {
   border-color: #0b0b0b;
 }
 
+html.dark .admin-shell .btn-outline-secondary {
+  color: #e8e8e8;
+  border-color: #2a2a2a;
+  background-color: #1a1a1a;
+}
+html.dark .admin-shell .btn-outline-secondary:hover {
+  background-color: #ffffff;
+  color: #0b0b0b;
+  border-color: #ffffff;
+}
+
 .admin-shell .btn-outline-light {
   color: #0b0b0b;
   border-color: #0b0b0b;
@@ -3499,6 +3603,16 @@ html.dark .general-error {
 .admin-shell .btn-outline-light:hover {
   background-color: #0b0b0b;
   color: #ffffff;
+}
+
+html.dark .admin-shell .btn-outline-light {
+  color: #ffffff;
+  border-color: #ffffff;
+  background-color: transparent;
+}
+html.dark .admin-shell .btn-outline-light:hover {
+  background-color: #ffffff;
+  color: #0b0b0b;
 }
 
 .admin-shell .btn-dark,
@@ -3512,6 +3626,19 @@ html.dark .general-error {
   background-color: #2a2a2a;
   border-color: #2a2a2a;
   color: #ffffff;
+}
+
+html.dark .admin-shell .btn-dark,
+html.dark .admin-shell .btn-primary {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #0b0b0b;
+}
+html.dark .admin-shell .btn-dark:hover,
+html.dark .admin-shell .btn-primary:hover {
+  background-color: #e0e0e0;
+  border-color: #e0e0e0;
+  color: #0b0b0b;
 }
 
 .admin-shell .alert {
@@ -3541,6 +3668,101 @@ html.dark .general-error {
   background-color: #fff8e6;
   color: #8a6a00;
   border-color: #f0e0a8;
+}
+
+html.dark .admin-shell .alert-info {
+  background-color: #1f1f1f;
+  color: #e8e8e8;
+  border-color: #2a2a2a;
+}
+
+html.dark .admin-shell .alert-success {
+  background-color: #1e2e1e;
+  color: #a8d8a8;
+  border-color: #2a4a2a;
+}
+
+html.dark .admin-shell .alert-danger {
+  background-color: #2e1e1e;
+  color: #f0a8a8;
+  border-color: #4a2a2a;
+}
+
+html.dark .admin-shell .alert-warning {
+  background-color: #2e2a1e;
+  color: #e8d090;
+  border-color: #4a402a;
+}
+
+/* Card headers dentro del admin: oscuros en modo claro, claros en modo oscuro */
+.admin-shell .card-header {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-color: #1a1a1a;
+  transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+}
+
+.admin-shell .card-header h5,
+.admin-shell .card-header h6,
+.admin-shell .card-header .text-white {
+  color: #ffffff !important;
+}
+
+html.dark .admin-shell .card-header {
+  background-color: #ffffff;
+  color: #0b0b0b;
+  border-color: #e6e4df;
+}
+
+html.dark .admin-shell .card-header h5,
+html.dark .admin-shell .card-header h6,
+html.dark .admin-shell .card-header .text-white {
+  color: #0b0b0b !important;
+}
+
+html.dark .admin-shell .card-header.border-secondary {
+  border-color: #e6e4df !important;
+}
+
+/* Tarjetas de resumen con bg-dark — invierten con el modo oscuro */
+.admin-shell .bg-dark {
+  background-color: #0b0b0b !important;
+  color: #ffffff !important;
+}
+
+html.dark .admin-shell .bg-dark {
+  background-color: #ffffff !important;
+  color: #0b0b0b !important;
+}
+
+/* Tarjetas con background blanco hardcoded en JSX — invierten en modo oscuro */
+.admin-shell .card[style*="#ffffff"] {
+  background-color: #ffffff !important;
+  color: #0b0b0b !important;
+}
+
+html.dark .admin-shell .card[style*="#ffffff"] {
+  background-color: #141414 !important;
+  color: #e8e8e8 !important;
+  border-color: #2a2a2a !important;
+}
+
+/* Párrafos pequeños con color-muted explícito (no se ven si la card es blanca) */
+.admin-shell small.text-muted {
+  color: #6b6b6b !important;
+}
+
+html.dark .admin-shell small.text-muted {
+  color: #a0a0a0 !important;
+}
+
+/* Botón cerrar de Bootstrap alerts — visible en ambos modos */
+.admin-shell .alert .btn-close {
+  filter: invert(0);
+}
+
+html.dark .admin-shell .alert .btn-close {
+  filter: invert(1);
 }
 
 /* Login page cream/black */
