@@ -1,4 +1,4 @@
-:root {
+   :root {
   color-scheme: light;
   font-family: Inter, system-ui, sans-serif;
   background: #f7f7f5;
@@ -195,11 +195,13 @@ html.dark .chat-send { background: #e8e6e3; color: #0b0b0b; }
 }
 
 html,
-body {
+body,
+#__next {
   margin: 0;
   padding: 0;
   min-height: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body {

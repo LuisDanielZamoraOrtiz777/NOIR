@@ -214,21 +214,32 @@
 
 .tendencia-card:hover .tendencia-img { transform: scale(1.04); }
 
-/* Placeholder cuando no hay imagen */
+/* Placeholder cuando no hay imagen — fondo claro (nunca negro) */
 .tendencia-img-placeholder {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+  background: linear-gradient(135deg, #f5f3ee 0%, #e8e5df 50%, #f0eee9 100%);
+  background-color: #f0eee9;
 }
 
 .tendencia-img-placeholder span {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 3rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.2);
+  color: #999;
+}
+
+/* Dark mode: mantener el placeholder claro, no negro */
+html.dark .tendencia-img-placeholder {
+  background: linear-gradient(135deg, #f5f3ee 0%, #e8e5df 50%, #f0eee9 100%);
+  background-color: #f0eee9;
+}
+
+html.dark .tendencia-img-placeholder span {
+  color: #999;
 }
 
 /* Badge de fuente sobre la imagen */

@@ -1,0 +1,2142 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE FIXES — Sistema de breakpoints estándar
+   Breakpoints: 1024px (tablet grande/laptop), 768px (tablet), 480px (móvil)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Variables de breakpoint ────────────────────────────────────────────────── */
+:root {
+  --bp-tablet-large: 1024px;
+  --bp-tablet: 768px;
+  --bp-mobile: 480px;
+}
+
+/* ── Prevenir scroll horizontal no intencional ─────────────────────────────── */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* ── Padding base de secciones: desktop → tablet ────────────────────────────── */
+@media (max-width: 1024px) {
+  .section-block,
+  .page-content,
+  .hero-section {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .header-inner {
+    padding: 0 24px;
+  }
+
+  /* Card grid: 3 → 2 columnas */
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Contact grid: 2 → 1 columna */
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  /* Footer grid: 4 → 2 columnas */
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Hero magazine grid: altura reducida */
+  .hero-magazine-grid {
+    height: 380px;
+  }
+
+  /* Interactive menu: menos gap */
+  .interactive-menu {
+    gap: 12px;
+  }
+
+  /* Tendencias filtros: menos gap */
+  .tendencias-filtros {
+    gap: 6px;
+  }
+
+  .filtro-btn {
+    font-size: 0.8rem;
+    padding: 6px 14px;
+  }
+
+  /* Tendencia img wrapper: altura reducida */
+  .tendencia-img-wrapper {
+    height: 180px;
+  }
+
+  /* Editoriales grid: menos columnas */
+  .editoriales-grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 180px;
+  }
+
+  /* Trends grid en looks */
+  .trends-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Influencers grid */
+  .influencers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Testimonial grid */
+  .testimonials-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Authors grid */
+  .authors-grid,
+  .members-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Process steps: 4 → 2 */
+  .process-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Opinion dark card padding */
+  .opinion-hero .card {
+    padding: 24px;
+  }
+
+  /* Cart item: 4 columnas → 2 */
+  .cart-item {
+    grid-template-columns: 64px 1fr auto auto;
+    gap: 12px;
+  }
+
+  .cart-item-image {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Checkout item row */
+  .checkout-item-row {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .checkout-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Newsletter controls */
+  .newsletter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .newsletter-form .button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ── Tablet (≤ 768px) ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 0 18px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-inner .brand {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .logo-text {
+    font-size: 0.92rem;
+  }
+
+  .main-navigation {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .main-navigation ul {
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .main-navigation a {
+    font-size: 0.86rem;
+    display: inline-block;
+    padding: 14px 0;
+  }
+
+  .header-actions {
+    justify-self: end;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .search-box input {
+    width: 120px;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .header-menu {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+  }
+
+  .header-menu.is-open {
+    display: flex;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Footer: 2 → 1 columna */
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Hero: columna única */
+  .hero-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 64px 20px 36px;
+  }
+
+  .hero-image-container {
+    display: none;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 8vw, 4rem);
+    text-align: center;
+  }
+
+  .hero-copy .eyebrow,
+  .hero-text {
+    text-align: center;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-buttons .button {
+    width: 100%;
+  }
+
+  /* Card grid: 2 → 1 columna */
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Post card padding */
+  .post-card {
+    padding: 18px;
+  }
+
+  /* Hero magazine grid: oculto en móvil */
+  .hero-magazine-grid {
+    display: none;
+  }
+
+  /* Revistas grid: 2 → 1 */
+  .revistas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Editoriales grid: 2 → 1 */
+  .editoriales-grid-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 200px;
+  }
+
+  /* Trends grid: 2 → 1 */
+  .trends-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Influencers grid: 2 → 1 */
+  .influencers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Testimonial grid: 2 → 1 */
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Authors grid: 2 → 1 */
+  .authors-grid,
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Process steps: 2 → 1 */
+  .process-steps {
+    grid-template-columns: 1fr;
+  }
+
+  /* Event card: columna */
+  .event-card {
+    flex-direction: column;
+  }
+
+  .event-date {
+    flex-direction: row;
+    gap: 8px;
+    align-self: flex-start;
+  }
+
+  /* Opinion dark card */
+  .opinion-hero .card {
+    padding: 20px;
+  }
+
+  /* Opinion buttons */
+  .opinion-hero .card .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .opinion-hero .card .d-flex.gap-2 .btn {
+    width: 100%;
+  }
+
+  /* Contact hero */
+  .contact-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .contact-hero p {
+    font-size: 1rem;
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 24px;
+  }
+
+  .faq li {
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+
+  /* Join actions */
+  .join-actions {
+    flex-direction: column;
+  }
+
+  .join-actions .button {
+    width: 100%;
+  }
+
+  /* Cart item */
+  .cart-item {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .cart-item-image {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Checkout item row */
+  .checkout-item-row {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .checkout-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .checkout-item-qty,
+  .checkout-item-subtotal {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .checkout-item-subtotal {
+    margin-top: 4px;
+    font-size: 1.1rem;
+  }
+
+  /* Cart summary sticky */
+  .cart-summary-sticky {
+    position: static;
+  }
+
+  /* Cart page */
+  .cart-page.checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 16px;
+  }
+
+  /* Tendencias hero */
+  .tendencias-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .tendencias-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .tendencias-fuentes-lista {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Editoriales hero */
+  .editoriales-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+  }
+
+  .editoriales-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .editoriales-stats {
+    gap: 28px;
+  }
+
+  /* Looks hero */
+  .looks-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .looks-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .looks-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .looks-stats {
+    gap: 28px;
+  }
+
+  /* Opinion hero */
+  .opinion-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .opinion-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .opinion-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .opinion-stats {
+    gap: 28px;
+  }
+
+  /* Section header */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .section-header .button {
+    align-self: flex-start;
+  }
+
+  /* Chat FAB */
+  .chat-fab {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chat-window-float {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 80px;
+  }
+
+  /* Dark toggle: aumentar touch target */
+  .dark-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Cart icon link: aumentar touch target */
+  .cart-icon-link {
+    padding: 8px;
+  }
+
+  /* Search box button */
+  .search-box button {
+    padding: 0 8px;
+    min-width: 40px;
+    height: 36px;
+  }
+}
+
+/* ── Móvil (≤ 480px) ────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root {
+    font-size: 15px;
+  }
+
+  .logo-mark {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .logo-text {
+    font-size: 0.86rem;
+  }
+
+  .search-box input {
+    width: 100px;
+  }
+
+  .hero-section {
+    padding: 40px 16px 28px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.8rem, 9vw, 3.2rem);
+  }
+
+  .hero-text {
+    font-size: 0.98rem;
+  }
+
+  .site-footer {
+    padding: 28px 16px;
+  }
+
+  /* Tendencia img wrapper: altura reducida */
+  .tendencia-img-wrapper {
+    height: 160px;
+  }
+
+  /* Tendencia filtros */
+  .tendencias-filtros {
+    gap: 6px;
+  }
+
+  .filtro-btn {
+    font-size: 0.78rem;
+    padding: 5px 12px;
+    min-height: 36px;
+  }
+
+  /* Fuente badges */
+  .fuente-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  /* Editoriales grid */
+  .editoriales-grid-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 200px;
+  }
+
+  .editorial-card-body {
+    padding: 14px;
+    gap: 6px;
+  }
+
+  .editorial-titulo {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+
+  .editorial-resumen {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .editorial-autor {
+    font-size: 0.7rem;
+  }
+
+  .editorial-fecha {
+    font-size: 0.68rem;
+  }
+
+  .editorial-cat-badge {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+    bottom: 8px;
+    left: 10px;
+  }
+
+  .editorial-placeholder-letra {
+    font-size: 2.5rem;
+  }
+
+  .editorial-placeholder-cat {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+  }
+
+  .editorial-card-meta {
+    gap: 6px;
+  }
+
+  /* Editoriales hero */
+  .editoriales-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+    line-height: 1.05;
+    margin-bottom: 12px;
+  }
+
+  .editoriales-intro {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 14px auto 24px;
+    padding: 0 4px;
+  }
+
+  .editoriales-stats {
+    gap: 20px;
+  }
+
+  .editoriales-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .editoriales-stats .stat-item span {
+    font-size: 0.72rem;
+  }
+
+  /* Opinion hero */
+  .opinion-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .opinion-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+  }
+
+  .opinion-intro {
+    font-size: 0.95rem;
+  }
+
+  .opinion-stats {
+    gap: 20px;
+  }
+
+  .opinion-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .opinion-stats .stat-item span {
+    font-size: 0.72rem;
+  }
+
+  /* Looks hero */
+  .looks-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .looks-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+  }
+
+  .looks-intro {
+    font-size: 0.95rem;
+  }
+
+  .looks-stats {
+    gap: 20px;
+  }
+
+  .looks-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .looks-stats .stat-item span {
+    font-size: 0.72rem;
+  }
+
+  /* Contact hero */
+  .contact-hero {
+    padding: 40px 16px 28px;
+  }
+
+  .contact-hero p {
+    font-size: 1rem;
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 20px;
+  }
+
+  .faq li {
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+
+  /* Newsletter */
+  .newsletter-controls {
+    flex-direction: column;
+  }
+
+  .newsletter-form .button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Cart page */
+  .cart-page {
+    padding: 24px 16px;
+  }
+
+  .cart-page h1 {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+
+  /* Checkout item row */
+  .checkout-item-row {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .checkout-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Cart summary */
+  .cart-summary {
+    padding: 20px;
+  }
+
+  /* Chat FAB */
+  .chat-fab {
+    right: 12px;
+    bottom: 12px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .chat-window-float {
+    width: calc(100vw - 24px);
+    right: 12px;
+    bottom: 70px;
+  }
+}
+
+/* ── Móviles muy pequeños (≤ 360px) ────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .hero-section {
+    padding: 32px 12px 24px;
+  }
+
+  .hero-copy h1 {
+    font-size: 1.7rem;
+  }
+
+  .hero-text {
+    font-size: 0.9rem;
+  }
+
+  .section-block {
+    padding: 24px 12px;
+  }
+
+  .page-content {
+    padding: 32px 12px;
+  }
+
+  .header-inner {
+    padding: 0 12px;
+  }
+
+  .cart-page {
+    padding: 20px 12px;
+  }
+
+  .cart-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .contact-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .contact-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .tendencias-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .tendencias-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .editoriales-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .looks-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .looks-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .opinion-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .opinion-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .fuente-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .filtro-btn {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   IMÁGENES RESPONSIVAS — patrón consistente: contenedor con aspect-ratio +
+   object-fit: cover, img en width:100% height:100%
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* SisterStoreCatalog — .product-card-image es el contenedor */
+.sister-store-grid .product-card-image {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+  background: #1a1a1a;
+  border-radius: 14px 14px 0 0;
+  flex-shrink: 0;
+}
+
+.sister-store-grid .product-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sister-store-grid .product-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #999;
+  background: #f0eee9;
+}
+
+/* Tienda product card — .product-image es el contenedor */
+.product-image {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+  background: #1a1a1a;
+  border-radius: 14px 14px 0 0;
+  flex-shrink: 0;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #999;
+  background: #f0eee9;
+}
+
+/* PostCard — img dentro de .post-card-image-container sin clase */
+.post-card-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* EditorialesHomeGrid — img con estilo inline height:200 */
+.editoriales-home-grid .card-img-top {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Touch targets mínimos (40x40px) ───────────────────────────────────────── */
+.filtro-btn {
+  min-height: 40px;
+  min-width: 40px;
+}
+
+.fuente-badge {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cart-icon-link {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.search-box button {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* ── Admin tabs: scroll horizontal en móvil ─────────────────────────────────── */
+.admin-tabs {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.admin-tabs::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+html.dark .admin-tabs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE: 1024px breakpoint (tablet grande / laptop pequeña)
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  /* Hero section: 2 columnas → 1 columna */
+  .hero-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 64px 20px 36px;
+  }
+
+  .hero-image-container {
+    display: none;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 8vw, 5rem);
+  }
+
+  .section-block {
+    padding: 32px 20px;
+  }
+
+  /* Card grid: 3 → 2 columnas */
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Footer grid: 4 → 2 columnas */
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Hero magazine grid: altura reducida */
+  .hero-magazine-grid {
+    height: 380px;
+  }
+
+  /* Tendencia img wrapper */
+  .tendencia-img-wrapper {
+    height: 180px;
+  }
+
+  /* Editoriales grid */
+  .editoriales-grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 180px;
+  }
+
+  /* Trends grid */
+  .trends-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Influencers grid */
+  .influencers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Testimonial grid */
+  .testimonials-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Authors grid */
+  .authors-grid,
+  .members-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* Process steps: 4 → 2 */
+  .process-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Event card */
+  .event-card {
+    flex-direction: column;
+  }
+
+  .event-date {
+    flex-direction: row;
+    gap: 8px;
+    align-self: flex-start;
+  }
+
+  /* Contact grid */
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 24px;
+  }
+
+  /* Join actions */
+  .join-actions {
+    flex-direction: column;
+  }
+
+  .join-actions .button {
+    width: 100%;
+  }
+
+  /* Cart item */
+  .cart-item {
+    grid-template-columns: 64px 1fr auto auto;
+    gap: 12px;
+  }
+
+  .cart-item-image {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Checkout */
+  .checkout-item-row {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .checkout-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .checkout-item-qty,
+  .checkout-item-subtotal {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .checkout-item-subtotal {
+    margin-top: 4px;
+    font-size: 1.1rem;
+  }
+
+  /* Cart summary sticky */
+  .cart-summary-sticky {
+    position: static;
+  }
+
+  /* Cart page */
+  .cart-page.checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 16px;
+  }
+
+  /* Newsletter */
+  .newsletter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .newsletter-form .button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Section header */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .section-header .button {
+    align-self: flex-start;
+  }
+
+  /* Chat FAB */
+  .chat-fab {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chat-window-float {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 80px;
+  }
+
+  /* Dark toggle */
+  .dark-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Cart icon link */
+  .cart-icon-link {
+    padding: 8px;
+  }
+
+  /* Search box */
+  .search-box input {
+    width: 120px;
+  }
+
+  /* Header */
+  .header-inner {
+    padding: 0 24px;
+  }
+
+  /* Opinion dark card */
+  .opinion-hero .card {
+    padding: 24px;
+  }
+
+  .opinion-hero .card .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .opinion-hero .card .d-flex.gap-2 .btn {
+    width: 100%;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE: 768px breakpoint (tablet)
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 0 18px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-inner .brand {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .logo-text {
+    font-size: 0.92rem;
+  }
+
+  .main-navigation {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .main-navigation ul {
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .main-navigation a {
+    font-size: 0.86rem;
+    display: inline-block;
+    padding: 14px 0;
+  }
+
+  .header-actions {
+    justify-self: end;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .search-box input {
+    width: 120px;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .header-menu {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+  }
+
+  .header-menu.is-open {
+    display: flex;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Hero */
+  .hero-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 64px 20px 36px;
+  }
+
+  .hero-image-container {
+    display: none;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.2rem, 8vw, 4rem);
+    text-align: center;
+  }
+
+  .hero-copy .eyebrow,
+  .hero-text {
+    text-align: center;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-buttons .button {
+    width: 100%;
+  }
+
+  /* Card grid */
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-card {
+    padding: 18px;
+  }
+
+  /* Hero magazine grid */
+  .hero-magazine-grid {
+    display: none;
+  }
+
+  /* Revistas grid */
+  .revistas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Editoriales grid */
+  .editoriales-grid-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 200px;
+  }
+
+  /* Trends grid */
+  .trends-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Influencers grid */
+  .influencers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Testimonial grid */
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Authors grid */
+  .authors-grid,
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Process steps */
+  .process-steps {
+    grid-template-columns: 1fr;
+  }
+
+  /* Event card */
+  .event-card {
+    flex-direction: column;
+  }
+
+  .event-date {
+    flex-direction: row;
+    gap: 8px;
+    align-self: flex-start;
+  }
+
+  /* Contact */
+  .contact-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .contact-hero p {
+    font-size: 1rem;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 24px;
+  }
+
+  .faq li {
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+
+  /* Join actions */
+  .join-actions {
+    flex-direction: column;
+  }
+
+  .join-actions .button {
+    width: 100%;
+  }
+
+  /* Cart */
+  .cart-item {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .cart-item-image {
+    width: 64px;
+    height: 64px;
+  }
+
+  .checkout-item-row {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .checkout-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .checkout-item-qty,
+  .checkout-item-subtotal {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .checkout-item-subtotal {
+    margin-top: 4px;
+    font-size: 1.1rem;
+  }
+
+  .cart-summary-sticky {
+    position: static;
+  }
+
+  .cart-page.checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 16px;
+  }
+
+  /* Newsletter */
+  .newsletter-controls {
+    flex-direction: column;
+  }
+
+  .newsletter-form .button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Section header */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .section-header .button {
+    align-self: flex-start;
+  }
+
+  /* Chat FAB */
+  .chat-fab {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chat-window-float {
+    width: calc(100vw - 32px);
+    right: 16px;
+    bottom: 80px;
+  }
+
+  /* Dark toggle */
+  .dark-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Cart icon link */
+  .cart-icon-link {
+    padding: 8px;
+  }
+
+  /* Search box */
+  .search-box input {
+    width: 120px;
+  }
+
+  /* Opinion dark card */
+  .opinion-hero .card {
+    padding: 20px;
+  }
+
+  .opinion-hero .card .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .opinion-hero .card .d-flex.gap-2 .btn {
+    width: 100%;
+  }
+
+  /* Tendencias hero */
+  .tendencias-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .tendencias-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .tendencias-fuentes-lista {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Editoriales hero */
+  .editoriales-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+  }
+
+  .editoriales-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .editoriales-stats {
+    gap: 28px;
+  }
+
+  /* Looks hero */
+  .looks-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .looks-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .looks-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .looks-stats {
+    gap: 28px;
+  }
+
+  /* Opinion hero */
+  .opinion-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .opinion-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .opinion-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .opinion-stats {
+    gap: 28px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE: 480px breakpoint (móvil)
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  :root {
+    font-size: 15px;
+  }
+
+  .logo-mark {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+
+  .logo-text {
+    font-size: 0.86rem;
+  }
+
+  .search-box input {
+    width: 100px;
+  }
+
+  .hero-section {
+    padding: 40px 16px 28px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.8rem, 9vw, 3.2rem);
+  }
+
+  .hero-text {
+    font-size: 0.98rem;
+  }
+
+  .site-footer {
+    padding: 28px 16px;
+  }
+
+  /* Tendencia img wrapper */
+  .tendencia-img-wrapper {
+    height: 160px;
+  }
+
+  /* Tendencia filtros */
+  .tendencias-filtros {
+    gap: 6px;
+  }
+
+  .filtro-btn {
+    font-size: 0.78rem;
+    padding: 5px 12px;
+    min-height: 36px;
+  }
+
+  /* Fuente badges */
+  .fuente-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  /* Editoriales */
+  .editoriales-grid-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 200px;
+  }
+
+  .editorial-card-body {
+    padding: 14px;
+    gap: 6px;
+  }
+
+  .editorial-titulo {
+    font-size: 0.95rem;
+  }
+
+  .editorial-resumen {
+    font-size: 0.8rem;
+  }
+
+  .editorial-autor {
+    font-size: 0.7rem;
+  }
+
+  .editorial-fecha {
+    font-size: 0.68rem;
+  }
+
+  .editorial-cat-badge {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+    bottom: 8px;
+    left: 10px;
+  }
+
+  .editorial-placeholder-letra {
+    font-size: 2.5rem;
+  }
+
+  .editorial-placeholder-cat {
+    font-size: 0.62rem;
+  }
+
+  .editorial-card-meta {
+    gap: 6px;
+  }
+
+  /* Editoriales hero */
+  .editoriales-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+    line-height: 1.05;
+    margin-bottom: 12px;
+  }
+
+  .editoriales-intro {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 14px auto 24px;
+    padding: 0 4px;
+  }
+
+  .editoriales-stats {
+    gap: 20px;
+  }
+
+  .editoriales-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .editoriales-stats .stat-item span {
+    font-size: 0.72rem;
+  }
+
+  /* Opinion hero */
+  .opinion-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .opinion-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+  }
+
+  .opinion-intro {
+    font-size: 0.95rem;
+  }
+
+  .opinion-stats {
+    gap: 20px;
+  }
+
+  .opinion-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .opinion-stats .stat-item span {
+    font-size: 0.72rem;
+  }
+
+  /* Looks hero */
+  .looks-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .looks-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+  }
+
+  .looks-intro {
+    font-size: 0.95rem;
+  }
+
+  .looks-stats {
+    gap: 20px;
+  }
+
+  .looks-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .looks-stats .stat-item span {
+    font-size: 0.72rem;
+  }
+
+  /* Contact hero */
+  .contact-hero {
+    padding: 40px 16px 28px;
+  }
+
+  .contact-hero p {
+    font-size: 1rem;
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 20px;
+  }
+
+  .faq li {
+    padding: 12px 0;
+    font-size: 0.95rem;
+  }
+
+  /* Cart page */
+  .cart-page {
+    padding: 24px 16px;
+  }
+
+  .cart-page h1 {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+
+  /* Checkout */
+  .checkout-item-row {
+    grid-template-columns: 64px 1fr;
+    gap: 12px;
+  }
+
+  .checkout-item-image-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Cart summary */
+  .cart-summary {
+    padding: 20px;
+  }
+
+  /* Chat FAB */
+  .chat-fab {
+    right: 12px;
+    bottom: 12px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .chat-window-float {
+    width: calc(100vw - 24px);
+    right: 12px;
+    bottom: 70px;
+  }
+}
+
+/* ── Móviles muy pequeños (≤ 360px) ────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .hero-section {
+    padding: 32px 12px 24px;
+  }
+
+  .hero-copy h1 {
+    font-size: 1.7rem;
+  }
+
+  .hero-text {
+    font-size: 0.9rem;
+  }
+
+  .section-block {
+    padding: 24px 12px;
+  }
+
+  .page-content {
+    padding: 32px 12px;
+  }
+
+  .header-inner {
+    padding: 0 12px;
+  }
+
+  .cart-page {
+    padding: 20px 12px;
+  }
+
+  .cart-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .contact-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .contact-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .tendencias-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .tendencias-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .editoriales-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .looks-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .looks-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .opinion-hero {
+    padding: 32px 12px 24px;
+  }
+
+  .opinion-hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .fuente-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .filtro-btn {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+}
+
+/* ── Hover: none (touch devices) ────────────────────────────────────────────── */
+@media (hover: none) {
+  [data-element] {
+    transition: none;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SAFETY NET — Previene overflow horizontal en cualquier viewport
+   Word-wrap en títulos largos, min-width:0 en grid children, y contención
+   explícita de elementos que pueden forzar scroll horizontal a 375px
+   ════════════════════════════════════════════════════════════════════════════ */
+
+html,
+body,
+#__next {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Títulos y textos largos: word-wrap para que no rompan el ancho */
+h1, h2, h3, h4, h5, h6, p, li, span, a, time {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Grid children deben poder encogerse (fix patrón grid + texto largo) */
+.post-card,
+.tendencia-card,
+.editorial-card,
+.product-card,
+.author-card,
+.member-card,
+.influencer-card,
+.testimonial-card,
+.trend-card,
+.event-card,
+.cart-item,
+.checkout-item-row,
+.cart-item-row,
+.checkout-summary-list-item,
+.success-item,
+.mag-tile,
+.revista-card {
+  min-width: 0;
+}
+
+/* Imágenes nunca desbordan su contenedor */
+img,
+video,
+svg,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Contenedores con aspect-ratio y object-fit ya están definidos arriba,
+   esta capa refuerza que ningún img escape del wrapper */
+.tendencia-img-wrapper,
+.post-card-image-container,
+.editorial-card-img-wrap,
+.product-card-image-container,
+.product-image,
+.sister-store-grid .product-card-image,
+.hero-image-container,
+.cart-item-image-wrapper,
+.checkout-item-image-wrapper,
+.cart-item-image {
+  overflow: hidden;
+  position: relative;
+}
+
+.tendencia-img,
+.post-card-image-container img,
+.editorial-card-img,
+.product-card-image,
+.sister-store-grid .product-card-image img,
+.product-image img,
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Header: el header-inner puede desbordar si hay muchos nav items,
+   forzamos wrap y min-width:0 en sus hijos directos */
+.site-header,
+.header-inner,
+.brand,
+.main-navigation,
+.header-actions,
+.search-box {
+  min-width: 0;
+}
+
+/* El search-box input no puede exceder el contenedor */
+.search-box input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Etiquetas y badges largos: limitar para que no rompan layout */
+.fuente-badge,
+.filtro-btn,
+.tendencia-fuente-badge,
+.editorial-cat-badge,
+.post-tag {
+  max-width: 100%;
+}
+
+/* Tendencias filtros: wrap correcto en móvil */
+.tendencias-filtros,
+.tendencias-fuentes-lista,
+.cart-drawer-saved-list,
+.opinion-stats,
+.community-stats,
+.editoriales-stats,
+.looks-stats {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Revistas cards: el texto debe envolver */
+.revista-info {
+  min-width: 0;
+}
+
+.revista-info strong,
+.revista-info span,
+.revista-info p {
+  overflow-wrap: break-word;
+}
+
+/* Hero copy y textos del hero: no desbordar */
+.hero-copy,
+.hero-text,
+.hero-section,
+.tendencias-hero,
+.tendencias-intro,
+.contact-hero,
+.opinion-hero,
+.community-hero,
+.editoriales-hero,
+.looks-hero {
+  max-width: 100%;
+}
+
+/* Párrafos en general: nunca overflow */
+p {
+  max-width: 100%;
+}
+
+/* Asegurar que el main nunca exceda el viewport */
+main {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* En 375px y menos, reforzar el wrap del header-actions para que el
+   search box, dark toggle, cart icon y botones no se salgan */
+@media (max-width: 420px) {
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .header-actions > * {
+    flex-shrink: 0;
+  }
+
+  .search-box {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}

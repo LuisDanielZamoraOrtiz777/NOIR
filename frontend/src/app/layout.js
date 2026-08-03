@@ -4,6 +4,7 @@ import "./tendencias.css";
 import "./editoriales.css";
 import "./postcardextra.css";
 import "./dark.css";
+import "./responsive-fixes.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";

@@ -9,7 +9,7 @@ const RSS_FEEDS = [
 // ─── Helper: fetch con redirección ───────────────────────────────────────────
 async function fetchUrl(url, redirects = 0) {
   if (redirects > 5) throw new Error("Demasiadas redirecciones");
-  
+
   const response = await fetch(url, {
     headers: { "User-Agent": "NoirAtelierBot/1.0" },
     redirect: "manual",
@@ -19,46 +19,8 @@ async function fetchUrl(url, redirects = 0) {
     return fetchUrl(response.headers.get("location"), redirects + 1);
   }
   if (response.status !== 200) throw new Error(`HTTP ${response.status}`);
-  
+
   return response.text();
-}
-
-// ─── Helper: extrae la primera URL de imagen de un item RSS ──────────────────
-function extraerImagen(item) {
-  // 1. media:content con url
-  const mc = item["media:content"];
-  if (mc) {
-    const arr = Array.isArray(mc) ? mc : [mc];
-    for (const m of arr) {
-      const url = m?.$?.url || m?.url;
-      if (url && /\.(jpg|jpeg|png|webp)/i.test(url)) return url;
-    }
-  }
-
-  // 2. media:thumbnail
-  const mt = item["media:thumbnail"];
-  if (mt) {
-    const url = mt?.$?.url || mt?.url;
-    if (url) return url;
-  }
-
-  // 3. enclosure de tipo imagen
-  const enc = item.enclosure;
-  if (enc) {
-    const type = enc?.$?.type || enc?.type || "";
-    const url  = enc?.$?.url  || enc?.url  || "";
-    if (type.startsWith("image") && url) return url;
-  }
-
-  // 4. og:image dentro de description / content:encoded
-  const html =
-    item["content:encoded"] ||
-    item.description ||
-    item.summary || "";
-  const ogMatch = html.match(/<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp)[^"']*)["']/i);
-  if (ogMatch) return ogMatch[1];
-
-  return null;
 }
 
 // ─── Helper: limpia HTML de texto plano ──────────────────────────────────────
@@ -82,31 +44,48 @@ async function parseRSS(xml, fuente) {
   const items = [];
   const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>/gi;
   const entryRegex = /<entry[^>]*>([\s\S]*?)<\/entry>/gi;
-  
+
   let match;
   const isAtom = xml.includes("<feed>");
   const regex = isAtom ? entryRegex : itemRegex;
-  
+
   while ((match = regex.exec(xml)) !== null && items.length < 8) {
     const item = match[1];
-    
+
     const titleMatch = item.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const linkMatch = item.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || 
+    const linkMatch = item.match(/<link[^>]*>([\s\S]*?)<\/link>/i) ||
                       item.match(/<link[^>]+href="([^"]+)"/i);
     const descMatch = item.match(/<description[^>]*>([\s\S]*?)<\/description>/i) ||
                       item.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i);
     const dateMatch = item.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) ||
                       item.match(/<published[^>]*>([\s\S]*?)<\/published>/i);
-    
-    // Buscar imagen
-    const imgMatch = item.match(/<img[^>]+src=["']([^"']+)["']/i) ||
-                     item.match(/<media:content[^>]+url=["']([^"']+)["']/i) ||
-                     item.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i);
-    
+
+    // Buscar imagen: revisa varias fuentes posibles, en orden de fiabilidad
+    const contentMatch = item.match(/<content:encoded[^>]*>([\s\S]*?)<\/content:encoded>/i);
+    const enclosureMatch =
+      item.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]*type=["']image[^"']*["']/i) ||
+      item.match(/<enclosure[^>]+type=["']image[^"']*["'][^>]*url=["']([^"']+)["']/i);
+    const imgEnContenido = contentMatch ? contentMatch[1].match(/<img[^>]+src=["']([^"']+)["']/i) : null;
+    const imgEnDescripcion = descMatch ? descMatch[1].match(/<img[^>]+src=["']([^"']+)["']/i) : null;
+
+    const imgMatch =
+      item.match(/<media:content[^>]+url=["']([^"']+)["']/i) ||
+      item.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i) ||
+      enclosureMatch ||
+      imgEnContenido ||
+      imgEnDescripcion ||
+      item.match(/<img[^>]+src=["']([^"']+)["']/i);
+
+    const imagenUrl = imgMatch ? imgMatch[1] : null;
+
+    // Clave: si no hay imagen real, NO se agrega el artículo — nunca debe
+    // mostrarse una tarjeta sin foto en el sitio.
+    if (!imagenUrl) continue;
+
     items.push({
       titulo: titleMatch ? titleMatch[1].replace(/<[^>]+>/g, "").trim() : "Sin título",
       resumen: descMatch ? limpiarHTML(descMatch[1]) : "",
-      imagen: imgMatch ? imgMatch[1] : null,
+      imagen: imagenUrl,
       enlace: linkMatch ? linkMatch[1].replace(/<[^>]+>/g, "").trim() : "#",
       fecha: dateMatch ? dateMatch[1].trim() : null,
       fuente,
