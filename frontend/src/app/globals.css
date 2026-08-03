@@ -1484,6 +1484,21 @@ textarea {
   .event-date { flex-direction: row; gap: 8px; align-self: flex-start; }
   .contact-grid { grid-template-columns: 1fr; gap: 32px; }
   .faq { padding: 24px; }
+
+  /* Hero de páginas internas */
+  .opinion-hero, .community-hero, .editoriales-hero, .looks-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .opinion-intro, .community-intro, .editoriales-intro, .looks-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .opinion-stats, .community-stats, .editoriales-stats, .looks-stats {
+    gap: 28px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1493,7 +1508,7 @@ textarea {
   .main-navigation { margin-left: 0; width: 100%; }
   .main-navigation ul { gap: 12px; flex-direction: column; }
   .main-navigation a { font-size: 0.86rem; display: inline-block; padding: 14px 0; }
-  .header-actions { justify-self: end; width: 100%; justify-content: flex-start; }
+  .header-actions { justify-self: end; width: 100%; justify-content: flex-start; flex-wrap: wrap; }
   .search-box input { width: 120px; }
   .nav-toggle { display: inline-flex; }
   .header-menu { display: none; flex-direction: column; gap: 18px; width: 100%; }
@@ -1506,6 +1521,8 @@ textarea {
   .hero-buttons .button { width: 100%; }
   .card-grid { grid-template-columns: 1fr; }
   .post-card { padding: 18px; }
+  .newsletter-controls { flex-direction: column; align-items: stretch; }
+  .newsletter-form .button { width: 100%; min-width: 0; }
 }
 
 @media (max-width: 620px) {

@@ -138,3 +138,185 @@ html.dark .editorial-titulo { color: var(--text-heading); }
 html.dark .editorial-resumen { color: var(--text-muted); }
 html.dark .editorial-autor,
 html.dark .editorial-fecha { color: var(--text-faint); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — PÁGINA EDITORIALES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablets (≤ 768px) ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .editoriales-grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 180px;
+  }
+
+  .editorial-card-body {
+    padding: 16px;
+    gap: 6px;
+  }
+
+  .editorial-titulo {
+    font-size: 0.98rem;
+  }
+
+  .editorial-resumen {
+    font-size: 0.82rem;
+  }
+
+  .editorial-placeholder-letra {
+    font-size: 3rem;
+  }
+
+  /* Hero de editoriales en tablets */
+  .editoriales-hero {
+    padding: 48px 16px 32px;
+    margin-bottom: 32px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+  }
+
+  .editoriales-intro {
+    font-size: 1rem;
+    margin: 16px auto 28px;
+  }
+
+  .editoriales-stats {
+    gap: 28px;
+  }
+}
+
+/* ── Móviles (≤ 480px) ───────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .editoriales-grid-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editorial-card-img-wrap {
+    height: 200px;
+  }
+
+  .editorial-card-body {
+    padding: 14px;
+    gap: 6px;
+  }
+
+  .editorial-titulo {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+
+  .editorial-resumen {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .editorial-autor {
+    font-size: 0.7rem;
+  }
+
+  .editorial-fecha {
+    font-size: 0.68rem;
+  }
+
+  .editorial-cat-badge {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+    bottom: 8px;
+    left: 10px;
+  }
+
+  .editorial-placeholder-letra {
+    font-size: 2.5rem;
+  }
+
+  .editorial-placeholder-cat {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+  }
+
+  .editorial-card-meta {
+    gap: 6px;
+  }
+
+  /* Hero de editoriales en móviles */
+  .editoriales-hero {
+    padding: 40px 14px 28px;
+    margin-bottom: 28px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+    line-height: 1.05;
+    margin-bottom: 12px;
+  }
+
+  .editoriales-intro {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 14px auto 24px;
+    padding: 0 4px;
+  }
+
+  .editoriales-stats {
+    gap: 20px;
+  }
+
+  .editoriales-stats .stat-item strong {
+    font-size: 1.8rem;
+  }
+
+  .editoriales-stats .stat-item span {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* ── Móviles muy pequeños (≤ 360px) ──────────────────────────────────────── */
+@media (max-width: 360px) {
+  .editoriales-hero {
+    padding: 32px 10px 24px;
+  }
+
+  .editoriales-hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .editoriales-intro {
+    font-size: 0.88rem;
+  }
+
+  .editoriales-stats {
+    gap: 14px;
+  }
+
+  .editoriales-stats .stat-item strong {
+    font-size: 1.5rem;
+  }
+
+  .editoriales-stats .stat-item span {
+    font-size: 0.65rem;
+  }
+
+  .editorial-card-img-wrap {
+    height: 180px;
+  }
+
+  .editorial-card-body {
+    padding: 12px;
+  }
+
+  .editorial-titulo {
+    font-size: 0.9rem;
+  }
+
+  .editorial-resumen {
+    font-size: 0.78rem;
+  }
+}
