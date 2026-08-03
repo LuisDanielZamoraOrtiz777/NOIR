@@ -3,8 +3,9 @@
 import Link from "next/link";
 
 /**
- * Pantalla de confirmación de pedido profesional (nivel Amazon).
- * Muestra icono de check animado, número de pedido, resumen y CTAs.
+ * Pantalla de confirmación de cotización profesional (nivel Amazon).
+ * Muestra icono de check animado, número de cotización, resumen y CTAs.
+ * Todo se presenta en Pesos Mexicanos (MXN).
  */
 export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
   if (!order) return null;
@@ -25,24 +26,23 @@ export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
         </svg>
       </div>
 
-      <h2 className="success-title">¡Pedido realizado!</h2>
+      <h2 className="success-title">¡Cotización creada!</h2>
       <p className="success-order-number">
-        Número de pedido: <strong>#{orderId}</strong>
+        Número de cotización: <strong>#{orderId}</strong>
       </p>
 
-      {/* Resumen del pedido */}
+      {/* Resumen de la cotización */}
       <div className="success-summary">
-        <h3>Resumen del pedido</h3>
+        <h3>Resumen de la cotización</h3>
         <ul className="success-items-list">
           {items.map(({ product, quantity }, idx) => {
-            const currency = product?.currency || "USD";
             return (
               <li key={`${product?.id || idx}`} className="success-item">
                 <span className="success-item-name">
                   {product?.name || "Producto"} ×{quantity}
                 </span>
                 <span className="success-item-price">
-                  {currency} {((parseFloat(product?.price || 0)) * quantity).toFixed(2)}
+                  $ {((parseFloat(product?.price || 0)) * quantity).toFixed(2)} MXN
                 </span>
               </li>
             );
@@ -51,7 +51,7 @@ export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
         <div className="success-total-row">
           <span>Total</span>
           <strong>
-            {items[0]?.product?.currency || "USD"} {parseFloat(total).toFixed(2)}
+            $ {parseFloat(total).toFixed(2)} MXN
           </strong>
         </div>
       </div>
@@ -75,15 +75,15 @@ export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
           className="whatsapp-button"
           disabled={!process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}
         >
-          📱 Enviar pedido por WhatsApp
+          📱 Enviar cotización por WhatsApp
         </button>
         <Link href="/tienda" className="secondary-button success-continue" onClick={onContinue}>
-          Seguir comprando →
+          Seguir cotizando →
         </Link>
       </div>
 
       <p className="success-note">
-        Te contactaremos pronto para confirmar los detalles de tu pedido.
+        Te contactaremos pronto por WhatsApp para confirmar los detalles de tu cotización.
       </p>
     </section>
   );

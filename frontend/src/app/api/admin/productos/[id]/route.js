@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
-const CAMPOS_EDITABLES = ["nombre", "categoria", "descripcion", "precio", "moneda", "stock", "imagen_url", "activo"];
+const CAMPOS_EDITABLES = ["nombre", "categoria", "descripcion", "precio", "moneda", "imagen_url", "activo"];
 
 export async function PATCH(request, { params }) {
   try {
@@ -20,12 +20,11 @@ export async function PATCH(request, { params }) {
     let i = 1;
     for (const campo of CAMPOS_EDITABLES) {
       if (body[campo] !== undefined) {
-        if (["precio", "stock"].includes(campo) && typeof body[campo] === "string") {
-          // Convert numeric strings to numbers
-          body[campo] = campo === "precio" ? parseFloat(body[campo]) : parseInt(body[campo], 10);
+        if (campo === "precio" && typeof body[campo] === "string") {
+          body[campo] = parseFloat(body[campo]);
         }
-        if (["precio", "stock"].includes(campo) && (isNaN(body[campo]) || (campo === "precio" && body[campo] < 0) || (campo === "stock" && body[campo] < 0))) {
-          return Response.json({ error: "Datos inválidos", detail: `'${campo}' debe ser un número >= 0` }, { status: 400 });
+        if (campo === "precio" && (isNaN(body[campo]) || body[campo] < 0)) {
+          return Response.json({ error: "Datos inválidos", detail: "'precio' debe ser un número >= 0 en MXN" }, { status: 400 });
         }
         sets.push(`${campo} = $${i}`);
         values.push(body[campo]);

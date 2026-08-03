@@ -303,11 +303,215 @@ function TabEditoriales() {
 }
 
 // ════════════════════════════════════════
+//  TAB: COTIZACIONES (PEDIDOS)
+// ════════════════════════════════════════
+function TabPedidos() {
+  const [lista, setLista] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [ok, setOk] = useState("");
+  const [err, setErr] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("");
+
+  const cargar = useCallback(async (estadoFiltro = filtroEstado) => {
+    setLoading(true);
+    try {
+      let url = `/api/admin/pedidos`;
+      if (estadoFiltro) url += `?estado=${encodeURIComponent(estadoFiltro)}`;
+      const r = await fetch(url, { headers: authHeaders() });
+      if (r.status === 401 || r.status === 403) {
+        localStorage.removeItem("user_token");
+        localStorage.removeItem("user_data");
+        localStorage.removeItem("user_rol");
+        window.location.href = "/acceso";
+        return;
+      }
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al cargar cotizaciones");
+      setLista(j.data || []);
+    } catch (e) { setErr(e.message); }
+    finally { setLoading(false); }
+  }, [filtroEstado]);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  const cambiarEstado = async (id, nuevoEstado) => {
+    setUpdatingId(id); setErr(""); setOk("");
+    try {
+      const r = await fetch(`/api/admin/pedidos/${id}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar estado");
+      setOk(j.message || `Cotización #${id} actualizada ✓`);
+      cargar();
+    } catch (e) { setErr(e.message); }
+    finally { setUpdatingId(null); }
+  };
+
+  const getEstadoBadge = (estado) => {
+    const colors = {
+      pendiente: "bg-warning text-dark",
+      contactado: "bg-info text-dark",
+      cotizado: "bg-primary",
+      cancelado: "bg-danger",
+    };
+    return <span className={`badge ${colors[estado] || "bg-secondary"}`}>{estado}</span>;
+  };
+
+  const totalPedidos = lista.length;
+  const totalVentas = lista.reduce((sum, p) => sum + parseFloat(p.total || 0), 0);
+
+  return (
+    <>
+      <Alert msg={ok} type="success" onClose={() => setOk("")} />
+      <Alert msg={err} type="danger" onClose={() => setErr("")} />
+
+      {/* Resumen */}
+      <div className="row g-3 mb-4">
+        <div className="col-md-3">
+          <div className="card border-0 bg-dark text-white text-center p-3">
+            <div className="h4 mb-0">{totalPedidos}</div>
+            <small className="text-muted">Total cotizaciones</small>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card border-0 bg-dark text-white text-center p-3">
+            <div className="h4 mb-0">$ {totalVentas.toFixed(2)} MXN</div>
+            <small className="text-muted">Total cotizado</small>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="d-flex gap-2 justify-content-end align-items-center h-100">
+            <label className="text-muted small me-2">Filtrar:</label>
+            <select className="form-select form-select-sm admin-form-control" style={{ width: "auto" }}
+              value={filtroEstado} onChange={(e) => { setFiltroEstado(e.target.value); cargar(e.target.value); }}>
+              <option value="">Todos</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="contactado">Contactado</option>
+              <option value="cotizado">Cotizado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+            <button className="btn btn-sm btn-outline-light" onClick={() => cargar()} disabled={loading}>
+              {loading ? "…" : "↺ Actualizar"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="card border-0" style={{ background: "#1a1a1a" }}>
+        <div className="card-header border-secondary">
+          <h5 className="mb-0 text-white">Cotizaciones ({lista.length})</h5>
+        </div>
+        <div className="card-body p-0">
+          {loading ? (
+            <div className="text-center py-5"><div className="spinner-border text-light" /></div>
+          ) : lista.length === 0 ? (
+            <p className="text-muted text-center py-4">No hay cotizaciones registradas.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-dark table-hover mb-0">
+                <thead><tr>
+                  <th className="text-muted fw-normal small">#</th>
+                  <th className="text-muted fw-normal small">Cliente</th>
+                  <th className="text-muted fw-normal small">Teléfono</th>
+                  <th className="text-muted fw-normal small">Email</th>
+                  <th className="text-muted fw-normal small">Total</th>
+                  <th className="text-muted fw-normal small">Estado</th>
+                  <th className="text-muted fw-normal small">Items</th>
+                  <th className="text-muted fw-normal small">Fecha</th>
+                  <th className="text-muted fw-normal small text-end">Acción</th>
+                </tr></thead>
+                <tbody>
+                  {lista.map((p) => {
+                    const items = p.items || [];
+                    const totalItems = items.reduce((s, i) => s + parseInt(i.cantidad || i.quantity || 0), 0);
+                    return (
+                      <tr key={p.id}>
+                        <td className="text-muted small">{p.id}</td>
+                        <td className="fw-medium">{p.cliente_nombre || "—"}</td>
+                        <td className="small">{p.cliente_telefono || "—"}</td>
+                        <td className="small text-info">{p.cliente_email || "—"}</td>
+                        <td className="fw-bold">$ {parseFloat(p.total).toFixed(2)} MXN</td>
+                        <td>{getEstadoBadge(p.estado)}</td>
+                        <td className="small">{totalItems} artículos</td>
+                        <td className="text-muted small">{p.creado_en ? new Date(p.creado_en).toLocaleDateString("es-MX") : "—"}</td>
+                        <td className="text-end">
+                          <div className="d-flex gap-1 justify-content-end">
+                            <select className="form-select form-select-sm admin-form-control" style={{ width: "auto", minWidth: 120 }}
+                              defaultValue={p.estado}
+                              onChange={(e) => cambiarEstado(p.id, e.target.value)}
+                              disabled={updatingId === p.id}>
+                              <option value="pendiente">Pendiente</option>
+                              <option value="contactado">Contactado</option>
+                              <option value="cotizado">Cotizado</option>
+                              <option value="cancelado">Cancelado</option>
+                            </select>
+                            {updatingId === p.id && <span className="text-muted small align-self-center">…</span>}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Detalle de items por cotización */}
+      {lista.length > 0 && (
+        <div className="mt-4">
+          <h6 className="text-light mb-3">Detalle de artículos por cotización</h6>
+          {lista.map((p) => {
+            const items = p.items || [];
+            if (items.length === 0) return null;
+            return (
+              <div key={`detalle-${p.id}`} className="card border-0 mb-2" style={{ background: "#1a1a1a" }}>
+                <div className="card-header border-secondary py-2">
+                  <small className="text-muted">Cotización #{p.id} — {p.cliente_nombre || "—"}</small>
+                </div>
+                <div className="card-body p-2">
+                  <table className="table table-dark table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th className="text-muted fw-normal small">Producto</th>
+                        <th className="text-muted fw-normal small text-end">Precio</th>
+                        <th className="text-muted fw-normal small text-end">Cant.</th>
+                        <th className="text-muted fw-normal small text-end">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {items.map((item) => (
+                        <tr key={item.id}>
+                          <td className="small">{item.nombre_producto || item.product_name}</td>
+                          <td className="small text-end">$ {parseFloat(item.precio_unitario || item.unit_price).toFixed(2)} MXN</td>
+                          <td className="small text-end">{item.cantidad || item.quantity}</td>
+                          <td className="small text-end">$ {parseFloat(item.subtotal).toFixed(2)} MXN</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ════════════════════════════════════════
 //  DASHBOARD PRINCIPAL — EDITOR
 // ════════════════════════════════════════
 export default function EditorDashboard() {
   const router          = useRouter();
   const [user, setUser] = useState(null);
+  const [tab, setTab]   = useState("editoriales");
 
   useEffect(() => {
     const token = localStorage.getItem("user_token");
@@ -339,7 +543,7 @@ export default function EditorDashboard() {
           <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
             <div>
               <h1 className="h3 fw-bold text-white mb-0">Panel de Editor</h1>
-              <p className="text-muted small mb-0">Noir Atelier · Gestión de editoriales</p>
+              <p className="text-muted small mb-0">Noir Atelier · Gestión de editoriales y cotizaciones</p>
             </div>
             <div className="d-flex align-items-center gap-3">
               {user?.email && <span className="text-muted small">{user.email}</span>}
@@ -347,7 +551,24 @@ export default function EditorDashboard() {
             </div>
           </div>
 
-          <TabEditoriales />
+          <ul className="nav nav-tabs mb-4 admin-tabs">
+            {[
+              { key: "editoriales", label: "📝 Editoriales" },
+              { key: "cotizaciones", label: "📦 Cotizaciones" },
+            ].map(({ key, label }) => (
+              <li className="nav-item" key={key}>
+                <button
+                  className={`nav-link admin-tab ${tab === key ? "active" : ""}`}
+                  onClick={() => setTab(key)}
+                >
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {tab === "editoriales" && <TabEditoriales />}
+          {tab === "cotizaciones" && <TabPedidos />}
         </div>
       </div>
     </RouteProtector>

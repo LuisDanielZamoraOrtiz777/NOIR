@@ -7,15 +7,14 @@ export default function TiendaPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch all products from the API
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("/api/sister-store/products", {
+        const response = await fetch("/api/productos", {
           method: "GET",
-          headers: { "Accept": "application/json" },
+          headers: { Accept: "application/json" },
         });
 
         if (!response.ok) {
@@ -27,20 +26,7 @@ export default function TiendaPage() {
           throw new Error("Respuesta de API inválida");
         }
 
-        // Map the product data to match what ProductCard expects
-        const mappedProducts = data.products.map(product => ({
-          id: product.id.toString(),
-          name: product.name,
-          category: product.category,
-          description: product.description || "",
-          price: parseFloat(product.price),
-          currency: product.currency,
-          image_url: product.image_url,
-          stock: product.stock,
-          availability: product.stock > 0 ? "in_stock" : "out_of_stock",
-        }));
-
-        setProducts(mappedProducts);
+        setProducts(data.products);
       } catch (err) {
         setError(err.message || "Error desconocido");
         console.error("Failed to fetch products:", err);
@@ -53,18 +39,26 @@ export default function TiendaPage() {
   }, []);
 
   if (loading) {
-    return <main className="tienda-page"><p className="state-message">Cargando productos...</p></main>;
+    return (
+      <main className="tienda-page">
+        <p className="state-message">Cargando productos de cotización...</p>
+      </main>
+    );
   }
 
   if (error) {
-    return <main className="tienda-page"><p className="state-message is-error">Error: {error}</p></main>;
+    return (
+      <main className="tienda-page">
+        <p className="state-message is-error">Error al cargar productos: {error}</p>
+      </main>
+    );
   }
 
   return (
     <main className="tienda-page">
-      <h1>Catálogo de productos</h1>
+      <h1>Catálogo de Cotizaciones</h1>
       {products.length === 0 ? (
-        <p className="state-message">No hay productos disponibles en este momento.</p>
+        <p className="state-message">No hay productos disponibles para cotizar por el momento.</p>
       ) : (
         <div className="product-grid">
           {products.map((product) => (

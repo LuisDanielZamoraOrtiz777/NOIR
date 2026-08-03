@@ -18,9 +18,8 @@ export default function CartPage() {
     client_email: "",
     notes: "",
   });
-    const [formErrors, setFormErrors] = useState({});
-    const [stockWarnings, setStockWarnings] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderStatus, setOrderStatus] = useState(null);
   const [orderMessage, setOrderMessage] = useState("");
   const [completedOrder, setCompletedOrder] = useState(null);
@@ -67,7 +66,7 @@ export default function CartPage() {
         const parsed = JSON.parse(lastOrder);
         setCompletedOrder(parsed);
         setOrderStatus("success");
-        setOrderMessage("Pedido creado exitosamente");
+        setOrderMessage("Cotización creada exitosamente");
       }
     } catch {}
   }, []);
@@ -88,19 +87,14 @@ export default function CartPage() {
     return m;
   }, [products]);
 
-  // Calculate totals
+  // Calculate totals (todo en MXN — catálogo de cotización)
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   let totalPrice = 0;
-  let totalCurrency = "USD";
-  let hasCurrency = false;
+  const totalCurrency = "MXN";
   items.forEach((item) => {
     const product = productMap[item.productId];
     if (product) {
       totalPrice += parseFloat(product.price) * item.quantity;
-      if (!hasCurrency && product.currency) {
-        totalCurrency = product.currency;
-        hasCurrency = true;
-      }
     }
   });
 
@@ -130,7 +124,6 @@ export default function CartPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setFormErrors({});
-    setStockWarnings([]);
     setOrderStatus(null);
     setOrderMessage("");
 
@@ -147,7 +140,7 @@ export default function CartPage() {
       return;
     }
 
-    // Build order items + stock check
+    // Build order items (sin validación de stock — catálogo de cotización)
     const orderItems = [];
     for (const cartItem of items) {
       const product = productMap[cartItem.productId];
@@ -155,13 +148,6 @@ export default function CartPage() {
         setFormErrors({ general: `Producto no disponible: ${cartItem.productId}` });
         setIsSubmitting(false);
         return;
-      }
-      const stockNum = parseInt(product.stock, 10);
-      if (Number.isFinite(stockNum) && stockNum < cartItem.quantity) {
-        setStockWarnings((prev) => [
-          ...prev,
-          `Stock insuficiente para ${product.name}. Disponible: ${stockNum}, solicitado: ${cartItem.quantity}`,
-        ]);
       }
       orderItems.push({
         product_id: product.id,
@@ -244,7 +230,7 @@ export default function CartPage() {
         }
         console.error("API returned success but no order_id", data);
         setOrderStatus("error");
-        setOrderMessage("El pedido no pudo completarse: respuesta inválida del servidor.");
+        setOrderMessage("La cotización no pudo completarse: respuesta inválida del servidor.");
         setIsSubmitting(false);
         return;
       }
@@ -258,7 +244,6 @@ export default function CartPage() {
         })),
         customer: customerSnapshot,
         requestId,
-        stockWarnings: data.stock_warnings || [],
       };
 
       try {
@@ -269,7 +254,7 @@ export default function CartPage() {
 
       setCompletedOrder(orderData);
       setOrderStatus("success");
-      setOrderMessage(data.message || "Pedido creado exitosamente");
+      setOrderMessage(data.message || "Cotización creada exitosamente");
 
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -280,7 +265,7 @@ export default function CartPage() {
         restore(cartSnapshot);
       }
       setOrderStatus("error");
-      setOrderMessage(err.message || "Error al procesar el pedido");
+      setOrderMessage(err.message || "Error al procesar la cotización");
       console.error("Order creation error:", err);
     } finally {
       setIsSubmitting(false);
@@ -292,8 +277,8 @@ export default function CartPage() {
     if (!completedOrder) return "";
     const { orderId, total, items: orderItems, customer } = completedOrder;
     const lines = [
-      `*Nuevo pedido de Noir Atelier*`,
-      `Pedido #: ${orderId}`,
+      `*Nueva cotización de Noir Atelier*`,
+      `Cotización #: ${orderId}`,
       `Fecha: ${new Date().toLocaleString()}`,
       "",
       "*Productos:*",
@@ -302,13 +287,11 @@ export default function CartPage() {
     orderItems.forEach(({ product, quantity }) => {
       const name = product?.name || "Producto";
       const price = parseFloat(product?.price || 0);
-      const currency = product?.currency || "USD";
-      lines.push(`- ${name} x${quantity} = ${currency} ${(price * quantity).toFixed(2)}`);
+      lines.push(`- ${name} x${quantity} = $${(price * quantity).toFixed(2)} MXN`);
     });
 
-    const totalCurrency = orderItems[0]?.product?.currency || "USD";
     lines.push("");
-    lines.push(`*Total: ${totalCurrency} ${parseFloat(total).toFixed(2)}*`);
+    lines.push(`*Total: $${parseFloat(total).toFixed(2)} MXN*`);
     lines.push("");
     lines.push(`Datos del cliente:`);
     lines.push(`Nombre: ${customer?.name || ""}`);
@@ -321,12 +304,12 @@ export default function CartPage() {
 
   const handleSendWhatsApp = () => {
     if (!completedOrder) {
-      alert("Primero debe crear el pedido.");
+      alert("Primero debe crear la cotización.");
       return;
     }
     const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
     if (!phoneNumber) {
-      alert("El número de WhatsApp del negocio no está configurado.");
+      alert("El número de WhatsApp del negocio no está configurado. Contacta al administrador.");
       return;
     }
     const message = generateWhatsAppMessage();
@@ -371,7 +354,7 @@ export default function CartPage() {
         <div className="acceso-requerido-card" style={{ maxWidth: 480, margin: "0 auto" }}>
           <div className="cart-page-empty-icon" aria-hidden="true">🔒</div>
           <h1>Acceso requerido</h1>
-          <p>Debes iniciar sesión para poder crear pedidos y comprar productos de Noir Atelier.</p>
+          <p>Debes iniciar sesión para poder crear cotizaciones de productos de Noir Atelier.</p>
           <Link href="/acceso" className="primary-button" style={{ display: "inline-block" }}>
             Iniciar sesión
           </Link>
@@ -408,6 +391,23 @@ export default function CartPage() {
           <div className="checkout-main">
             <h1 className="checkout-title">Tu carrito</h1>
 
+            {/* Advertencia visible si NEXT_PUBLIC_WHATSAPP_NUMBER no está configurado */}
+            {!process.env.NEXT_PUBLIC_WHATSAPP_NUMBER && (
+              <div className="cart-warning-banner" role="alert" style={{
+                background: "#fff3cd",
+                border: "1px solid #ffe08a",
+                color: "#856404",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                marginBottom: "16px",
+              }}>
+                ⚠️ <strong>Aviso:</strong> El número de WhatsApp del negocio no está
+                configurado. La cotización se registrará, pero el envío a WhatsApp no
+                estará disponible hasta que el administrador configure
+                <code> NEXT_PUBLIC_WHATSAPP_NUMBER</code>.
+              </div>
+            )}
+
             <section className="checkout-items-section" aria-label="Productos en el carrito">
               <h2 className="checkout-section-title">
                 Productos ({totalItems} artículo{totalItems !== 1 ? "s" : ""})
@@ -416,10 +416,6 @@ export default function CartPage() {
                 {items.map((item) => {
                   const product = productMap[item.productId];
                   if (!product) return null;
-
-                  const stockNum = parseInt(product.stock, 10);
-                  const maxStock = Number.isFinite(stockNum) ? stockNum : undefined;
-                  const isOutOfStock = maxStock !== undefined && maxStock <= 0;
 
                   return (
                     <li key={item.productId} className="checkout-item-row">
@@ -442,30 +438,17 @@ export default function CartPage() {
                       <div className="checkout-item-info">
                         <h3>{product.name}</h3>
                         <p className="checkout-item-price">
-                          {product.currency || "USD"} {parseFloat(product.price).toFixed(2)} c/u
+                          $ {parseFloat(product.price).toFixed(2)} MXN c/u
                         </p>
-                        {maxStock !== undefined && maxStock > 0 && maxStock <= 5 && (
-                          <span className="checkout-item-stock-warning">
-                            ¡Solo quedan {maxStock}!
-                          </span>
-                        )}
-                        {isOutOfStock && (
-                          <span className="checkout-item-stock-warning">Agotado</span>
-                        )}
                       </div>
 
                       <div className="checkout-item-stepper">
-                        {isOutOfStock ? (
-                          <span className="checkout-item-out-of-stock">Sin stock</span>
-                        ) : (
-                          <QuantityStepper
-                            value={item.quantity}
-                            onChange={(qty) => handleQtyChange(item.productId, qty)}
-                            min={1}
-                            max={maxStock}
-                            ariaLabel={`Cantidad de ${product.name}`}
-                          />
-                        )}
+                        <QuantityStepper
+                          value={item.quantity}
+                          onChange={(qty) => handleQtyChange(item.productId, qty)}
+                          min={1}
+                          ariaLabel={`Cantidad de ${product.name}`}
+                        />
                       </div>
 
                       <button
@@ -478,8 +461,7 @@ export default function CartPage() {
                       </button>
 
                       <div className="checkout-item-subtotal">
-                        {product.currency || "USD"}{" "}
-                        {(parseFloat(product.price) * item.quantity).toFixed(2)}
+                        $ {(parseFloat(product.price) * item.quantity).toFixed(2)} MXN
                       </div>
                     </li>
                   );
@@ -564,17 +546,6 @@ export default function CartPage() {
                   />
                 </div>
 
-                {stockWarnings.length > 0 && (
-                  <div className="stock-warnings" role="status" aria-live="polite">
-                    <ul>
-                      {stockWarnings.map((w, i) => (
-                        <li key={i}>{w}</li>
-                      ))}
-                    </ul>
-                    <small>Se creará el pedido como cotización. Nos pondremos en contacto para confirmar disponibilidad.</small>
-                  </div>
-                )}
-
                 {formErrors.general && (
                   <div className="error general-error" role="alert">
                     {formErrors.general}
@@ -595,17 +566,17 @@ export default function CartPage() {
                   {isSubmitting ? (
                     <>
                       <span className="btn-spinner" aria-hidden="true"></span>
-                      Procesando tu pedido...
+                      Procesando tu cotización...
                     </>
                   ) : (
-                    "Crear pedido"
+                    "Crear cotización"
                   )}
                 </button>
               </form>
             </section>
           </div>
 
-          <aside className="checkout-summary-sticky" aria-label="Resumen del pedido">
+          <aside className="checkout-summary-sticky" aria-label="Resumen de la cotización">
             <div className="checkout-summary">
               <h2 className="checkout-summary-title">Resumen</h2>
               <ul className="checkout-summary-list">
@@ -619,8 +590,7 @@ export default function CartPage() {
                         <span className="checkout-summary-list-qty"> × {item.quantity}</span>
                       </span>
                       <span className="checkout-summary-list-price">
-                        {product.currency || "USD"}{" "}
-                        {(parseFloat(product.price) * item.quantity).toFixed(2)}
+                        $ {(parseFloat(product.price) * item.quantity).toFixed(2)} MXN
                       </span>
                     </li>
                   );
@@ -634,12 +604,12 @@ export default function CartPage() {
               <div className="checkout-summary-total">
                 <span>Total</span>
                 <strong>
-                  {totalCurrency} {totalPrice.toFixed(2)}
+                  $ {totalPrice.toFixed(2)} {totalCurrency}
                 </strong>
               </div>
               <p className="checkout-summary-footer">
-                El pago se realiza vía WhatsApp. Crea el pedido y te contactaremos para
-                coordinar el envío.
+                Cotización en Pesos Mexicanos (MXN). Crea la cotización y envía el
+                mensaje por WhatsApp para coordinar la entrega.
               </p>
             </div>
           </aside>

@@ -11,6 +11,7 @@ const posts = [
     autor: "Ana García",
     fecha: "10 de mayo, 2026",
     categoria: "Pasarela",
+    imagen_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80&w=800",
     summary:
       "Cortes depurados y texturas sobrias inspirados en Rick Owens y Ann Demeulemeester. Un viaje por la pasarela de París SS26.",
     tags: ["Rick Owens", "Ann Demeulemeester", "París", "SS26"],
@@ -23,6 +24,7 @@ const posts = [
     autor: "Sofía Mendoza",
     fecha: "22 de abril, 2026",
     categoria: "Editorial",
+    imagen_url: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&q=80&w=800",
     summary:
       "Casey Cadwallader para Mugler equilibra cuerpo y geometría. Organzas transparentes y cortes asimétricos definen la nueva femineidad.",
     tags: ["Mugler", "Casey Cadwallader", "Transparencias", "París"],
@@ -35,6 +37,7 @@ const posts = [
     autor: "Luis Fernández",
     fecha: "18 de marzo, 2026",
     categoria: "Trend",
+    imagen_url: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800",
     summary:
       "Matthieu Blazy redefine el lujo silencioso en Milán. El intreccio aparece en formatos nunca vistos sobre siluetas perfectamente calibradas.",
     tags: ["Bottega Veneta", "Matthieu Blazy", "Milán", "Lujo silencioso"],
@@ -47,6 +50,7 @@ const posts = [
     autor: "Camila Torres",
     fecha: "14 de febrero, 2026",
     categoria: "Tendencia",
+    imagen_url: "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&q=80&w=800",
     summary:
       "Sin logos, sin estridencias: solo corte, material y proporción. The Row y Loro Piana consolidan la estética que domina el momento.",
     tags: ["The Row", "Loro Piana", "Quiet Luxury", "Minimalismo"],
@@ -59,6 +63,7 @@ const posts = [
     autor: "Ana García",
     fecha: "2 de enero, 2026",
     categoria: "Colaboración",
+    imagen_url: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&q=80&w=800",
     summary:
       "La colaboración más esperada del año mezcla el deconstructivismo de Chitose Abe con el espíritu transgresor de Gaultier.",
     tags: ["Sacai", "Jean Paul Gaultier", "Denim", "Colaboración"],

@@ -16,7 +16,6 @@ export async function GET() {
         descripcion AS description,
         precio AS price,
         moneda AS currency,
-        stock,
         imagen_url AS image_url,
         activo AS active
       FROM productos
@@ -24,20 +23,15 @@ export async function GET() {
       ORDER BY creado_en ASC
     `;
 
-    // Format the data to match the expected structure by the frontend component.
-    // CRÍTICO: stock se devuelve como número (no solo como availability string)
-    // para que el carrito pueda limitar cantidades y mostrar "¡Solo quedan X!".
+    // Formatear los datos para el catálogo (sin stock, predeterminado MXN)
     const products = rows.map(row => {
-      const stockNum = parseInt(row.stock, 10) || 0;
       return {
         id: row.id.toString(),
         name: row.name,
         category: row.category,
         description: row.description,
         price: parseFloat(row.price),
-        currency: row.currency,
-        stock: stockNum,
-        availability: stockNum > 0 ? "in_stock" : "out_of_stock",
+        currency: row.currency || "MXN",
         image_url: row.image_url,
         buy_url: null,
       };
@@ -46,7 +40,7 @@ export async function GET() {
     return new NextResponse(
       JSON.stringify({
         status: "success",
-        source: "productos", // Changed to reflect the endpoint
+        source: "productos",
         result_count: products.length,
         products: products,
       }),

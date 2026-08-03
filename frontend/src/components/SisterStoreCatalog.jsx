@@ -46,8 +46,8 @@ export default function SisterStoreCatalog({ limite = 4 }) {
     <section id="sister-store-section" className="section-block sister-store-section">
       <div className="section-header">
         <div>
-          <h2>Tienda hermana</h2>
-          <p className="section-subtitle">Descubre productos seleccionados con estética editorial y material premium.</p>
+          <h2>Publicaciones y productos destacados</h2>
+          <p className="section-subtitle">Descubre productos seleccionados de Noir Atelier con estética editorial y cotización directa.</p>
         </div>
         <Link href="/tienda" className="button ver-mas-btn">
           Ver catálogo completo →
@@ -85,12 +85,9 @@ export default function SisterStoreCatalog({ limite = 4 }) {
                 <span className="product-price">
                   {product.currency} {parseFloat(product.price).toFixed(2)}
                 </span>
-                <span className={`product-availability ${parseInt(product.stock) > 0 ? "in_stock" : "out_of_stock"}`}>
-                  {parseInt(product.stock) > 0 ? "En stock" : "Agotado"}
-                </span>
               </div>
               <Link href="/tienda" className="product-card-link">
-                Ver en tienda →
+                Cotizar ahora →
               </Link>
             </article>
           ))}

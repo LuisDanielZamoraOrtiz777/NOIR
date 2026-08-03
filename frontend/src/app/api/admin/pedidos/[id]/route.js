@@ -24,7 +24,7 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
     const { estado } = body;
 
-    const estadosValidos = ["pendiente", "contactado", "completado", "cancelado"];
+    const estadosValidos = ["pendiente", "contactado", "cotizado", "cancelado"];
     if (!estado || !estadosValidos.includes(estado)) {
       return NextResponse.json(
         { error: `Estado inválido. Valores permitidos: ${estadosValidos.join(", ")}` },
@@ -41,12 +41,12 @@ export async function PATCH(request, { params }) {
     `;
 
     if (result.length === 0) {
-      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+      return NextResponse.json({ error: "Cotización no encontrada" }, { status: 404 });
     }
 
     return NextResponse.json({
       status: "success",
-      message: `Pedido #${id} actualizado a: ${estado}`,
+      message: `Cotización #${id} actualizada a: ${estado}`,
       data: result[0],
     });
   } catch (err) {

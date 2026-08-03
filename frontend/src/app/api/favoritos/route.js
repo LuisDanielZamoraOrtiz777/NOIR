@@ -46,7 +46,6 @@ export async function GET(request) {
         p.descripcion AS description,
         p.precio AS price,
         p.imagen_url AS image_url,
-        p.stock,
         p.activo
       FROM favoritos f
       LEFT JOIN productos p ON p.id = f.product_id

@@ -5,30 +5,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-/**
- * POST /api/pedidos
- *
- * Crea un pedido + sus items + descuenta el stock de cada producto, todo en una
- * sola transacción Postgres. Garantías:
- *
- *   1. Idempotencia real: si el cliente reintenta con el mismo `client_request_id`
- *      (UUID v4 generado por el frontend), devolvemos el mismo `order_id` sin
- *      crear un duplicado. Patrón equivalente a `Idempotency-Key` de Stripe.
- *
- *   2. Atomicidad de stock: el `UPDATE productos SET stock = stock - N` corre
- *      DENTRO de la transacción que crea el pedido. Si cualquier paso falla,
- *      `ROLLBACK` revierte el descuento de stock automáticamente.
- *
- *   3. Anti-carrera: `SELECT ... FOR UPDATE` sobre cada fila de producto bloquea
- *      hasta el COMMIT, evitando que dos compras simultáneas se lleven la misma
- *      última unidad.
- *
- *   4. Mensajes de error específicos: cada 4xx lleva en el body un `error` que
- *      el frontend puede mostrar tal cual (no mensajes genéricos).
- */
-
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const PHONE_REGEX = /^\+?[\d\s-]{7,20}$/;
+const PHONE_REGEX = /^[+\d\s-]{7,15}$/;
 
 export async function POST(request) {
   let client;
@@ -47,13 +25,13 @@ export async function POST(request) {
     // ── Validaciones tempranas (no requieren DB) ──────────────────────────
     if (requestId && !UUID_REGEX.test(requestId)) {
       return NextResponse.json(
-        { error: "client_request_id debe ser un UUID válido" },
+        { error: "El client_request_id debe ser un UUID válido" },
         { status: 400 }
       );
     }
     if (!cliente_nombre || typeof cliente_nombre !== "string" || !cliente_nombre.trim()) {
       return NextResponse.json(
-        { error: "El nombre del cliente es requerido" },
+        { error: "El campo cliente_nombre es requerido" },
         { status: 400 }
       );
     }
@@ -63,20 +41,20 @@ export async function POST(request) {
       !PHONE_REGEX.test(cliente_telefono.trim())
     ) {
       return NextResponse.json(
-        { error: "El teléfono del cliente es requerido y debe ser un número válido" },
+        { error: "El campo cliente_telefono es requerido y debe tener un formato válido (7 a 15 dígitos, puede incluir +, espacios y guiones)" },
         { status: 400 }
       );
     }
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: "Se debe proporcionar al menos un producto en el pedido" },
+        { error: "Se debe proporcionar al menos un producto en la cotización" },
         { status: 400 }
       );
     }
 
     client = await getClient();
 
-    // ── Idempotencia: si el request_id ya existe, devolvemos el pedido previo ──
+    // ── Idempotencia: si el request_id ya existe, devolvemos la cotización previa ──
     if (requestId) {
       const existing = await client.query(
         "SELECT id, total FROM pedidos WHERE client_request_id = $1",
@@ -88,7 +66,7 @@ export async function POST(request) {
             success: true,
             order_id: existing.rows[0].id,
             total: parseFloat(existing.rows[0].total),
-            message: "Pedido ya procesado (idempotente)",
+            message: "Cotización ya procesada (idempotente)",
             idempotent: true,
             client_request_id: requestId,
           },
@@ -97,7 +75,7 @@ export async function POST(request) {
       }
     }
 
-    // ── Transacción: validar + descontar stock + insertar pedido + insertar items ──
+    // ── Iniciar Transacción ──
     await client.query("BEGIN");
     let total = 0;
     const validatedItems = [];
@@ -109,14 +87,13 @@ export async function POST(request) {
       if (!producto_id || !Number.isInteger(cantidad) || cantidad <= 0) {
         throw {
           httpStatus: 400,
-          message: "Cada artículo debe tener un ID de producto y una cantidad entera positiva",
+          message: "Cada artículo debe tener un ID de producto y una cantidad entera positiva (> 0)",
         };
       }
 
-      // FOR UPDATE bloquea la fila hasta COMMIT/ROLLBACK. Segunda compra concurrente
-      // sobre el mismo producto espera aquí.
+      // Obtener el producto de la DB y validar que esté activo
       const productResult = await client.query(
-        "SELECT id, nombre, precio, stock, activo FROM productos WHERE id = $1 FOR UPDATE",
+        "SELECT id, nombre, precio, activo FROM productos WHERE id = $1 FOR UPDATE",
         [producto_id]
       );
       if (productResult.rows.length === 0) {
@@ -129,13 +106,7 @@ export async function POST(request) {
       if (!product.activo) {
         throw {
           httpStatus: 400,
-          message: `El producto "${product.nombre}" ya no está disponible`,
-        };
-      }
-      if (product.stock < cantidad) {
-        throw {
-          httpStatus: 409,
-          message: `Stock insuficiente para "${product.nombre}". Disponible: ${product.stock}, solicitado: ${cantidad}`,
+          message: `El producto "${product.nombre}" ya no está disponible para cotización`,
         };
       }
 
@@ -152,7 +123,7 @@ export async function POST(request) {
     }
     total = parseFloat(total.toFixed(2));
 
-    // INSERT pedido (con client_request_id para idempotencia)
+    // Insertar el pedido / cotización (total en MXN, canal por defecto whatsapp)
     const orderResult = await client.query(
       `INSERT INTO pedidos
          (cliente_nombre, cliente_telefono, cliente_email, total, estado, canal, notas, client_request_id, creado_en)
@@ -169,7 +140,7 @@ export async function POST(request) {
     );
     const orderId = orderResult.rows[0].id;
 
-    // INSERT items + UPDATE stock (todo dentro de la misma transacción)
+    // Insertar items de la cotización
     for (const item of validatedItems) {
       await client.query(
         `INSERT INTO pedido_items
@@ -184,10 +155,6 @@ export async function POST(request) {
           item.subtotal,
         ]
       );
-      await client.query(
-        "UPDATE productos SET stock = stock - $1 WHERE id = $2",
-        [item.quantity, item.product_id]
-      );
     }
 
     await client.query("COMMIT");
@@ -197,7 +164,7 @@ export async function POST(request) {
         success: true,
         order_id: orderId,
         total,
-        message: "Pedido creado exitosamente",
+        message: "Cotización creada exitosamente",
         client_request_id: requestId || null,
       },
       { status: 201 }
@@ -207,15 +174,15 @@ export async function POST(request) {
       try {
         await client.query("ROLLBACK");
       } catch (rollbackErr) {
-        console.error("[POST /api/pedidos] ROLLBACK failed:", rollbackErr);
+        console.error("[POST /api/pedidos] ROLLBACK falló:", rollbackErr);
       }
     }
     if (err && err.httpStatus) {
       return NextResponse.json({ error: err.message }, { status: err.httpStatus });
     }
-    console.error("[POST /api/pedidos] Unexpected error:", err);
+    console.error("[POST /api/pedidos] Error inesperado:", err);
     return NextResponse.json(
-      { error: "Error al crear el pedido", details: String(err) },
+      { error: "Error al crear la cotización", details: String(err) },
       { status: 500 }
     );
   } finally {
@@ -223,7 +190,7 @@ export async function POST(request) {
       try {
         client.release();
       } catch (releaseErr) {
-        console.error("[POST /api/pedidos] client.release failed:", releaseErr);
+        console.error("[POST /api/pedidos] client.release falló:", releaseErr);
       }
     }
   }

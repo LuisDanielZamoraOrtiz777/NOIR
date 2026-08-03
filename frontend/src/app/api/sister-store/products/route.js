@@ -16,7 +16,6 @@ export async function GET() {
         descripcion AS description,
         precio AS price,
         moneda AS currency,
-        stock,
         imagen_url AS image_url,
         activo AS active
       FROM productos
@@ -26,7 +25,6 @@ export async function GET() {
 
     // Format the data to match the expected structure by the frontend component
     const products = rows.map(row => {
-      const stockNum = parseInt(row.stock, 10) || 0;
       return {
         id: row.id.toString(),
         name: row.name,
@@ -34,8 +32,7 @@ export async function GET() {
         description: row.description,
         price: parseFloat(row.price),
         currency: row.currency,
-        stock: stockNum,
-        availability: stockNum > 0 ? "in_stock" : "out_of_stock",
+        availability: "in_stock", // Since we don't have stock, all active products are available
         image_url: row.image_url,
         buy_url: null,
       };

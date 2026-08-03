@@ -46,7 +46,7 @@ export default function PartnersGrid({ limite }) {
 
   if (loading) return <p className="tendencias-estado">Cargando publicaciones…</p>;
   if (error) return <p className="error">{error}</p>;
-  if (lista.length === 0) return null;
+  if (lista.length === 0) return <p className="state-message">No hay publicaciones de referencia disponibles por el momento.</p>;
 
   return (
     <div className="revistas-grid">

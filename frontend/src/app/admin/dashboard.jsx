@@ -355,7 +355,7 @@ function TabPedidos() {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error al actualizar estado");
-      setOk(j.message || `Pedido #${id} actualizado ✓`);
+      setOk(j.message || `Cotización #${id} actualizada ✓`);
       cargar();
     } catch (e) { setErr(e.message); }
     finally { setUpdatingId(null); }
@@ -365,7 +365,7 @@ function TabPedidos() {
     const colors = {
       pendiente: "bg-warning text-dark",
       contactado: "bg-info text-dark",
-      completado: "bg-success",
+      cotizado: "bg-primary",
       cancelado: "bg-danger",
     };
     return <span className={`badge ${colors[estado] || "bg-secondary"}`}>{estado}</span>;
@@ -384,13 +384,13 @@ function TabPedidos() {
         <div className="col-md-3">
           <div className="card border-0 bg-dark text-white text-center p-3">
             <div className="h4 mb-0">{totalPedidos}</div>
-            <small className="text-muted">Total pedidos</small>
+            <small className="text-muted">Total cotizaciones</small>
           </div>
         </div>
         <div className="col-md-3">
           <div className="card border-0 bg-dark text-white text-center p-3">
-            <div className="h4 mb-0">${totalVentas.toFixed(2)}</div>
-            <small className="text-muted">Ventas totales</small>
+            <div className="h4 mb-0">$ {totalVentas.toFixed(2)} MXN</div>
+            <small className="text-muted">Total cotizado</small>
           </div>
         </div>
         <div className="col-md-6">
@@ -401,7 +401,7 @@ function TabPedidos() {
               <option value="">Todos</option>
               <option value="pendiente">Pendiente</option>
               <option value="contactado">Contactado</option>
-              <option value="completado">Completado</option>
+              <option value="cotizado">Cotizado</option>
               <option value="cancelado">Cancelado</option>
             </select>
             <button className="btn btn-sm btn-outline-light" onClick={() => cargar()} disabled={loading}>
@@ -413,13 +413,13 @@ function TabPedidos() {
 
       <div className="card border-0" style={{ background: "#ffffff" }}>
         <div className="card-header border-secondary">
-          <h5 className="mb-0 text-white">Pedidos ({lista.length})</h5>
+          <h5 className="mb-0 text-white">Cotizaciones ({lista.length})</h5>
         </div>
         <div className="card-body p-0">
           {loading ? (
             <div className="text-center py-5"><div className="spinner-border text-dark" /></div>
           ) : lista.length === 0 ? (
-            <p className="text-muted text-center py-4">No hay pedidos registrados.</p>
+            <p className="text-muted text-center py-4">No hay cotizaciones registradas.</p>
           ) : (
             <div className="table-responsive">
               <table className="table admin-table mb-0">
@@ -444,7 +444,7 @@ function TabPedidos() {
                         <td className="fw-medium">{p.cliente_nombre || "—"}</td>
                         <td className="small">{p.cliente_telefono || "—"}</td>
                         <td className="small text-info">{p.cliente_email || "—"}</td>
-                        <td className="fw-bold">${parseFloat(p.total).toFixed(2)}</td>
+                        <td className="fw-bold">$ {parseFloat(p.total).toFixed(2)} MXN</td>
                         <td>{getEstadoBadge(p.estado)}</td>
                         <td className="small">{totalItems} artículos</td>
                         <td className="text-muted small">{p.creado_en ? new Date(p.creado_en).toLocaleDateString("es-MX") : "—"}</td>
@@ -456,7 +456,7 @@ function TabPedidos() {
                               disabled={updatingId === p.id}>
                               <option value="pendiente">Pendiente</option>
                               <option value="contactado">Contactado</option>
-                              <option value="completado">Completado</option>
+                              <option value="cotizado">Cotizado</option>
                               <option value="cancelado">Cancelado</option>
                             </select>
                             {updatingId === p.id && <span className="text-muted small align-self-center">…</span>}
@@ -482,7 +482,7 @@ function TabPedidos() {
             return (
               <div key={`detalle-${p.id}`} className="card border-0 mb-2" style={{ background: "#ffffff" }}>
                 <div className="card-header border-secondary py-2">
-                  <small className="text-muted">Pedido #{p.id} — {p.cliente_nombre || "—"}</small>
+                  <small className="text-muted">Cotización #{p.id} — {p.cliente_nombre || "—"}</small>
                 </div>
                 <div className="card-body p-2">
                   <table className="table table-dark table-sm mb-0">
@@ -498,9 +498,9 @@ function TabPedidos() {
                       {items.map((item) => (
                         <tr key={item.id}>
                           <td className="small">{item.nombre_producto || item.product_name}</td>
-                          <td className="small text-end">${parseFloat(item.precio_unitario || item.unit_price).toFixed(2)}</td>
+                          <td className="small text-end">$ {parseFloat(item.precio_unitario || item.unit_price).toFixed(2)} MXN</td>
                           <td className="small text-end">{item.cantidad || item.quantity}</td>
-                          <td className="small text-end">${parseFloat(item.subtotal).toFixed(2)}</td>
+                          <td className="small text-end">$ {parseFloat(item.subtotal).toFixed(2)} MXN</td>
                         </tr>
                       ))}
                     </tbody>
@@ -599,8 +599,8 @@ function TabProductos() {
   const [actionId, setActionId] = useState(null);
   const [ok, setOk] = useState("");
   const [err, setErr] = useState("");
-  const [form, setForm] = useState({ nombre: "", categoria: "", descripcion: "", precio: "", moneda: "USD", stock: "", imagen_url: "" });
-  const [ediciones, setEdiciones] = useState({}); // { [id]: { precio?, stock? } }
+  const [form, setForm] = useState({ nombre: "", categoria: "", descripcion: "", precio: "", moneda: "MXN", imagen_url: "" });
+  const [ediciones, setEdiciones] = useState({}); // { [id]: { precio? } }
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -634,7 +634,7 @@ function TabProductos() {
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error");
       setOk("Producto agregado exitosamente");
-      setForm({ nombre: "", categoria: "", descripcion: "", precio: "", moneda: "USD", stock: "", imagen_url: "" });
+      setForm({ nombre: "", categoria: "", descripcion: "", precio: "", moneda: "MXN", imagen_url: "" });
       cargar();
     } catch (e) { setErr(e.message); }
     finally { setSaving(false); }
@@ -668,7 +668,7 @@ function TabProductos() {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.detail || j.error || "Error al guardar cambios");
-      setOk("Precio/stock actualizado ✓");
+      setOk("Precio actualizado ✓");
       setEdiciones((prev) => { const next = { ...prev }; delete next[id]; return next; });
       cargar();
     } catch (e) { setErr(e.message); }
@@ -699,11 +699,6 @@ function TabProductos() {
                 <label className="form-label small">Precio *</label>
                 <input type="number" step="0.01" min="0" className="form-control admin-form-control" value={form.precio}
                   onChange={(e) => setForm({ ...form, precio: e.target.value })} required disabled={saving} />
-              </div>
-              <div className="col-md-2">
-                <label className="form-label small">Stock *</label>
-                <input type="number" min="0" className="form-control admin-form-control" value={form.stock}
-                  onChange={(e) => setForm({ ...form, stock: e.target.value })} required disabled={saving} />
               </div>
               <div className="col-md-6">
                 <label className="form-label small">URL de imagen</label>
@@ -739,8 +734,7 @@ function TabProductos() {
                 <thead><tr>
                   <th className="text-muted fw-normal small">Nombre</th>
                   <th className="text-muted fw-normal small">Categoría</th>
-                  <th className="text-muted fw-normal small">Precio</th>
-                  <th className="text-muted fw-normal small">Stock</th>
+                  <th className="text-muted fw-normal small">Precio (MXN)</th>
                   <th className="text-muted fw-normal small">Estado</th>
                   <th className="text-muted fw-normal small text-end">Acción</th>
                 </tr></thead>
@@ -755,11 +749,6 @@ function TabProductos() {
                           <input type="number" step="0.01" min="0" className="form-control form-control-sm admin-form-control"
                             value={edit.precio ?? p.precio}
                             onChange={(e) => setEdiciones((prev) => ({ ...prev, [p.id]: { ...prev[p.id], precio: e.target.value } }))} />
-                        </td>
-                        <td style={{ width: 90 }}>
-                          <input type="number" min="0" className="form-control form-control-sm admin-form-control"
-                            value={edit.stock ?? p.stock}
-                            onChange={(e) => setEdiciones((prev) => ({ ...prev, [p.id]: { ...prev[p.id], stock: e.target.value } }))} />
                         </td>
                         <td><span className={`badge ${p.activo ? "bg-success" : "bg-secondary"}`}>{p.activo ? "Activo" : "Inactivo"}</span></td>
                         <td className="text-end">
@@ -864,8 +853,7 @@ function TabPublicados() {
                   <tr>
                     <th className="text-muted fw-normal small">Nombre</th>
                     <th className="text-muted fw-normal small">Categoría</th>
-                    <th className="text-muted fw-normal small">Precio</th>
-                    <th className="text-muted fw-normal small">Stock</th>
+                    <th className="text-muted fw-normal small">Precio (MXN)</th>
                     <th className="text-muted fw-normal small">Estado</th>
                     <th className="text-muted fw-normal small text-end">Acción</th>
                   </tr>
@@ -881,15 +869,9 @@ function TabPublicados() {
                           readOnly
                         />
                       </td>
-                      <td style={{ width: 90 }}>
-                        <input type="number" min="0" className="form-control form-control-sm admin-form-control"
-                          value={p.stock}
-                          readOnly
-                        />
-                      </td>
                       <td>
-                        <span className={`badge ${p.availability === 'in_stock' ? 'bg-success' : 'bg-secondary'}`}>
-                          {p.availability === 'in_stock' ? 'En stock' : 'Agotado'}
+                        <span className={`badge ${p.active ? 'bg-success' : 'bg-secondary'}`}>
+                          {p.active ? 'Activo' : 'Inactivo'}
                         </span>
                       </td>
                       <td className="text-end">
@@ -962,7 +944,7 @@ export default function AdminDashboard() {
           <ul className="nav nav-tabs mb-4 admin-tabs">
             {[
               { key: "usuarios", label: "👥 Usuarios" },
-              { key: "pedidos", label: "📦 Pedidos" },
+              { key: "pedidos", label: "📦 Cotizaciones" },
               { key: "os-accounts", label: "🖥️ Cuentas SO" },
               { key: "contactos", label: "💬 Contactos" },
               { key: "partners", label: "🔗 Páginas hermanas" },
