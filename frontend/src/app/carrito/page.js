@@ -7,7 +7,7 @@ import OrderSuccess from "@/components/OrderSuccess";
 import QuantityStepper from "@/components/cart/QuantityStepper";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, clear } = useCart();
+  const { items, updateQuantity, removeItem, clear, restore } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -217,11 +217,9 @@ export default function CartPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        // ROLLBACK: restaurar carrito via context
+        // ROLLBACK: restaurar carrito via context (restore() repuebla items aunque esté vacío)
         if (cartSnapshot.length > 0) {
-          cartSnapshot.forEach((it) => {
-            updateQuantity(it.productId, it.quantity);
-          });
+          restore(cartSnapshot);
         }
         const message = data.error || data.detail || data.message || `Error ${response.status}`;
         let fieldError = null;
@@ -240,11 +238,9 @@ export default function CartPage() {
       }
 
       if (!data.order_id) {
-        // ROLLBACK
+        // ROLLBACK: restaurar carrito via context (restore() repuebla items aunque esté vacío)
         if (cartSnapshot.length > 0) {
-          cartSnapshot.forEach((it) => {
-            updateQuantity(it.productId, it.quantity);
-          });
+          restore(cartSnapshot);
         }
         console.error("API returned success but no order_id", data);
         setOrderStatus("error");
@@ -279,11 +275,9 @@ export default function CartPage() {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err) {
-      // ROLLBACK on network error
+      // ROLLBACK on network error: restaurar carrito via context (restore() repuebla items aunque esté vacío)
       if (cartSnapshot.length > 0) {
-        cartSnapshot.forEach((it) => {
-          updateQuantity(it.productId, it.quantity);
-        });
+        restore(cartSnapshot);
       }
       setOrderStatus("error");
       setOrderMessage(err.message || "Error al procesar el pedido");

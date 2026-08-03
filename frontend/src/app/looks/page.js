@@ -93,22 +93,41 @@ export default function LooksPage({ searchParams }) {
 
       <section className="looks-influencers" data-element="looks-influencers">
         <h2>Quién lo usa</h2>
+        <p className="looks-influencers-note">
+          Perfiles editoriales de referencia que han aparecido en las propuestas
+          de looks de la temporada.
+        </p>
         <div className="influencers-grid">
-          <div className="influencer-card">
-            <div className="influencer-avatar">CM</div>
-            <h4>Carolina M.</h4>
-            <p>Estilista · @carolinastyle</p>
-          </div>
-          <div className="influencer-card">
-            <div className="influencer-avatar">DR</div>
-            <h4>Diego R.</h4>
-            <p>Director creativo · @diegoramos</p>
-          </div>
-          <div className="influencer-card">
-            <div className="influencer-avatar">VT</div>
-            <h4>Valentina T.</h4>
-            <p>Modelo · @valentinatrends</p>
-          </div>
+          {Object.entries(
+            allLooks.reduce((acc, look) => {
+              if (look.autor && !acc[look.autor]) {
+                acc[look.autor] = { count: 0, tags: new Set() };
+              }
+              if (look.autor) {
+                acc[look.autor].count += 1;
+                (look.tags || []).forEach((t) => acc[look.autor].tags.add(t));
+              }
+              return acc;
+            }, {})
+          ).map(([name, info]) => {
+            const initials = name
+              .split(/\s+/)
+              .map((p) => p.charAt(0))
+              .join("")
+              .slice(0, 2)
+              .toUpperCase();
+            return (
+              <div className="influencer-card" key={name}>
+                <div className="influencer-avatar">{initials}</div>
+                <h4>{name}</h4>
+                <p>
+                  {info.count} {info.count === 1 ? "look publicado" : "looks publicados"} ·
+                  {" "}
+                  {Array.from(info.tags).slice(0, 2).join(" / ") || "editorial"}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
 

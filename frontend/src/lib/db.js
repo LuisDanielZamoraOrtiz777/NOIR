@@ -33,3 +33,13 @@ export async function query(text, params) {
     throw error;
   }
 }
+
+/**
+ * Obtiene un cliente dedicado del pool para ejecutar transacciones multi-sentencia.
+ * El caller es responsable de llamar `client.release()` en un bloque `finally`.
+ * Ver uso en `frontend/src/app/api/pedidos/route.js`.
+ */
+export async function getClient() {
+  const poolInstance = getPool();
+  return poolInstance.connect();
+}
