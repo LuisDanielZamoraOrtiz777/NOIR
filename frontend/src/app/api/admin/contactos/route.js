@@ -52,8 +52,14 @@ export async function GET(request) {
 
   try {
     const sql = getSql();
+    try {
+      await sql`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS kind text NOT NULL DEFAULT 'mensaje'`;
+      await sql`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS user_id integer`;
+    } catch (schemaErr) {
+      console.warn("[GET contactos] No se pudo ampliar esquema:", schemaErr.message);
+    }
     const rows = await sql`
-      SELECT id, name, email, message, created_at
+      SELECT id, name, email, message, kind, user_id, created_at
       FROM contacts
       ORDER BY created_at DESC
     `;
