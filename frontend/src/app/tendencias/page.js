@@ -51,7 +51,7 @@ export default function TendenciasPage({ searchParams }) {
 
         {query ? (
           <p className="search-summary">
-            Resultados de búsqueda para: <strong>"{query}"</strong>
+            Resultados de búsqueda para: <strong>&quot;{query}&quot;</strong>
           </p>
         ) : null}
       </section>

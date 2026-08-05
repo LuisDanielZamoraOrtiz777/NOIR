@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import RouteProtector from "@/components/RouteProtector";
 
@@ -28,11 +28,7 @@ export default function PerfilPage() {
     passwordConfirmar: ""
   });
 
-  useEffect(() => {
-    cargarPerfil();
-  }, []);
-
-  const cargarPerfil = async () => {
+  const cargarPerfil = useCallback(async () => {
     try {
       const token = localStorage.getItem("user_token");
       if (!token) {

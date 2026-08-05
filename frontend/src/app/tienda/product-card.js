@@ -1,14 +1,18 @@
 import AddToCartButton from "@/components/AddToCartButton";
+import Image from "next/image";
 
 export default function ProductCard({ product }) {
   return (
     <article className="product-card">
-      <div className="product-image">
+      <div className="product-image" style={{ position: "relative", minHeight: 220 }}>
         {product.image_url ? (
-          <img
+          <Image
             src={product.image_url}
             alt={product.name}
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            style={{ objectFit: "cover", borderRadius: "8px" }}
+            unoptimized
           />
         ) : (
           <div className="product-placeholder">

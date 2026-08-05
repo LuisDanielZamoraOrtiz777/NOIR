@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 // Usar rutas relativas (/api/...) o un backend externo configurado con NEXT_PUBLIC_API_BASE
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
@@ -102,19 +103,19 @@ export default function EditorialesHomeGrid() {
           <div className="card h-100 border-0 shadow-sm" style={{ backgroundColor: "#fff" }}>
               <div className="card-body d-flex flex-column">
                 {editorial.imagen_url && (
-                  <img 
-                    src={`${editorial.imagen_url}${editorial.imagen_url.includes("?") ? "&" : "?"}bc=${encodeURIComponent(editorial.updated_at || editorial.id)}`} 
-                    alt={editorial.titulo}
-                    className="card-img-top mb-3"
-                    style={{ 
-                      height: 200, 
-                      objectFit: "cover",
-                      borderRadius: "8px"
-                    }}
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+                  <div className="card-img-top mb-3" style={{ position: "relative", minHeight: 200, width: "100%", borderRadius: 8, overflow: "hidden" }}>
+                    <Image
+                      src={`${editorial.imagen_url}${editorial.imagen_url.includes("?") ? "&" : "?"}bc=${encodeURIComponent(editorial.updated_at || editorial.id)}`}
+                      alt={editorial.titulo}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      style={{ objectFit: "cover" }}
+                      unoptimized
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
                 )}
                 <h5 className="card-title mb-3" style={{ fontFamily: "Playfair Display, Georgia, serif", color: "var(--text-heading)" }}>
                   {editorial.titulo}
