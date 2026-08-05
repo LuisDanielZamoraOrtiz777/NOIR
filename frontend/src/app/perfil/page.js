@@ -276,13 +276,8 @@ export default function PerfilPage() {
                 </div>
               </form>
             </div>
-          </div>
-          
-          {/* Envío de mensajes al admin movido a la sección Opinión */}
-
-        </div>
-      </div>
-    </RouteProtector>
+          </main>
+        </RouteProtector>
   );
 }
 

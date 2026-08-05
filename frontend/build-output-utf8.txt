@@ -1,0 +1,190 @@
+﻿
+> noir-atelier@0.1.0 build
+> next build
+
+  Ôû▓ Next.js 14.2.5
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Ô£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/46) ...
+node.exe : Error al obtener sesiones: q [Error]: Dynamic server usage: Route 
+/api/admin/sesiones couldn't be rendered statically because it used 
+`request.headers`. See more info here: 
+https://nextjs.org/docs/messages/dynamic-server-error
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error al obtene...ic-server-error 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at W (C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\
+compiled\next-server\app-route.runtime.prod.js:6:21106)
+    at Object.get (C:\Users\danie\Documents\noiratelier\frontend\node_modules\n
+ext\dist\compiled\next-server\app-route.runtime.prod.js:6:28459)
+    at l (C:\Users\danie\Documents\noiratelier\frontend\.next\server\app\api\ad
+min\sesiones\route.js:1:784)
+    at C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\com
+piled\next-server\app-route.runtime.prod.js:6:36264
+    at C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\ser
+ver\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\danie\Documents\noiratelier\frontend\n
+ode_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\danie\Documents\noiratelier\frontend\node_modu
+les\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\danie\Documents\noiratelier\fronten
+d\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\danie\Documents\noiratelier\fronte
+nd\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\ser
+ver\lib\trace\tracer.js:122:103 {
+  description: "Route /api/admin/sesiones couldn't be rendered statically 
+because it used `request.headers`. See more info here: 
+https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error fetching editoriales for sitemap: q [Error]: Dynamic server usage: 
+no-store fetch https://noiratelier-two.vercel.app/api/editoriales/publicas 
+/sitemap.xml
+    at C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunks\8948.j
+s:2:8558
+    at C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunks\8948.j
+s:2:15891
+    at a.with (C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunk
+s\8948.js:1:8885)
+    at c.with (C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunk
+s\8948.js:1:3085)
+    at c.startActiveSpan (C:\Users\danie\Documents\noiratelier\frontend\.next\s
+erver\chunks\8948.js:1:18140)
+    at a.startActiveSpan (C:\Users\danie\Documents\noiratelier\frontend\.next\s
+erver\chunks\8948.js:1:18674)
+    at C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunks\8948.j
+s:2:15424
+    at a.with (C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunk
+s\8948.js:1:8885)
+    at c.with (C:\Users\danie\Documents\noiratelier\frontend\.next\server\chunk
+s\8948.js:1:3085)
+    at b.trace (C:\Users\danie\Documents\noiratelier\frontend\.next\server\chun
+ks\8948.js:2:15378) {
+  description: 'no-store fetch 
+https://noiratelier-two.vercel.app/api/editoriales/publicas /sitemap.xml',
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (11/46) 
+   Generating static pages (22/46) 
+   Generating static pages (34/46) 
+Error al obtener usuarios: q [Error]: Dynamic server usage: Route 
+/api/admin/usuarios couldn't be rendered statically because it used 
+`request.headers`. See more info here: 
+https://nextjs.org/docs/messages/dynamic-server-error
+    at W (C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\
+compiled\next-server\app-route.runtime.prod.js:6:21106)
+    at Object.get (C:\Users\danie\Documents\noiratelier\frontend\node_modules\n
+ext\dist\compiled\next-server\app-route.runtime.prod.js:6:28459)
+    at l (C:\Users\danie\Documents\noiratelier\frontend\.next\server\app\api\ad
+min\usuarios\route.js:1:784)
+    at C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\com
+piled\next-server\app-route.runtime.prod.js:6:36264
+    at C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\ser
+ver\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\danie\Documents\noiratelier\frontend\n
+ode_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\danie\Documents\noiratelier\frontend\node_modu
+les\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\danie\Documents\noiratelier\fronten
+d\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\danie\Documents\noiratelier\fronte
+nd\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\danie\Documents\noiratelier\frontend\node_modules\next\dist\ser
+ver\lib\trace\tracer.js:122:103 {
+  description: "Route /api/admin/usuarios couldn't be rendered statically 
+because it used `request.headers`. See more info here: 
+https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+ Ô£ô Generating static pages (46/46)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                  Size     First Load JS
+Ôöî ãÆ /                                        174 B          98.7 kB
+Ôö£ Ôùï /_not-found                              149 B          87.3 kB
+Ôö£ Ôùï /acceso                                  3.07 kB          97 kB
+Ôö£ Ôùï /admin                                   7.41 kB         101 kB
+Ôö£ Ôùï /admin/login                             1.41 kB        88.5 kB
+Ôö£ Ôùï /admin/os-accounts                       4.39 kB        91.5 kB
+Ôö£ Ôùï /admin/practica11                        914 B            88 kB
+Ôö£ ãÆ /api/admin/contactos                     0 B                0 B
+Ôö£ ãÆ /api/admin/editoriales                   0 B                0 B
+Ôö£ ãÆ /api/admin/editoriales/[id]              0 B                0 B
+Ôö£ ãÆ /api/admin/login                         0 B                0 B
+Ôö£ ãÆ /api/admin/os/audit                      0 B                0 B
+Ôö£ ãÆ /api/admin/os/groups                     0 B                0 B
+Ôö£ ãÆ /api/admin/os/login                      0 B                0 B
+Ôö£ ãÆ /api/admin/os/login-attempts             0 B                0 B
+Ôö£ ãÆ /api/admin/os/users                      0 B                0 B
+Ôö£ ãÆ /api/admin/os/users/[id]                 0 B                0 B
+Ôö£ ãÆ /api/admin/os/users/[id]/disable         0 B                0 B
+Ôö£ ãÆ /api/admin/os/users/[id]/enable          0 B                0 B
+Ôö£ ãÆ /api/admin/os/users/[id]/reset-password  0 B                0 B
+Ôö£ ãÆ /api/admin/partners                      0 B                0 B
+Ôö£ ãÆ /api/admin/partners/[id]                 0 B                0 B
+Ôö£ ãÆ /api/admin/partners/[id]/activar         0 B                0 B
+Ôö£ ãÆ /api/admin/pedidos                       0 B                0 B
+Ôö£ ãÆ /api/admin/pedidos/[id]                  0 B                0 B
+Ôö£ ãÆ /api/admin/productos                     0 B                0 B
+Ôö£ ãÆ /api/admin/productos/[id]                0 B                0 B
+Ôö£ ãÆ /api/admin/sesiones                      0 B                0 B
+Ôö£ ãÆ /api/admin/setup                         0 B                0 B
+Ôö£ ãÆ /api/admin/usuarios                      0 B                0 B
+Ôö£ ãÆ /api/admin/usuarios/[id]                 0 B                0 B
+Ôö£ ãÆ /api/admin/verify                        0 B                0 B
+Ôö£ ãÆ /api/auth/login                          0 B                0 B
+Ôö£ ãÆ /api/auth/logout                         0 B                0 B
+Ôö£ ãÆ /api/auth/perfil                         0 B                0 B
+Ôö£ ãÆ /api/auth/register                       0 B                0 B
+Ôö£ ãÆ /api/auth/verify                         0 B                0 B
+Ôö£ ãÆ /api/contact                             0 B                0 B
+Ôö£ ãÆ /api/editor/editoriales                  0 B                0 B
+Ôö£ ãÆ /api/editor/editoriales/[id]             0 B                0 B
+Ôö£ ãÆ /api/editoriales/publicas                0 B                0 B
+Ôö£ Ôùï /api/events                              0 B                0 B
+Ôö£ ãÆ /api/favoritos                           0 B                0 B
+Ôö£ Ôùï /api/health                              0 B                0 B
+Ôö£ ãÆ /api/newsletter                          0 B                0 B
+Ôö£ ãÆ /api/partners/publicos                   0 B                0 B
+Ôö£ ãÆ /api/pedidos                             0 B                0 B
+Ôö£ ãÆ /api/pedidos/[id]/whatsapp               0 B                0 B
+Ôö£ ãÆ /api/practica11/upload                   0 B                0 B
+Ôö£ ãÆ /api/productos                           0 B                0 B
+Ôö£ Ôùï /api/rss/tendencias                      0 B                0 B
+Ôö£ ãÆ /api/sister-store/products               0 B                0 B
+Ôö£ Ôùï /carrito                                 6.23 kB         100 kB
+Ôö£ Ôùï /contacto                                2.05 kB          96 kB
+Ôö£ Ôùï /dom-demo                                1.05 kB        88.2 kB
+Ôö£ Ôùï /editor                                  7.04 kB         101 kB
+Ôö£ Ôùï /editoriales                             2.49 kB        89.6 kB
+Ôö£ Ôùï /home                                    175 B          98.7 kB
+Ôö£ ãÆ /looks                                   4.06 kB        91.2 kB
+Ôö£ Ôùï /opinion                                 3.27 kB        97.2 kB
+Ôö£ Ôùï /perfil                                  3.79 kB        97.7 kB
+Ôö£ Ôùï /privacidad                              149 B          87.3 kB
+Ôö£ Ôùï /registro                                1.37 kB        95.3 kB
+Ôö£ Ôùï /revistas                                896 B          94.8 kB
+Ôö£ Ôùï /robots.txt                              0 B                0 B
+Ôö£ ãÆ /sitemap.xml                             0 B                0 B
+Ôö£ Ôùï /tendencias                              1.33 kB        88.5 kB
+Ôö£ Ôùï /terminos                                149 B          87.3 kB
+Ôöö Ôùï /tienda                                  2.49 kB        89.6 kB
++ First Load JS shared by all                87.1 kB
+  Ôö£ chunks/23-8671fd9a83212d60.js            31.5 kB
+  Ôö£ chunks/fd9d1056-bf87173caa5ac71e.js      53.6 kB
+  Ôöö other shared chunks (total)              1.97 kB
+
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+
