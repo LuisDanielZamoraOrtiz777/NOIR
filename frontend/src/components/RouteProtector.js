@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import AuthRequiredPanel from "@/components/AuthRequiredPanel";
 
@@ -16,21 +16,19 @@ export default function RouteProtector({ tokenKey, redirectTo = "/acceso", requi
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  const clearSession = useCallback(() => {
+    localStorage.removeItem(tokenKey);
 
-    const token = localStorage.getItem(tokenKey);
-    
-    if (!token) {
-      // No hay token, mostrar pantalla de acceso
-      setIsLoading(false);
+    if (tokenKey === "admin_token") {
+      localStorage.removeItem("admin_user");
+      localStorage.removeItem("admin_rol");
     } else {
-      // Hay token, verificar que sea válido
-      verifyToken(token);
+      localStorage.removeItem("user_data");
+      localStorage.removeItem("user_rol");
     }
-  }, [router, tokenKey, redirectTo, requiredRole]);
+  }, [tokenKey]);
 
-  const verifyToken = async (token) => {
+  const verifyToken = useCallback(async (token) => {
     try {
       const API_BASE = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
       // Si la ruta requiere rol admin, verificar contra el endpoint admin.
@@ -75,19 +73,7 @@ export default function RouteProtector({ tokenKey, redirectTo = "/acceso", requi
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const clearSession = () => {
-    localStorage.removeItem(tokenKey);
-
-    if (tokenKey === "admin_token") {
-      localStorage.removeItem("admin_user");
-      localStorage.removeItem("admin_rol");
-    } else {
-      localStorage.removeItem("user_data");
-      localStorage.removeItem("user_rol");
-    }
-  };
+  }, [clearSession, requiredRole, tokenKey]);
 
   // Mostrar loading mientras se verifica
   if (isLoading) {

@@ -1,4 +1,5 @@
 import FavoriteButton from "@/components/FavoriteButton";
+import Image from "next/image";
 
 const PALETAS = {
   Editorial:    ["#0b0b0b", "#1a1a2e", "#16213e", "#2a2a2a"],
@@ -35,9 +36,16 @@ export default function PostCard({ post }) {
   return (
     <article className="post-card" id={`post-${post.id}`} data-element="tarjeta-articulo">
       {/* Imagen / Placeholder */}
-      <div className="post-card-image-container">
+      <div className="post-card-image-container" style={{ position: "relative", minHeight: "220px" }}>
         {post.imagen_url ? (
-          <img src={post.imagen_url} alt={post.titulo || post.title} loading="lazy" />
+          <Image
+            src={post.imagen_url}
+            alt={post.titulo || post.title}
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            style={{ objectFit: "cover" }}
+            unoptimized
+          />
         ) : (
           <PostCardPlaceholder post={post} />
         )}

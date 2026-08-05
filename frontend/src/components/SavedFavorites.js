@@ -62,7 +62,7 @@ export default function SavedFavorites() {
       <section className="favorites-section section-block">
         <h2>Tus Favoritos</h2>
         <div className="favorites-empty">
-          <p>Aún no tienes looks o editoriales guardados. Explora el blog y presiona "Guardar" en tus preferidos.</p>
+          <p>Aún no tienes looks o editoriales guardados. Explora el blog y presiona &quot;Guardar&quot; en tus preferidos.</p>
         </div>
       </section>
     );

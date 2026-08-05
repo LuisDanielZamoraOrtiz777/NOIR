@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function SisterStoreCatalog({ limite = 4 }) {
@@ -69,9 +70,16 @@ export default function SisterStoreCatalog({ limite = 4 }) {
               key={product.id}
               className="product-card"
             >
-              <div className="product-card-image">
+              <div className="product-card-image" style={{ position: "relative", minHeight: "180px" }}>
                 {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} loading="lazy" />
+                  <Image
+                    src={product.image_url}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 25vw"
+                    style={{ objectFit: "cover" }}
+                    unoptimized
+                  />
                 ) : (
                   <div className="product-placeholder">{product.name.charAt(0).toUpperCase()}</div>
                 )}
