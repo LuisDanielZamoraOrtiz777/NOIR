@@ -495,18 +495,6 @@ body {
     align-self: flex-start;
   }
 
-  /* Chat FAB */
-  .chat-fab {
-    right: 16px;
-    bottom: 16px;
-  }
-
-  .chat-window-float {
-    width: calc(100vw - 32px);
-    right: 16px;
-    bottom: 80px;
-  }
-
   /* Dark toggle: aumentar touch target */
   .dark-toggle {
     width: 40px;
@@ -772,20 +760,6 @@ body {
   /* Cart summary */
   .cart-summary {
     padding: 20px;
-  }
-
-  /* Chat FAB */
-  .chat-fab {
-    right: 12px;
-    bottom: 12px;
-    width: 48px;
-    height: 48px;
-  }
-
-  .chat-window-float {
-    width: calc(100vw - 24px);
-    right: 12px;
-    bottom: 70px;
   }
 }
 
@@ -1190,18 +1164,6 @@ html.dark .admin-tabs::-webkit-scrollbar-thumb {
     align-self: flex-start;
   }
 
-  /* Chat FAB */
-  .chat-fab {
-    right: 16px;
-    bottom: 16px;
-  }
-
-  .chat-window-float {
-    width: calc(100vw - 32px);
-    right: 16px;
-    bottom: 80px;
-  }
-
   /* Dark toggle */
   .dark-toggle {
     width: 40px;
@@ -1507,18 +1469,6 @@ html.dark .admin-tabs::-webkit-scrollbar-thumb {
 
   .section-header .button {
     align-self: flex-start;
-  }
-
-  /* Chat FAB */
-  .chat-fab {
-    right: 16px;
-    bottom: 16px;
-  }
-
-  .chat-window-float {
-    width: calc(100vw - 32px);
-    right: 16px;
-    bottom: 80px;
   }
 
   /* Dark toggle */
@@ -1859,20 +1809,6 @@ html.dark .admin-tabs::-webkit-scrollbar-thumb {
   /* Cart summary */
   .cart-summary {
     padding: 20px;
-  }
-
-  /* Chat FAB */
-  .chat-fab {
-    right: 12px;
-    bottom: 12px;
-    width: 48px;
-    height: 48px;
-  }
-
-  .chat-window-float {
-    width: calc(100vw - 24px);
-    right: 12px;
-    bottom: 70px;
   }
 }
 

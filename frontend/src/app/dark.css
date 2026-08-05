@@ -78,7 +78,6 @@ p, li          { color: var(--text); }
 .featured-article,
 .featured-editorial,
 .community-mission,
-.chat-widget,
 .faq,
 .editoriales-process,
 .favorites-empty,
@@ -194,10 +193,6 @@ html.dark .revista-info span,
 html.dark .revista-info p { color: var(--text-faint) !important; }
 
 /* Chat */
-html.dark .chat-window {
-  background: #111 !important;
-  border-color: rgba(255,255,255,0.08) !important;
-}
 html.dark .chat-message.system,
 html.dark .chat-message.assistant {
   background: #1e1e1e !important;

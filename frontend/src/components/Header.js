@@ -127,33 +127,36 @@ export default function Header() {
           </nav>
 
           <div className="header-actions" data-element="header-acciones">
-            <SearchBox />
-            <DarkToggle />
-            <Link
-              href="/carrito"
-              className="cart-icon-link"
-              aria-label={`Carrito (${cartCount} artículos)`}
-            >
-              <span className="cart-icon">🛒</span>
-              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </Link>
-            {hasAdminSession ? (
-              <>
-                <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">Panel</Link>
-                <span className="text-muted small me-2 d-none d-md-inline" title={email}>{email}</span>
-                <button type="button" className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
-              </>
-            ) : hasUserSession ? (
-              <>
-                <Link href="/perfil" className="btn btn-sm btn-outline-info me-2">Mi Perfil</Link>
-                <span className="text-muted small me-2 d-none d-md-inline" title={email}>{email}</span>
-                <button type="button" className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
-              </>
-            ) : (
-              <>
+            <div className="utility-actions">
+              <SearchBox />
+              <DarkToggle />
+              <Link
+                href="/carrito"
+                className="cart-icon-link"
+                aria-label={`Carrito (${cartCount} artículos)`}
+              >
+                <span className="cart-icon">🛒</span>
+                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+              </Link>
+            </div>
+
+            <div className="account-actions">
+              {hasAdminSession ? (
+                <>
+                  <Link href="/admin" className="btn btn-sm btn-outline-warning me-2">Panel</Link>
+                  <span className="text-muted small me-2 d-none d-md-inline" title={email}>{email}</span>
+                  <button type="button" className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
+                </>
+              ) : hasUserSession ? (
+                <>
+                  <Link href="/perfil" className="btn btn-sm btn-outline-info me-2">Mi Perfil</Link>
+                  <span className="text-muted small me-2 d-none d-md-inline" title={email}>{email}</span>
+                  <button type="button" className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
+                </>
+              ) : (
                 <Link href="/acceso" className="btn btn-sm btn-outline-light ms-2">Acceso</Link>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

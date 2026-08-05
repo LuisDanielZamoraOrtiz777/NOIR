@@ -1,5 +1,4 @@
 import ContactForm from "@/components/ContactForm";
-import ChatWidget from "@/components/ChatWidget";
 import SocialButtons from "@/components/SocialButtons";
 
 export const metadata = {
@@ -42,9 +41,6 @@ export default function ContactPage() {
         <div className="contact-form-area" data-element="contact-form-area">
           <h2>Envíanos un mensaje</h2>
           <ContactForm />
-          <div className="chat-widget-area">
-            <ChatWidget />
-          </div>
         </div>
       </section>
 

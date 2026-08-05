@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { CartProvider } from "@/context/CartContext";
-import ChatWidget from "@/components/ChatWidget";
+import CustomCursor from "@/components/CustomCursor";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const BASE_URL = "https://noiratelier-two.vercel.app";
@@ -128,7 +128,7 @@ export default function RootLayout({ children }) {
               <main>{children}</main>
               <ScrollReveal />
               <Footer />
-              <ChatWidget />
+              <CustomCursor />
             </ErrorBoundary>
           </CartProvider>
         </ThemeProvider>
