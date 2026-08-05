@@ -17,7 +17,6 @@ export default function FooterLayout() {
           <h3>Enlaces</h3>
           <ul>
             <li><Link href="/editoriales">Editoriales</Link></li>
-            <li><Link href="/looks">Looks</Link></li>
             <li><Link href="/contacto">Contacto</Link></li>
           </ul>
         </div>

@@ -8,12 +8,7 @@ export default function SearchBox() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    const trimmed = query.trim();
-    if (trimmed) {
-      router.push(`/looks?q=${encodeURIComponent(trimmed)}`);
-    } else {
-      router.push("/looks");
-    }
+    router.push("/tendencias");
   }
 
   return (

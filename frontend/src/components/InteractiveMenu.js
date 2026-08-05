@@ -9,7 +9,6 @@ const menuItems = [
     description: "Navega nuestra colección de estilo y editorial.",
     links: [
       { href: "/editoriales", label: "Editoriales" },
-      { href: "/looks", label: "Looks" },
       { href: "/opinion", label: "Opinión" },
     ],
   },

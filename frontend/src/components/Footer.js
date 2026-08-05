@@ -55,7 +55,6 @@ export default function Footer() {
             <ul>
               <li><Link href="/editoriales">Editoriales</Link></li>
               <li><Link href="/tendencias">Tendencias</Link></li>
-              <li><Link href="/looks">Looks</Link></li>
               <li><Link href="/editor">Colaborar</Link></li>
               <li><Link href="/registro">Registro</Link></li>
               <li><Link href="/contacto">Contacto</Link></li>
