@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
+ /* ═══════════════════════════════════════════════════════════════
    TENDENCIAS — Estilos para la página hermana y el feed RSS
    (incluye también estilos reutilizados en Home)
 ═══════════════════════════════════════════════════════════════ */
@@ -221,24 +221,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f3ee 0%, #e8e5df 50%, #f0eee9 100%);
-  background-color: #f0eee9;
+  background: #f0eee9;
 }
 
 .tendencia-img-placeholder span {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 3rem;
   font-weight: 700;
-  color: #999;
-}
-
-/* Dark mode: mantener el placeholder claro, no negro */
-html.dark .tendencia-img-placeholder {
-  background: linear-gradient(135deg, #f5f3ee 0%, #e8e5df 50%, #f0eee9 100%);
-  background-color: #f0eee9;
-}
-
-html.dark .tendencia-img-placeholder span {
   color: #999;
 }
 

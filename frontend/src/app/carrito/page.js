@@ -23,6 +23,7 @@ export default function CartPage() {
   const [orderStatus, setOrderStatus] = useState(null);
   const [orderMessage, setOrderMessage] = useState("");
   const [completedOrder, setCompletedOrder] = useState(null);
+  const [whatsappEnviado, setWhatsappEnviado] = useState(false);
   const formRef = useRef(null);
   const errorFieldRef = useRef(null);
 
@@ -316,12 +317,18 @@ export default function CartPage() {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank");
+
+    setWhatsappEnviado(true);
+    fetch(`/api/pedidos/${completedOrder.orderId}/whatsapp`, { method: "POST" }).catch(() => {
+      // Silencioso a propósito: si esta marca falla, no debe interrumpir al cliente.
+    });
   };
 
   const handleContinueShopping = () => {
     setCompletedOrder(null);
     setOrderStatus(null);
     setOrderMessage("");
+    setWhatsappEnviado(false);
     try {
       sessionStorage.removeItem("lastOrder");
     } catch (e) {}
@@ -370,6 +377,7 @@ export default function CartPage() {
           order={completedOrder}
           onWhatsApp={handleSendWhatsApp}
           onContinue={handleContinueShopping}
+          whatsappEnviado={whatsappEnviado}
         />
       </main>
     );

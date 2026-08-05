@@ -47,42 +47,24 @@ export default function AuthRequiredPanel({
   }
 
   return (
-    <div className="card border-0 rounded-4 overflow-hidden" style={{
-      background: "rgba(15, 23, 42, 0.95)",
-      color: "#fff",
-      boxShadow: "0 25px 80px rgba(0, 0, 0, 0.35)",
-      maxWidth: "520px",
-      margin: "0 auto",
-    }}>
-      <div className="card-body p-4 p-md-5 text-center">
-        <div className="d-inline-flex align-items-center justify-content-center mb-3" style={{
-          width: "60px",
-          height: "60px",
-          borderRadius: "16px",
-          background: "linear-gradient(135deg, #f8fafc 0%, #8b5cf6 100%)",
-          color: "#111827",
-        }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <main className="auth-page">
+      <div className="auth-card">
+        <div className="auth-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </div>
-        <h3 className="h5 fw-bold mb-2">{heading}</h3>
-        <p className="small mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>
-          {message}
-        </p>
-        <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
-          <Link
-            href={redirectTo}
-            className="btn btn-lg rounded-pill border-0 px-4"
-            style={{
-              background: "linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)",
-              color: "#fff",
-            }}
-          >
+        <h1 className="auth-title">{heading}</h1>
+        <p className="auth-subtitle">{message}</p>
+        <div className="d-grid gap-2">
+          <Link href={redirectTo} className="primary-button">
             Iniciar sesión / Registrarme
+          </Link>
+          <Link href="/" className="auth-switch">
+            Volver al inicio
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -48,138 +48,98 @@ export default function RegistroPage() {
 
   if (enviado) {
     return (
-      <div className="min-vh-100 d-flex align-items-center justify-content-center bg-dark text-light px-3">
-        <div className="text-center" style={{ maxWidth: 480 }}>
-          <div
-            className="d-inline-flex align-items-center justify-content-center mb-3"
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 20,
-              background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-              color: "#fff",
-              fontSize: 28,
-            }}
-          >
-            ✓
+      <main className="auth-page">
+        <div className="auth-card">
+          <div className="auth-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
           </div>
-          <h1 className="h2 fw-bold mb-3">Registro recibido</h1>
-          <p className="text-muted mb-4">
+          <h1 className="auth-title">Registro recibido</h1>
+          <p className="auth-subtitle">
             Gracias por unirte a Noir Atelier. Revisa tu correo o inicia sesión para continuar.
           </p>
-          <div className="d-flex flex-wrap gap-2 justify-content-center">
-            <Link href="/acceso" className="btn btn-light rounded-pill px-4">
+          <div className="d-grid gap-2">
+            <Link href="/acceso" className="primary-button">
               Ir a acceso
             </Link>
-            <Link href="/" className="btn btn-outline-light rounded-pill px-4">
+            <Link href="/" className="auth-switch">
               Volver al inicio
             </Link>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-vh-100 bg-dark text-light py-5">
-      <div className="container" style={{ maxWidth: 600 }}>
-        <div className="text-center mb-5">
-          <p className="text-uppercase small mb-2" style={{ letterSpacing: "0.15em", color: "#a78bfa" }}>
-            Comunidad
-          </p>
-          <h1 className="fw-bold">Registro</h1>
-          <p className="text-muted">
-            Completa el formulario para unirte. ¿Ya tienes cuenta?{" "}
-            <Link href="/acceso" className="text-info text-decoration-none">
-              Inicia sesión
-            </Link>
-          </p>
-        </div>
+    <main className="auth-page">
+      <div className="auth-card">
+        <h1 className="auth-title">Registro</h1>
+        <p className="auth-subtitle">
+          Completa el formulario para unirte. ¿Ya tienes cuenta?{" "}
+          <Link href="/acceso" className="auth-switch">
+            Inicia sesión
+          </Link>
+        </p>
 
-        <div className="card border-0" style={{ background: "#1a1a1a" }}>
-          <div className="card-body p-4">
-            {error && (
-              <div className="alert alert-danger border-0 rounded-3" role="alert" aria-live="polite">
-                {error}
-              </div>
-            )}
+        {error && <p className="error" role="alert" aria-live="polite">{error}</p>}
 
-            <form onSubmit={handleSubmit} noValidate>
-              <div className="mb-3">
-                <label htmlFor="reg-nombre" className="form-label text-light">
-                  Nombre completo *
-                </label>
-                <input
-                  id="reg-nombre"
-                  type="text"
-                  className="form-control bg-dark text-white border-secondary"
-                  value={form.nombre}
-                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                  required
-                  disabled={loading}
-                  autoComplete="name"
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="reg-email" className="form-label text-light">
-                  Correo electrónico *
-                </label>
-                <input
-                  id="reg-email"
-                  type="email"
-                  className="form-control bg-dark text-white border-secondary"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  required
-                  disabled={loading}
-                  autoComplete="email"
-                />
-              </div>
-
-              <div className="mb-3">
-                <label htmlFor="reg-telefono" className="form-label text-light">
-                  Teléfono
-                </label>
-                <input
-                  id="reg-telefono"
-                  type="tel"
-                  className="form-control bg-dark text-white border-secondary"
-                  value={form.telefono}
-                  onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                  disabled={loading}
-                  autoComplete="tel"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="reg-mensaje" className="form-label text-light">
-                  Mensaje (opcional)
-                </label>
-                <textarea
-                  id="reg-mensaje"
-                  className="form-control bg-dark text-white border-secondary"
-                  rows="4"
-                  value={form.mensaje}
-                  onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
-                  disabled={loading}
-                />
-              </div>
-
-              <button type="submit" className="btn btn-light w-100" disabled={loading}>
-                {loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                    Enviando...
-                  </>
-                ) : (
-                  "Registrarse"
-                )}
-              </button>
-            </form>
+        <form onSubmit={handleSubmit} className="checkout-form" noValidate>
+          <div>
+            <label htmlFor="reg-nombre">Nombre completo *</label>
+            <input
+              id="reg-nombre"
+              type="text"
+              value={form.nombre}
+              onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+              required
+              disabled={loading}
+              autoComplete="name"
+            />
           </div>
-        </div>
+
+          <div>
+            <label htmlFor="reg-email">Correo electrónico *</label>
+            <input
+              id="reg-email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+              disabled={loading}
+              autoComplete="email"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="reg-telefono">Teléfono</label>
+            <input
+              id="reg-telefono"
+              type="tel"
+              value={form.telefono}
+              onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+              disabled={loading}
+              autoComplete="tel"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="reg-mensaje">Mensaje (opcional)</label>
+            <textarea
+              id="reg-mensaje"
+              rows={4}
+              value={form.mensaje}
+              onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
+              disabled={loading}
+            />
+          </div>
+
+          <button type="submit" className="primary-button" disabled={loading}>
+            {loading ? "Enviando..." : "Registrarse"}
+          </button>
+        </form>
       </div>
-    </div>
+    </main>
   );
 }

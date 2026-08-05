@@ -429,6 +429,7 @@ function TabPedidos() {
                   <th className="text-muted fw-normal small">Teléfono</th>
                   <th className="text-muted fw-normal small">Email</th>
                   <th className="text-muted fw-normal small">Total</th>
+                  <th className="text-muted fw-normal small">WhatsApp</th>
                   <th className="text-muted fw-normal small">Estado</th>
                   <th className="text-muted fw-normal small">Items</th>
                   <th className="text-muted fw-normal small">Fecha</th>
@@ -445,6 +446,13 @@ function TabPedidos() {
                         <td className="small">{p.cliente_telefono || "—"}</td>
                         <td className="small text-info">{p.cliente_email || "—"}</td>
                         <td className="fw-bold">$ {parseFloat(p.total).toFixed(2)} MXN</td>
+                        <td>
+                          {p.whatsapp_enviado_en ? (
+                            <span className="badge bg-success">✓ Enviado</span>
+                          ) : (
+                            <span className="badge bg-secondary">— Pendiente</span>
+                          )}
+                        </td>
                         <td>{getEstadoBadge(p.estado)}</td>
                         <td className="small">{totalItems} artículos</td>
                         <td className="text-muted small">{p.creado_en ? new Date(p.creado_en).toLocaleDateString("es-MX") : "—"}</td>

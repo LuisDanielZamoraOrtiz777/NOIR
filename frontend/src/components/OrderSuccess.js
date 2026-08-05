@@ -7,7 +7,7 @@ import Link from "next/link";
  * Muestra icono de check animado, número de cotización, resumen y CTAs.
  * Todo se presenta en Pesos Mexicanos (MXN).
  */
-export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
+export default function OrderSuccess({ order, onWhatsApp, onContinue, whatsappEnviado }) {
   if (!order) return null;
 
   const { orderId, total, items, customer } = order;
@@ -77,13 +77,17 @@ export default function OrderSuccess({ order, onWhatsApp, onContinue }) {
         >
           📱 Enviar cotización por WhatsApp
         </button>
-        <Link href="/tienda" className="secondary-button success-continue" onClick={onContinue}>
-          Seguir cotizando →
-        </Link>
+        {whatsappEnviado && (
+          <Link href="/tienda" className="secondary-button success-continue" onClick={onContinue}>
+            Seguir cotizando →
+          </Link>
+        )}
       </div>
 
       <p className="success-note">
-        Te contactaremos pronto por WhatsApp para confirmar los detalles de tu cotización.
+        {whatsappEnviado
+          ? "¡Listo! Ya puedes seguir cotizando o cerrar esta ventana."
+          : "Da clic arriba para enviar tu cotización por WhatsApp y completar el proceso — sin este paso, no llega al negocio."}
       </p>
     </section>
   );
