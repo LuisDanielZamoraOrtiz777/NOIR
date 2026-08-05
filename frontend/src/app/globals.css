@@ -26,59 +26,7 @@
   --hero-event-summary-border: rgba(0, 0, 0, 0.08);
 }
 
-/* ── CUSTOM CURSOR ──────────────────────────────────── */
-html.custom-cursor-enabled, html.custom-cursor-enabled body {
-  cursor: none !important;
-}
-html.custom-cursor-enabled button,
-html.custom-cursor-enabled a,
-html.custom-cursor-enabled input,
-html.custom-cursor-enabled textarea,
-html.custom-cursor-enabled select,
-html.custom-cursor-enabled label {
-  cursor: auto !important;
-}
-
-.custom-cursor-dot,
-.custom-cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate3d(-50%, -50%, 0);
-  transition: none;
-  z-index: 99999;
-}
-
-.custom-cursor-dot {
-  background: #111; /* small dark dot in center */
-  box-shadow: none;
-  width: 8px;
-  height: 8px;
-}
-
-.custom-cursor-ring {
-  width: 44px;
-  height: 44px;
-  border: 2px solid rgba(17, 17, 17, 0.95);
-  background: rgba(17, 17, 17, 0.06);
-  transform: translate3d(-50%, -50%, 0);
-  transition: none;
-  opacity: 0.98;
-}
-
-.custom-cursor-ring.is-pressed {
-  transform: translate3d(-50%, -50%, 0) scale(0.92);
-  opacity: 0.9;
-}
-
-.custom-cursor-ring.is-moving {
-  transform: translate3d(-50%, -50%, 0) scale(1);
-  opacity: 0.98;
-}
+/* custom cursor removed - native cursor restored */
 
 * {
   box-sizing: border-box;
