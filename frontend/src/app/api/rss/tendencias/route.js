@@ -23,19 +23,48 @@ async function fetchUrl(url, redirects = 0) {
   return response.text();
 }
 
-// ─── Helper: limpia HTML de texto plano ──────────────────────────────────────
-function limpiarHTML(str) {
+// ─── Helper: decodifica entidades HTML simples ─────────────────────────────────
+function decodeHtmlEntities(str) {
   if (!str) return "";
   return str
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&#(\d+);/g, (_match, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_match, code) => String.fromCharCode(parseInt(code, 16)));
+}
+
+// ─── Helper: limpia HTML/texto markdown y corta a una longitud razonable ───────
+function limpiarTextoPlano(str) {
+  if (!str) return "";
+  let texto = str
+    .replace(/<!\[CDATA\[|\]\]>/g, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&/g, "&")
-    .replace(/</g, "<")
-    .replace(/>/g, ">")
-    .replace(/"/g, '"')
+    .replace(/!\[[^\]]*\]\([^\)]+\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+    .replace(/https?:\/\/\S+/g, " ")
+    .replace(/\s*\#{1,6}\s*/g, " ")
     .replace(/\s{2,}/g, " ")
-    .trim()
-    .slice(0, 220);
+    .trim();
+
+  texto = decodeHtmlEntities(texto);
+  texto = texto.replace(/[\r\n]+/g, " ").replace(/\s{2,}/g, " ").trim();
+
+  if (texto.length > 220) {
+    texto = texto.slice(0, 220).trim();
+    const ultimaPuntuacion = Math.max(texto.lastIndexOf("."), texto.lastIndexOf("?"), texto.lastIndexOf("!"));
+    if (ultimaPuntuacion > 60) {
+      texto = texto.slice(0, ultimaPuntuacion + 1);
+    }
+    texto = texto.replace(/\s+$/, "") + "…";
+  }
+
+  return texto;
 }
 
 // ─── Helper: parsea feed XML ──────────────────────────────────────────────────
@@ -83,10 +112,10 @@ async function parseRSS(xml, fuente) {
     if (!imagenUrl) continue;
 
     items.push({
-      titulo: titleMatch ? titleMatch[1].replace(/<[^>]+>/g, "").trim() : "Sin título",
-      resumen: descMatch ? limpiarHTML(descMatch[1]) : "",
+      titulo: titleMatch ? limpiarTextoPlano(titleMatch[1]) : "Sin título",
+      resumen: descMatch ? limpiarTextoPlano(descMatch[1]) : "",
       imagen: imagenUrl,
-      enlace: linkMatch ? linkMatch[1].replace(/<[^>]+>/g, "").trim() : "#",
+      enlace: linkMatch ? limpiarTextoPlano(linkMatch[1]) : "#",
       fecha: dateMatch ? dateMatch[1].trim() : null,
       fuente,
     });
