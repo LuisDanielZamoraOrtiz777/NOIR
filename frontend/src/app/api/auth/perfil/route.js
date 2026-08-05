@@ -15,13 +15,15 @@ export async function PATCH(request) {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    const { nombre, email, passwordActual, passwordNuevo } = await request.json();
+    const { nombre, email, telefono, passwordActual, passwordNuevo } = await request.json();
 
     // Conectar a Neon
     const sql = neon(process.env.DATABASE_URL);
 
     // Verificar que el usuario existe
-    const usuarios = await sql`SELECT id, email, password_hash FROM users WHERE id = ${decoded.id}`;
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS nombre TEXT`;
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS telefono TEXT`;
+    const usuarios = await sql`SELECT id, email, password_hash, nombre, telefono FROM users WHERE id = ${decoded.id}`;
     if (usuarios.length === 0) {
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
     }
@@ -52,22 +54,22 @@ export async function PATCH(request) {
       }
     }
 
-    // Actualizar usuario (solo email y password_hash, ya que la tabla no tiene nombre/telefono)
+    // Actualizar usuario con email, nombre y teléfono
     let result;
     if (passwordNuevo) {
       const passwordHash = await bcrypt.hash(passwordNuevo, 10);
       result = await sql`
         UPDATE users 
-        SET email = ${email}, password_hash = ${passwordHash}
+        SET email = ${email}, nombre = ${nombre || usuario.nombre || email.split('@')[0]}, telefono = ${telefono || null}, password_hash = ${passwordHash}
         WHERE id = ${decoded.id}
-        RETURNING id, email, rol, created_at
+        RETURNING id, email, rol, nombre, telefono, created_at
       `;
     } else {
       result = await sql`
         UPDATE users 
-        SET email = ${email}
+        SET email = ${email}, nombre = ${nombre || usuario.nombre || email.split('@')[0]}, telefono = ${telefono || null}
         WHERE id = ${decoded.id}
-        RETURNING id, email, rol, created_at
+        RETURNING id, email, rol, nombre, telefono, created_at
       `;
     }
 
@@ -86,8 +88,9 @@ export async function PATCH(request) {
       token: nuevoToken,
       user: {
         id: usuarioActualizado.id,
-        nombre: nombre || email.split('@')[0],
+        nombre: usuarioActualizado.nombre || nombre || email.split('@')[0],
         email: usuarioActualizado.email,
+        telefono: usuarioActualizado.telefono || null,
         rol: usuarioActualizado.rol,
       },
     });

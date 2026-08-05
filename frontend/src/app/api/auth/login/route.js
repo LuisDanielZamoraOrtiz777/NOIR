@@ -23,9 +23,9 @@ export async function POST(request) {
     // Conectar a Neon
     const sql = neon(process.env.DATABASE_URL);
 
-    // Consultar usuario (estructura original de la tabla)
+    // Consultar usuario y campos opcionales
     const usuarios = await sql`
-      SELECT id, email, password_hash, rol, created_at
+      SELECT id, email, password_hash, rol, created_at, nombre, telefono
       FROM users
       WHERE email = ${email}
     `;
@@ -76,8 +76,9 @@ export async function POST(request) {
       token,
       user: {
         id: usuario.id,
-        nombre: email.split('@')[0],
+        nombre: usuario.nombre || email.split('@')[0],
         email: usuario.email,
+        telefono: usuario.telefono || null,
         rol: rolNombre,
       },
     });

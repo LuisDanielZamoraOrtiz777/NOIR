@@ -39,18 +39,22 @@ export async function POST(request) {
     // Hash del password
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Crear usuario (estructura original de la tabla)
+    // Asegurar que la tabla puede guardar nombre y teléfono cuando no existan aún
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS nombre TEXT`;
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS telefono TEXT`;
+
+    // Crear usuario con nombre y teléfono
     const result = await sql`
-      INSERT INTO users (email, password_hash, rol) 
-      VALUES (${email.trim()}, ${passwordHash}, 'usuario')
-      RETURNING id, email, rol, created_at
+      INSERT INTO users (email, password_hash, rol, nombre, telefono)
+      VALUES (${email.trim()}, ${passwordHash}, 'usuario', ${nombre?.trim() || email.split('@')[0]}, ${telefono?.trim() || null})
+      RETURNING id, email, rol, nombre, telefono, created_at
     `;
 
     const usuario = result[0];
 
     // Generar JWT
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, rol: usuario.rol, nombre: nombre || email.split('@')[0] },
+      { id: usuario.id, email: usuario.email, rol: usuario.rol, nombre: usuario.nombre, telefono: usuario.telefono },
       JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -61,8 +65,9 @@ export async function POST(request) {
       token,
       user: {
         id: usuario.id,
-        nombre: nombre || email.split('@')[0],
+        nombre: usuario.nombre || nombre || email.split('@')[0],
         email: usuario.email,
+        telefono: usuario.telefono || null,
         rol: usuario.rol,
       },
     }, { status: 201 });

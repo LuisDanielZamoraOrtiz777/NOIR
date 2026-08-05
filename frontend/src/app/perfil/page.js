@@ -123,23 +123,18 @@ export default function PerfilPage() {
         throw new Error(data.detail || data.error || "Error al actualizar perfil");
       }
 
-      // Actualizar localStorage
+      // Actualizar localStorage y estado sin recargar la página
       localStorage.setItem("user_data", JSON.stringify(data.user));
       setUser(data.user);
-      setMessage({ type: "success", text: "Perfil actualizado exitosamente" });
-      
-      // Limpiar campos de contraseña
       setForm({
-        ...form,
+        nombre: data.user.nombre || "",
+        email: data.user.email || "",
+        telefono: data.user.telefono || "",
         passwordActual: "",
         passwordNuevo: "",
         passwordConfirmar: ""
       });
-
-      // Recargar la página para actualizar el Header
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setMessage({ type: "success", text: "Perfil actualizado exitosamente" });
 
     } catch (error) {
       setMessage({ type: "danger", text: error.message });
@@ -161,11 +156,11 @@ export default function PerfilPage() {
 
   return (
     <RouteProtector tokenKey="user_token" redirectTo="/acceso">
-      <div className="min-vh-100 bg-dark text-light py-5">
-        <div className="container" style={{ maxWidth: 700 }}>
-          <div className="text-center mb-5">
-            <h1 className="fw-bold">Mi Perfil</h1>
-            <p className="text-muted">Personaliza tu información</p>
+      <main className="auth-page">
+        <div className="auth-card" style={{ width: "100%", maxWidth: 700, padding: "36px 32px" }}>
+          <div className="text-center mb-4">
+            <h1 className="auth-title">Mi Perfil</h1>
+            <p className="auth-subtitle">Personaliza tu información</p>
           </div>
 
           {message.text && (
@@ -175,21 +170,19 @@ export default function PerfilPage() {
             </div>
           )}
 
-          <div className="card border-0" style={{ background: "#1a1a1a" }}>
-            <div className="card-body p-4 p-md-5">
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label htmlFor="nombre" className="form-label text-light">Nombre *</label>
-                  <input
-                    type="text"
-                    className="form-control bg-dark text-white border-secondary"
-                    id="nombre"
-                    value={form.nombre}
-                    onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                    required
-                    disabled={saving}
-                  />
-                </div>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="nombre" className="form-label text-light">Nombre *</label>
+              <input
+                type="text"
+                className="form-control bg-dark text-white border-secondary"
+                id="nombre"
+                value={form.nombre}
+                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                required
+                disabled={saving}
+              />
+            </div>
 
                 <div className="mb-4">
                   <label htmlFor="email" className="form-label text-light">Correo electrónico *</label>

@@ -19,8 +19,8 @@ export async function GET(request) {
 
     // Verificar que el usuario existe
     const usuarios = await sql`
-      SELECT id, email, rol, created_at 
-      FROM users 
+      SELECT id, email, rol, created_at, nombre, telefono
+      FROM users
       WHERE id = ${decoded.id}
     `;
 
@@ -34,8 +34,9 @@ export async function GET(request) {
       status: "success",
       user: {
         id: usuario.id,
-        nombre: decoded.nombre || usuario.email.split('@')[0],
+        nombre: usuario.nombre || decoded.nombre || usuario.email.split('@')[0],
         email: usuario.email,
+        telefono: usuario.telefono || decoded.telefono || null,
         rol: usuario.rol || decoded.rol,
       },
     });
