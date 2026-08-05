@@ -272,7 +272,6 @@ export default function PerfilPage() {
                 ) : null}
                 {saving ? "Guardando..." : "Guardar cambios"}
               </button>
-              <button type="button" className="auth-switch" onClick={() => router.push("/")}>Volver al inicio</button>
             </div>
           </form>
         </div>
@@ -280,8 +279,6 @@ export default function PerfilPage() {
     </RouteProtector>
   );
 }
-
-function SendToAdmin({ user }) {
   const [messageText, setMessageText] = useState("");
   const [loadingMsg, setLoadingMsg] = useState(false);
   const [status, setStatus] = useState({ type: "", text: "" });
