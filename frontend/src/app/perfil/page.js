@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import RouteProtector from "@/components/RouteProtector";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 function getApiBase() {
   const base = process.env.NEXT_PUBLIC_API_BASE?.trim() || "";
@@ -157,127 +156,128 @@ export default function PerfilPage() {
   return (
     <RouteProtector tokenKey="user_token" redirectTo="/acceso">
       <main className="auth-page">
-        <div className="auth-card" style={{ width: "100%", maxWidth: 700, padding: "36px 32px" }}>
+        <div className="auth-card" style={{ width: "100%", maxWidth: 620, padding: "48px 40px" }}>
+          <div className="auth-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
           <div className="text-center mb-4">
             <h1 className="auth-title">Mi Perfil</h1>
             <p className="auth-subtitle">Personaliza tu información</p>
           </div>
 
           {message.text && (
-            <div className={`alert alert-${message.type} alert-dismissible`} role="alert">
+            <div className={`alert alert-${message.type}`} role="alert" style={{ position: "relative" }}>
               {message.text}
-              <button type="button" className="btn-close" onClick={() => setMessage({ type: "", text: "" })}></button>
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="nombre" className="form-label text-light">Nombre *</label>
+          <form onSubmit={handleSubmit} className="checkout-form">
+            <div>
+              <label htmlFor="nombre">Nombre completo *</label>
               <input
                 type="text"
-                className="form-control bg-dark text-white border-secondary"
+                className="form-control"
                 id="nombre"
                 value={form.nombre}
                 onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                 required
                 disabled={saving}
+                placeholder="Tu nombre"
+                autoComplete="name"
               />
             </div>
 
-                <div className="mb-4">
-                  <label htmlFor="email" className="form-label text-light">Correo electrónico *</label>
-                  <input
-                    type="email"
-                    className="form-control bg-dark text-white border-secondary"
-                    id="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    required
-                    disabled={saving}
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="telefono" className="form-label text-light">Teléfono (opcional)</label>
-                  <input
-                    type="tel"
-                    className="form-control bg-dark text-white border-secondary"
-                    id="telefono"
-                    value={form.telefono}
-                    onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    disabled={saving}
-                  />
-                </div>
-
-                <hr className="border-secondary my-4" />
-                <h5 className="text-white mb-3">Cambiar Contraseña</h5>
-                <p className="text-muted small mb-3">Déjala en blanco si no quieres cambiarla</p>
-
-                <div className="mb-4">
-                  <label htmlFor="passwordActual" className="form-label text-light">Contraseña actual</label>
-                  <input
-                    type="password"
-                    className="form-control bg-dark text-white border-secondary"
-                    id="passwordActual"
-                    value={form.passwordActual}
-                    onChange={(e) => setForm({ ...form, passwordActual: e.target.value })}
-                    disabled={saving}
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="passwordNuevo" className="form-label text-light">Nueva contraseña</label>
-                  <input
-                    type="password"
-                    className="form-control bg-dark text-white border-secondary"
-                    id="passwordNuevo"
-                    value={form.passwordNuevo}
-                    onChange={(e) => setForm({ ...form, passwordNuevo: e.target.value })}
-                    disabled={saving}
-                    minLength={6}
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="passwordConfirmar" className="form-label text-light">Confirmar nueva contraseña</label>
-                  <input
-                    type="password"
-                    className="form-control bg-dark text-white border-secondary"
-                    id="passwordConfirmar"
-                    value={form.passwordConfirmar}
-                    onChange={(e) => setForm({ ...form, passwordConfirmar: e.target.value })}
-                    disabled={saving}
-                    minLength={6}
-                  />
-                </div>
-
-                <div className="d-grid gap-2">
-                  <button
-                    type="submit"
-                    className="btn btn-light btn-lg"
-                    disabled={saving}
-                  >
-                    {saving ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Guardando...
-                      </>
-                    ) : (
-                      "Guardar Cambios"
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline-light"
-                    onClick={() => router.push("/")}
-                  >
-                    Volver al Inicio
-                  </button>
-                </div>
-              </form>
+            <div>
+              <label htmlFor="email">Correo electrónico *</label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                required
+                disabled={saving}
+                placeholder="tu@correo.com"
+                autoComplete="email"
+              />
             </div>
-          </main>
-        </RouteProtector>
+
+            <div>
+              <label htmlFor="telefono">Teléfono (opcional)</label>
+              <input
+                type="tel"
+                className="form-control"
+                id="telefono"
+                value={form.telefono}
+                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                disabled={saving}
+                placeholder="+52 123 456 7890"
+                autoComplete="tel"
+              />
+            </div>
+
+            <hr />
+            <div>
+              <h5>Cambiar contraseña</h5>
+              <p className="text-muted small">Déjala en blanco si no quieres cambiarla</p>
+            </div>
+
+            <div>
+              <label htmlFor="passwordActual">Contraseña actual</label>
+              <input
+                type="password"
+                className="form-control"
+                id="passwordActual"
+                value={form.passwordActual}
+                onChange={(e) => setForm({ ...form, passwordActual: e.target.value })}
+                disabled={saving}
+                autoComplete="current-password"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="passwordNuevo">Nueva contraseña</label>
+              <input
+                type="password"
+                className="form-control"
+                id="passwordNuevo"
+                value={form.passwordNuevo}
+                onChange={(e) => setForm({ ...form, passwordNuevo: e.target.value })}
+                disabled={saving}
+                minLength={6}
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="passwordConfirmar">Confirmar nueva contraseña</label>
+              <input
+                type="password"
+                className="form-control"
+                id="passwordConfirmar"
+                value={form.passwordConfirmar}
+                onChange={(e) => setForm({ ...form, passwordConfirmar: e.target.value })}
+                disabled={saving}
+                minLength={6}
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div className="d-grid gap-2">
+              <button type="submit" className="primary-button" disabled={saving}>
+                {saving ? (
+                  <span className="btn-spinner" role="status" aria-hidden="true" style={{ marginRight: 10 }}></span>
+                ) : null}
+                {saving ? "Guardando..." : "Guardar cambios"}
+              </button>
+              <button type="button" className="auth-switch" onClick={() => router.push("/")}>Volver al inicio</button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </RouteProtector>
   );
 }
 
