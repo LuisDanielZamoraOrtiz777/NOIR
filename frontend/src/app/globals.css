@@ -54,30 +54,30 @@ html.custom-cursor-enabled label {
 }
 
 .custom-cursor-dot {
-  background: #9e9e9e;
+  background: #111; /* small dark dot in center */
   box-shadow: none;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 .custom-cursor-ring {
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(158, 158, 158, 0.95);
-  background: rgba(158, 158, 158, 0.06);
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(17, 17, 17, 0.95);
+  background: rgba(17, 17, 17, 0.06);
   transform: translate3d(-50%, -50%, 0);
   transition: none;
-  opacity: 0.95;
+  opacity: 0.98;
 }
 
 .custom-cursor-ring.is-pressed {
-  transform: translate3d(-50%, -50%, 0) scale(0.95);
+  transform: translate3d(-50%, -50%, 0) scale(0.92);
   opacity: 0.9;
 }
 
 .custom-cursor-ring.is-moving {
   transform: translate3d(-50%, -50%, 0) scale(1);
-  opacity: 0.95;
+  opacity: 0.98;
 }
 
 * {

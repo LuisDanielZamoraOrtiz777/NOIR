@@ -36,28 +36,16 @@ export default function CustomCursor() {
 
     const onPointerDown = () => ringRef.current?.classList.add("is-pressed");
     const onPointerUp = () => ringRef.current?.classList.remove("is-pressed");
-    const onPointerLeave = () => {
-      if (ringRef.current) ringRef.current.style.opacity = "0";
-      if (dotRef.current) dotRef.current.style.opacity = "0";
-    };
 
-    const onPointerEnter = () => {
-      if (ringRef.current) ringRef.current.style.opacity = "0.85";
-      if (dotRef.current) dotRef.current.style.opacity = "1";
-    };
-
+    // Always keep the cursor visible while enabled; immediate follow (no delay)
     window.addEventListener("mousemove", updateMouse);
     window.addEventListener("mousedown", onPointerDown);
     window.addEventListener("mouseup", onPointerUp);
-    window.addEventListener("mouseout", onPointerLeave);
-    window.addEventListener("mouseenter", onPointerEnter);
 
     return () => {
       window.removeEventListener("mousemove", updateMouse);
       window.removeEventListener("mousedown", onPointerDown);
       window.removeEventListener("mouseup", onPointerUp);
-      window.removeEventListener("mouseout", onPointerLeave);
-      window.removeEventListener("mouseenter", onPointerEnter);
       html.classList.remove("custom-cursor-enabled");
     };
   }, []);
