@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/opinion", label: "Opinión" },
   { href: "/revistas", label: "Revistas" },
   { href: "/tienda", label: "Tienda" },
+  { href: "/nosotros", label: "Nosotros" },
 ];
 
 export default function Header() {

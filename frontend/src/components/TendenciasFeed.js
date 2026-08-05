@@ -67,7 +67,7 @@ function TendenciaCard({ articulo }) {
   );
 }
 
-export default function TendenciasFeed({ limite }) {
+export default function TendenciasFeed({ limite, query }) {
   const [articulos, setArticulos] = useState([]);
   const [fuentes, setFuentes]     = useState([]);
   const [filtro, setFiltro]       = useState("Todas");
@@ -96,9 +96,17 @@ export default function TendenciasFeed({ limite }) {
     fetchTendencias();
   }, []);
 
+  const normalizedQuery = query?.toString().trim().toLowerCase();
   const articulosFiltrados = (
     filtro === "Todas" ? articulos : articulos.filter((a) => a.fuente === filtro)
-  ).slice(0, limite || 999);
+  ).filter((articulo) => {
+    if (!normalizedQuery) return true;
+    const combined = [articulo.titulo, articulo.resumen, articulo.fuente, articulo.pais]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return combined.includes(normalizedQuery);
+  }).slice(0, limite || 999);
 
   return (
     <div className="tendencias-feed">

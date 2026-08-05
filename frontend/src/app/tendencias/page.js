@@ -7,7 +7,9 @@ export const metadata = {
     "Las últimas tendencias de moda internacional curadas desde Harper's Bazaar, Elle, Highsnobiety y más.",
 };
 
-export default function TendenciasPage() {
+export default function TendenciasPage({ searchParams }) {
+  const query = searchParams?.q || "";
+
   return (
     <main className="section-block page-content">
       {/* Hero de la página */}
@@ -46,12 +48,18 @@ export default function TendenciasPage() {
             Highsnobiety ↗
           </a>
         </div>
+
+        {query ? (
+          <p className="search-summary">
+            Resultados de búsqueda para: <strong>"{query}"</strong>
+          </p>
+        ) : null}
       </section>
 
       {/* Feed dinámico de artículos RSS */}
       <section className="tendencias-feed-section" data-element="tendencias-feed">
         <h2>Artículos recientes</h2>
-        <TendenciasFeed />
+        <TendenciasFeed query={query} />
       </section>
 
       {/* Nota editorial */}

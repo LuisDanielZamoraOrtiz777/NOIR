@@ -84,30 +84,17 @@ export default function RootLayout({ children }) {
     "@type": "WebSite",
     name: "Noir Atelier",
     url: BASE_URL,
-    description:
-      "Blog editorial de moda, tendencias, pasarelas y cultura fashion.",
+    description: "Blog editorial de moda, tendencias, pasarelas y cultura fashion.",
     potentialAction: {
       "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${BASE_URL}/buscar?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
+      target: `${BASE_URL}/tendencias?q={search_term_string}`,
+      queryInput: "required name=search_term_string",
     },
   };
 
   return (
     <html lang="es">
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('noir-theme');var d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(s==='dark'||(!s&&d))document.documentElement.classList.add('dark');}catch(e){}})();`,
-          }}
-        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
         <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" />
@@ -118,6 +105,18 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
         <link rel="alternate" type="application/rss+xml" title="Noir Atelier RSS" href={`${BASE_URL}/api/rss/tendencias`} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('noir-theme');var d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(s==='dark'||(!s&&d))document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-XXXXXXXXXX', { page_path: window.location.pathname });`,
+          }}
+        />
       </head>
       <body>
         <ThemeProvider>

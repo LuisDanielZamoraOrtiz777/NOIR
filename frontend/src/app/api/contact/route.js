@@ -6,26 +6,34 @@ const TIPOS_PERMITIDOS = new Set(["mensaje", "colaboracion"]);
 
 export async function POST(request) {
   try {
-    // 1) Auth obligatoria: solo usuarios autenticados pueden escribir al admin
-    const auth = authenticateUser(request);
-    if (auth.status !== 200) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const authHeader = request.headers.get("Authorization");
+    let user = null;
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const auth = authenticateUser(request);
+      if (auth.status !== 200) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
+      }
+      user = auth.user;
     }
 
-    const user = auth.user;
-    const userId = user.id;
-    const safeName = user.nombre || user.email || "Usuario";
-    const safeEmail = user.email || "no-reply@noiratelier.com";
-
-    // 2) Cuerpo: sólo leemos el mensaje y el tipo. name/email vienen SIEMPRE del JWT.
     const body = await request.json().catch(() => ({}));
     const safeMessage = (body?.message || "").toString().trim();
     const rawTipo = (body?.tipo || "mensaje").toString().toLowerCase();
     const kind = TIPOS_PERMITIDOS.has(rawTipo) ? rawTipo : "mensaje";
+    const safeEmail = user?.email || (body?.email || "").toString().trim();
+    const safeName = user?.nombre || body?.name || safeEmail || "Usuario";
 
     if (!safeMessage) {
       return NextResponse.json(
         { error: "El mensaje no puede estar vacío." },
+        { status: 400 }
+      );
+    }
+
+    if (!safeEmail) {
+      return NextResponse.json(
+        { error: "Escribe tu correo electrónico para que podamos responder." },
         { status: 400 }
       );
     }
@@ -37,6 +45,7 @@ export async function POST(request) {
       );
     }
 
+    const userId = user?.id || null;
     console.log("POST /api/contact from user:", { id: userId, email: safeEmail, kind });
 
     // 3) Asegurar la columna `kind` (idempotente, compatible con Neon/Postgres).
