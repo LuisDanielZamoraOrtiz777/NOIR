@@ -28,7 +28,7 @@
 
 /* ── CUSTOM CURSOR ──────────────────────────────────── */
 html.custom-cursor-enabled, html.custom-cursor-enabled body {
-  cursor: none;
+  cursor: none !important;
 }
 html.custom-cursor-enabled button,
 html.custom-cursor-enabled a,
@@ -49,33 +49,35 @@ html.custom-cursor-enabled label {
   border-radius: 50%;
   pointer-events: none;
   transform: translate3d(-50%, -50%, 0);
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition: none;
   z-index: 99999;
 }
 
 .custom-cursor-dot {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  background: #9e9e9e;
+  box-shadow: none;
+  width: 10px;
+  height: 10px;
 }
 
 .custom-cursor-ring {
   width: 36px;
   height: 36px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(158, 158, 158, 0.95);
+  background: rgba(158, 158, 158, 0.06);
   transform: translate3d(-50%, -50%, 0);
-  transition: transform 220ms ease, opacity 220ms ease;
-  opacity: 0.85;
+  transition: none;
+  opacity: 0.95;
 }
 
 .custom-cursor-ring.is-pressed {
-  transform: translate3d(-50%, -50%, 0) scale(0.85);
-  opacity: 0.65;
+  transform: translate3d(-50%, -50%, 0) scale(0.95);
+  opacity: 0.9;
 }
 
 .custom-cursor-ring.is-moving {
-  transform: translate3d(-50%, -50%, 0) scale(1.18);
-  opacity: 1;
+  transform: translate3d(-50%, -50%, 0) scale(1);
+  opacity: 0.95;
 }
 
 * {

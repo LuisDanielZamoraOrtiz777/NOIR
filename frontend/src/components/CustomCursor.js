@@ -15,7 +15,6 @@ const prefersReducedMotion = () => {
 export default function CustomCursor() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
-  const frameRef = useRef(null);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -26,49 +25,39 @@ export default function CustomCursor() {
     html.classList.add("custom-cursor-enabled");
     setEnabled(true);
 
-    let mouseX = window.innerWidth / 2;
-    let mouseY = window.innerHeight / 2;
-    let ringX = mouseX;
-    let ringY = mouseY;
-    const speed = 0.15;
-
     const updateMouse = ({ clientX, clientY }) => {
-      mouseX = clientX;
-      mouseY = clientY;
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${clientX}px, ${clientY}px, 0)`;
       }
       if (ringRef.current) {
-        ringRef.current.classList.add("is-moving");
+        ringRef.current.style.transform = `translate3d(${clientX}px, ${clientY}px, 0)`;
       }
-    };
-
-    const animate = () => {
-      ringX += (mouseX - ringX) * speed;
-      ringY += (mouseY - ringY) * speed;
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-      }
-      frameRef.current = requestAnimationFrame(animate);
     };
 
     const onPointerDown = () => ringRef.current?.classList.add("is-pressed");
     const onPointerUp = () => ringRef.current?.classList.remove("is-pressed");
-    const onPointerLeave = () => ringRef.current?.classList.remove("is-moving");
+    const onPointerLeave = () => {
+      if (ringRef.current) ringRef.current.style.opacity = "0";
+      if (dotRef.current) dotRef.current.style.opacity = "0";
+    };
+
+    const onPointerEnter = () => {
+      if (ringRef.current) ringRef.current.style.opacity = "0.85";
+      if (dotRef.current) dotRef.current.style.opacity = "1";
+    };
 
     window.addEventListener("mousemove", updateMouse);
     window.addEventListener("mousedown", onPointerDown);
     window.addEventListener("mouseup", onPointerUp);
     window.addEventListener("mouseout", onPointerLeave);
-
-    animate();
+    window.addEventListener("mouseenter", onPointerEnter);
 
     return () => {
       window.removeEventListener("mousemove", updateMouse);
       window.removeEventListener("mousedown", onPointerDown);
       window.removeEventListener("mouseup", onPointerUp);
       window.removeEventListener("mouseout", onPointerLeave);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      window.removeEventListener("mouseenter", onPointerEnter);
       html.classList.remove("custom-cursor-enabled");
     };
   }, []);
