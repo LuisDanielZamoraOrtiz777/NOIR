@@ -47,7 +47,7 @@ export default function LooksPage({ searchParams }) {
       {query && (
         <div className="search-results-banner">
           <p>
-            Resultados de búsqueda para: <strong>"{query}"</strong> ({filteredLooks.length} {filteredLooks.length === 1 ? "resultado encontrado" : "resultados encontrados"})
+            Resultados de búsqueda para: <strong>&ldquo;{query}&rdquo;</strong> ({filteredLooks.length} {filteredLooks.length === 1 ? "resultado encontrado" : "resultados encontrados"})
           </p>
           <a href="/loits" className="clear-search-link">
             Limpiar búsqueda

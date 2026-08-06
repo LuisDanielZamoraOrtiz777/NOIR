@@ -175,7 +175,7 @@ function TabEditoriales() {
       {tablaFalta && (
         <div className="alert alert-warning d-flex align-items-center justify-content-between gap-3">
           <div>
-            <strong>⚠️ La tabla "editoriales" no existe en la base de datos.</strong><br/>
+            <strong>⚠️ La tabla &ldquo;editoriales&rdquo; no existe en la base de datos.</strong><br/>
             <span className="small">Haz clic en el botón para crearla y cargar las editoriales de ejemplo.</span>
           </div>
           <button className="btn btn-warning fw-bold flex-shrink-0" onClick={runSetup} disabled={setting}>

@@ -67,7 +67,7 @@ export default function PerfilPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
