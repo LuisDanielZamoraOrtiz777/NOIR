@@ -75,6 +75,16 @@ export default function RouteProtector({ tokenKey, redirectTo = "/acceso", requi
     }
   }, [clearSession, requiredRole, tokenKey]);
 
+  useEffect(() => {
+    const token = localStorage.getItem(tokenKey);
+    if (!token) {
+      setIsAuthorized(false);
+      setIsLoading(false);
+      return;
+    }
+    verifyToken(token);
+  }, [tokenKey, verifyToken]);
+
   // Mostrar loading mientras se verifica
   if (isLoading) {
     return (
