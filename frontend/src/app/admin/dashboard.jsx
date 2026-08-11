@@ -952,7 +952,6 @@ export default function AdminDashboard() {
             {[
               { key: "usuarios", label: "👥 Usuarios" },
               { key: "pedidos", label: "📦 Cotizaciones" },
-              { key: "os-accounts", label: "🖥️ Cuentas SO" },
               { key: "contactos", label: "💬 Contactos" },
               { key: "partners", label: "🔗 Páginas hermanas" },
               { key: "productos", label: "🛍️ Productos" },
@@ -974,16 +973,6 @@ export default function AdminDashboard() {
           {tab === "pedidos" && <TabPedidos />}
           {tab === "productos" && <TabProductos />}
           {tab === "publicados" && <TabPublicados />}
-          {tab === "os-accounts" && (
-            <div className="text-center py-5">
-              <p className="text-muted mb-3">
-                La gestión de cuentas del sistema operativo se abrió en una pestaña dedicada.
-              </p>
-              <a href="/admin/os-accounts" className="btn btn-outline-light">
-                Abrir gestión de cuentas SO →
-              </a>
-            </div>
-          )}
           {tab === "contactos" && <TabContactos />}
         </div>
       </div>
